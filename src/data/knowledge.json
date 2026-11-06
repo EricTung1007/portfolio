@@ -1,0 +1,131 @@
+{
+  "profile": {
+    "name": "Eric (eric.exe)",
+    "tagline": "Hi, I'm Eric — a backend/AI developer with a nursing background. Ask me anything about my education, skills, or projects.",
+    "contact": {
+      "email": "erictung911007@gmail.com",
+      "github": "https://github.com/EricTung1007",
+      "linkedin": "https://www.linkedin.com/in/erictung1007",
+      "orcid": "https://orcid.org/0009-0001-6245-4935"
+    }
+  },
+  "publications": [
+    {
+      "title": "Enhancing Students' Critical Evaluation of AI Versus Human-Generated Literature Reviews: Deliberative Pedagogy",
+      "journal": "Journal of Nursing Education",
+      "year": "2026",
+      "doi": "https://doi.org/10.3928/01484834-20261009-02"
+    }
+  ],
+  "education": [
+    {
+      "institution": "National Taiwan University",
+      "degree": "B.S. in Nursing",
+      "location": "Taipei, Taiwan",
+      "details": [
+        "12 credits in Python, programming, data analysis, and machine learning",
+        "2026 Global Health Innovation Grand Challenge: Grand Finalist, 1 of 8 finalist teams from 48 global submissions",
+        "2025 NTU Nursing International Forum: Poster presentation on an AI-driven RAG chatbot for personalized prenatal education",
+        "TOEIC 925; GEPT High-Intermediate"
+      ]
+    }
+  ],
+  "experience": [
+    {
+      "company": "Cathay Holdings Digital, Data & Technology Center (DDT)",
+      "role": "AI Engineering Intern",
+      "period": "Feb 2026 - Jun 2026",
+      "achievements": [
+        "Optimized local LLM inference and developed prompt/evaluation harness workflows for enterprise AI use cases; contributed to vendor-independent AI pipeline architecture.",
+        "Built a multilingual (EN/ZH/VI) promotional site for an LLM + RAG-powered AI Coach platform."
+      ]
+    },
+    {
+      "company": "BenQ Guru",
+      "role": "Software Research & Development Intern",
+      "period": "Jun 2024 - Mar 2025",
+      "achievements": [
+        "Maintained and contributed to an existing .NET MAUI cross-platform application, including basic JavaScript/HTML frontend work, code review, and sprint planning."
+      ]
+    },
+    {
+      "company": "Deloitte Consulting",
+      "role": "SAP ABAP Developer Intern",
+      "period": "Feb 2024 - Jun 2024",
+      "achievements": [
+        "Customized ERP workflows with SAP ABAP, implemented MySQL stored procedures, and produced technical documentation."
+      ]
+    },
+    {
+      "company": "National Taiwan University Hospital",
+      "role": "Clinical Training / Nursing Practice",
+      "period": "Apr 2023 - 2026",
+      "achievements": [
+        "Completed clinical rotations across medical, surgical, and specialty units, with direct experience in nursing assessment, patient education, documentation, and bedside workflow.",
+        "Clinical experience informs the design of healthcare software around real users, documentation burden, safety, privacy, and varied levels of digital literacy."
+      ]
+    }
+  ],
+  "skills": {
+    "core": ["Python", "SQL"],
+    "backend_data": ["SQLite", "MySQL", "REST APIs", "stored procedures", "JWT authentication", "Node.js / Express"],
+    "ai_tools": ["RAG", "FAISS", "local LLM inference", "LM Studio", "prompt engineering", "evaluation harnesses", "Docker", "Git/GitHub", ".NET MAUI"],
+    "working_familiarity": ["JavaScript", "C#", "SAP ABAP", "HTML/CSS"]
+  },
+  "projects": [
+    {
+      "title": "AI-Driven Prenatal Education Chatbot",
+      "role": "Principal Developer & Student Researcher",
+      "year": "2024 - 2025",
+      "description": [
+        "Built a bilingual (ZH/EN) RAG chatbot delivered through LINE, using a locally hosted chat model (LM Studio), FAISS vector retrieval over official Taiwanese maternal-health PDFs, and per-user memory for pregnancy week, G/P, and role.",
+        "Applied clinical-domain knowledge to structure prenatal education content, reduce hallucination risk, and align responses with government-verified health materials. Capstone prototype presented at the 2025 NTU Nursing International Forum."
+      ],
+      "stack": ["Python", "Flask", "LINE Messaging API", "FAISS", "RAG", "LM Studio (local LLM)", "Cloudflare Tunnel"],
+      "link": "https://github.com/EricTung1007/NTU-Nursing-Line-Bot"
+    },
+    {
+      "title": "Low-Cost Long-Term Care Health Information System",
+      "role": "Independent Project",
+      "year": "2026",
+      "description": [
+        "Open-source prototype HIS for under-resourced long-term care institutions in Taiwan, designed around low-friction workflows for caregivers with varied digital literacy.",
+        "Built resident records, medication orders, MAR, intake/output, vitals, PE (Morse/Braden), and SOAP/DAR nursing notes; added an optional AI voice assistant (OpenAI-compatible or local Ollama/LM Studio) that writes care actions directly into records."
+      ],
+      "stack": ["Node.js", "Express", "SQLite", "React", "TypeScript", "JWT authentication", "Web Speech API"],
+      "link": "https://github.com/EricTung1007/HIS"
+    }
+  ],
+  "faqs": [
+    {
+      "q": "Who is Eric?",
+      "a_en": "I'm a backend and AI developer with a B.S. in Nursing from NTU. My background spans local LLM inference, RAG systems, and healthcare software built for real clinical workflows.",
+      "a_zh": "我是後端與 AI 開發者，擁有台大護理學士學位。經歷涵蓋本地 LLM 推論、RAG 系統，以及為真實臨床流程設計的醫療軟體。"
+    },
+    {
+      "q": "What can he build?",
+      "a_en": "I build backend systems and AI applications: local LLM inference pipelines, RAG chatbots (EN/ZH/VI), data workflows, and healthcare software. I also maintain existing enterprise codebases.",
+      "a_zh": "我開發後端系統與 AI 應用：本地 LLM 推論流程、RAG 聊天機器人（英／中／越）、資料工作流程，以及醫療軟體。也負責維護既有企業代碼庫。"
+    },
+    {
+      "q": "Tell me about his AI projects",
+      "a_en": "My main AI project is a bilingual RAG chatbot for prenatal education using a locally hosted Gemma-3-4B model, FAISS vector search, Flask, and LINE — grounded in government-verified maternal-health content. I also built a multilingual promotional site for an AI Coach platform and maintain a local-inference evaluation harness.",
+      "a_zh": "主要 AI 專案是雙語 RAG 產前教育聊天機器人，使用本地部署的 Gemma-3-4B、FAISS 向量搜尋、Flask 與 LINE，內容基於政府核實的孕產照護資料。另開發多語 AI Coach 推廣站與本地推論評估框架。"
+    },
+    {
+      "q": "Why nursing and programming?",
+      "a_en": "Clinical rotations taught me how documentation, patient education, safety, and privacy actually work at the bedside. That experience shapes the healthcare software I build — it's designed around real users and real workflows, not abstractions.",
+      "a_zh": "臨床輪轉讓我親見病歷、衛教、安控與隱私如何在病床邊實際運作。這段經驗塑造了我建構醫療軟體的方式——為真實使用者與真實流程設計，而非抽象概念。"
+    },
+    {
+      "q": "What technologies does he use?",
+      "a_en": "Core: Python, SQL. Backend/data: SQLite, MySQL, REST APIs, stored procedures, JWT, Node.js/Express. AI/tools: RAG, FAISS, local LLM inference (Gemma via WebLLM), LM Studio, Docker, Git. Working familiarity with JavaScript, C#, SAP ABAP, HTML/CSS.",
+      "a_zh": "核心：Python、SQL。後端/資料：SQLite、MySQL、REST API、stored procedure、JWT、Node.js/Express。AI/工具：RAG、FAISS、本地 LLM 推論（Gemma via WebLLM）、LM Studio、Docker、Git。熟悉 JavaScript、C#、SAP ABAP、HTML/CSS。"
+    },
+    {
+      "q": "What are his featured projects?",
+      "a_en": "1) AI-Driven Prenatal Education Chatbot (bilingual RAG with local Gemma, FAISS, Flask, LINE) - github.com/EricTung1007/NTU-Nursing-Line-Bot. 2) Low-Cost Long-Term Care Health Information System (Node.js/Express + SQLite, clinical workflows) - github.com/EricTung1007/HIS.",
+      "a_zh": "1) AI 驅動產前教育聊天機器人（雙語 RAG + 本地 Gemma、FAISS、Flask、LINE）- github.com/EricTung1007/NTU-Nursing-Line-Bot。2) 低成本的長照健康資訊系統（Node.js/Express + SQLite，臨床工作流程）- github.com/EricTung1007/HIS。"
+    }
+  ]
+}

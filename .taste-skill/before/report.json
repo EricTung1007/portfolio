@@ -1,0 +1,1533 @@
+{
+ "url": "http://localhost:5173",
+ "at": "2026-10-23T08:15:08.867Z",
+ "allow": [],
+ "viewports": [
+  {
+   "width": 1440,
+   "height": 900,
+   "load": "load",
+   "screens": 4,
+   "filled": [
+    0.31,
+    0.53,
+    0.75,
+    0.67
+   ],
+   "motion": {
+    "elements": 0,
+    "css": 0,
+    "transitions": 0,
+    "scripted": 0,
+    "videos": 0,
+    "playingVideos": 0
+   },
+   "metrics": {
+    "viewport": {
+     "w": 1440,
+     "h": 900
+    },
+    "page": {
+     "height": 3125,
+     "screens": 3.5,
+     "words": 101,
+     "img": 1,
+     "video": 0,
+     "canvas": 0,
+     "svg": 0,
+     "sections": 2,
+     "horizontalOverflow": 0,
+     "overflowCulprits": [],
+     "uiFragments": 0,
+     "uiAbuse": false,
+     "realPictures": 1,
+     "videoCount": 0,
+     "uiPictures": 0,
+     "pictureSamples": [
+      "avatar.png"
+     ],
+     "blendText": 0,
+     "sideScrollers": 0,
+     "brokenImages": [],
+     "emoji": [],
+     "videosNoPoster": 0
+    },
+    "hero": null,
+    "h1": {
+     "text": "Meet Eric — before the terminal.",
+     "words": 6,
+     "lines": 1,
+     "size": 32,
+     "font": "Fraunces"
+    },
+    "headings": [
+     {
+      "text": "Meet Eric — before the terminal.",
+      "words": 6,
+      "chars": 32,
+      "lines": 1,
+      "size": 32,
+      "vw": 2.2,
+      "font": "Fraunces",
+      "weight": 600,
+      "tracking": -0.01,
+      "leading": 1.2,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 1,
+      "top": 977,
+      "tag": "h1",
+      "kind": "heading"
+     },
+     {
+      "text": "Portfolio",
+      "words": 1,
+      "chars": 9,
+      "lines": 1,
+      "size": 36.8,
+      "vw": 2.6,
+      "font": "Fraunces",
+      "weight": 500,
+      "tracking": -0.02,
+      "leading": 1.2,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 1,
+      "top": 2792,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "Chat with Eric",
+      "words": 3,
+      "chars": 14,
+      "lines": 1,
+      "size": 36.8,
+      "vw": 2.6,
+      "font": "Fraunces",
+      "weight": 500,
+      "tracking": -0.02,
+      "leading": 1.2,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 1,
+      "top": 2923,
+      "tag": "h3",
+      "kind": "heading"
+     }
+    ],
+    "headingSummary": {
+     "count": 3,
+     "maxLines": 1,
+     "over2Lines": 0,
+     "statements": 0,
+     "centered": 0,
+     "medianWords": 3,
+     "mixedFontHeadings": 0
+    },
+    "type": {
+     "families": [
+      {
+       "family": "Space Grotesk",
+       "share": 0.75,
+       "mono": false
+      },
+      {
+       "family": "Arial",
+       "share": 0.14,
+       "mono": false
+      },
+      {
+       "family": "Fraunces",
+       "share": 0.11,
+       "mono": false
+      }
+     ],
+     "familyCount": 3,
+     "sizes": [
+      13,
+      16,
+      32,
+      37
+     ],
+     "sizeCount": 4,
+     "notLoaded": [],
+     "body": {
+      "font": "Space Grotesk",
+      "size": 16,
+      "leading": 1.2,
+      "weight": 400,
+      "tracking": 0,
+      "contrast": 18.4
+     },
+     "measureChars": 180,
+     "max": {
+      "size": 36.8,
+      "vw": 2.6,
+      "font": "Fraunces",
+      "text": "Portfolio"
+     },
+     "monoShare": 0,
+     "monoProseShare": 0,
+     "monoFamilies": [],
+     "monoSamples": [],
+     "microLabels": 0,
+     "microLabelShare": 0,
+     "microSamples": [],
+     "upperShare": 0.01,
+     "centerShare": 0.16,
+     "smallText": 0
+    },
+    "eyebrows": [
+     {
+      "text": "Backend / AI Developer · Former Nurse",
+      "above": "Meet Eric — before the terminal.",
+      "upper": false,
+      "tracked": false,
+      "mono": false,
+      "pill": false,
+      "size": 16,
+      "top": 938
+     },
+     {
+      "text": "Eric — online",
+      "above": "Portfolio",
+      "upper": false,
+      "tracked": false,
+      "mono": false,
+      "pill": false,
+      "size": 16,
+      "top": 2744
+     }
+    ],
+    "numbered": [],
+    "color": {
+     "bodyBg": "#070a10",
+     "bodyBgHsl": {
+      "h": 220,
+      "s": 0.39,
+      "l": 0.05
+     },
+     "dark": true,
+     "sectionBgs": [],
+     "textColors": [
+      {
+       "color": "#f4f7fb",
+       "share": 0.75
+      },
+      {
+       "color": "#000000",
+       "share": 0.11
+      },
+      {
+       "color": "#ffb4bd",
+       "share": 0.06
+      },
+      {
+       "color": "#ffffff",
+       "share": 0.05
+      },
+      {
+       "color": "#0000ee",
+       "share": 0.03
+      }
+     ],
+     "button": null,
+     "lowContrast": [
+      {
+       "text": "About",
+       "ratio": 2.1,
+       "need": 4.5,
+       "size": 16,
+       "fg": "#0000ee",
+       "bg": "#070a10"
+      },
+      {
+       "text": "Projects",
+       "ratio": 2.1,
+       "need": 4.5,
+       "size": 16,
+       "fg": "#0000ee",
+       "bg": "#070a10"
+      },
+      {
+       "text": "GitHub",
+       "ratio": 2.1,
+       "need": 4.5,
+       "size": 16,
+       "fg": "#0000ee",
+       "bg": "#070a10"
+      },
+      {
+       "text": "Initialize Local AI (~500 MB)",
+       "ratio": 3,
+       "need": 4.5,
+       "size": 13.3,
+       "fg": "#ffffff",
+       "bg": "#ff5a6e"
+      }
+     ]
+    },
+    "buttons": {
+     "count": 0,
+     "inHero": 0,
+     "withShadow": 0,
+     "withGradient": 0,
+     "mono": 0,
+     "upper": 0,
+     "heroLabels": []
+    },
+    "surfaces": {
+     "shadowStatic": 0,
+     "shadowOverlay": 0,
+     "shadowSamples": [],
+     "gradients": 0,
+     "scrims": 0,
+     "gradientSamples": [],
+     "gradientText": 0,
+     "hairlines": 0,
+     "hairlineSamples": [],
+     "outlinedBoxes": 0,
+     "dashed": 0,
+     "blurred": 0,
+     "roundedBoxes": 0,
+     "boxRadius": 0,
+     "squareMedia": 1,
+     "roundedMedia": 0,
+     "mediaRadius": 0,
+     "textShadow": 0,
+     "cardRows": []
+    },
+    "heroMedia": [],
+    "nav": {
+     "links": 0,
+     "fixed": false,
+     "height": 42,
+     "floatingPill": false,
+     "blur": false
+    },
+    "fontsLoaded": []
+   },
+   "layout": {
+    "viewport": {
+     "w": 1440,
+     "h": 900
+    },
+    "pageH": 3125,
+    "margins": {
+     "left": 0,
+     "right": 354
+    },
+    "sections": [
+     {
+      "sel": "div.max-w-2xl.space-y-5",
+      "tag": "div",
+      "top": 938,
+      "height": 323,
+      "words": 50,
+      "media": 0,
+      "middle": 0,
+      "heading": {
+       "text": "Meet Eric — before the terminal.",
+       "size": 32,
+       "tag": "h1"
+      },
+      "left": 0,
+      "right": 451,
+      "textLeft": 0,
+      "textRight": 451,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": false,
+      "pinned": false
+     },
+     {
+      "sel": "section.space-y-5.md:sticky",
+      "tag": "section",
+      "top": 1277,
+      "height": 1609,
+      "words": 11,
+      "media": 1,
+      "middle": 0,
+      "heading": null,
+      "left": 0,
+      "right": 354,
+      "textLeft": 0,
+      "textRight": 1166,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section.space-y-4",
+      "tag": "section",
+      "top": 2923,
+      "height": 134,
+      "words": 22,
+      "media": 0,
+      "middle": 0,
+      "heading": {
+       "text": "Chat with Eric",
+       "size": 37,
+       "tag": "h3"
+      },
+      "left": 0,
+      "right": 861,
+      "textLeft": 0,
+      "textRight": 861,
+      "fullBleed": false,
+      "footer": true,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     }
+    ],
+    "gaps": [],
+    "h1s": [
+     {
+      "text": "Meet Eric — before the terminal.",
+      "size": 32,
+      "top": 977,
+      "firstScreen": false
+     }
+    ],
+    "edgeText": [
+     {
+      "text": "Eric.exe",
+      "side": "left",
+      "px": 8
+     },
+     {
+      "text": "Chat",
+      "side": "left",
+      "px": 8
+     },
+     {
+      "text": "Backend / AI Developer · Former Nurse",
+      "side": "left",
+      "px": 0
+     },
+     {
+      "text": "Meet Eric — before the terminal.",
+      "side": "left",
+      "px": 0
+     },
+     {
+      "text": "Ask me anything about my education, skills, or pro",
+      "side": "left",
+      "px": 0
+     },
+     {
+      "text": "Zero API calls",
+      "side": "left",
+      "px": 0
+     },
+     {
+      "text": "Local inference",
+      "side": "left",
+      "px": 0
+     },
+     {
+      "text": "Verified health data",
+      "side": "left",
+      "px": 0
+     }
+    ],
+    "edges": [
+     {
+      "x": 0,
+      "n": 5
+     }
+    ],
+    "leftBlocks": 5,
+    "bodySize": 16,
+    "stage": false,
+    "explains": false,
+    "slivers": [],
+    "voidShare": 0.8,
+    "voidBox": {
+     "x": 0,
+     "y": 120,
+     "w": 1440,
+     "h": 720
+    }
+   },
+   "app": null,
+   "consoleErrors": []
+  },
+  {
+   "width": 768,
+   "height": 1024,
+   "load": "load",
+   "screens": 4,
+   "filled": [
+    0.55,
+    0.78,
+    0.81,
+    0.91
+   ],
+   "motion": {
+    "elements": 0,
+    "css": 0,
+    "transitions": 0,
+    "scripted": 0,
+    "videos": 0,
+    "playingVideos": 0
+   },
+   "metrics": {
+    "viewport": {
+     "w": 768,
+     "h": 1024
+    },
+    "page": {
+     "height": 3104,
+     "screens": 3,
+     "words": 101,
+     "img": 1,
+     "video": 0,
+     "canvas": 0,
+     "svg": 0,
+     "sections": 2,
+     "horizontalOverflow": 318,
+     "overflowCulprits": [
+      "img.w-full.h-full (+318px)"
+     ],
+     "uiFragments": 0,
+     "uiAbuse": false,
+     "realPictures": 1,
+     "videoCount": 0,
+     "uiPictures": 0,
+     "pictureSamples": [
+      "avatar.png"
+     ],
+     "blendText": 0,
+     "sideScrollers": 0,
+     "brokenImages": [],
+     "emoji": [],
+     "videosNoPoster": 0
+    },
+    "hero": null,
+    "h1": {
+     "text": "Meet Eric — before the terminal.",
+     "words": 6,
+     "lines": 1,
+     "size": 32,
+     "font": "Fraunces"
+    },
+    "headings": [
+     {
+      "text": "Meet Eric — before the terminal.",
+      "words": 6,
+      "chars": 32,
+      "lines": 1,
+      "size": 32,
+      "vw": 4.2,
+      "font": "Fraunces",
+      "weight": 600,
+      "tracking": -0.01,
+      "leading": 1.2,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 1,
+      "top": 977,
+      "tag": "h1",
+      "kind": "heading"
+     },
+     {
+      "text": "Portfolio",
+      "words": 1,
+      "chars": 9,
+      "lines": 1,
+      "size": 30.1,
+      "vw": 3.9,
+      "font": "Fraunces",
+      "weight": 500,
+      "tracking": -0.02,
+      "leading": 1.2,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 1,
+      "top": 2805,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "Chat with Eric",
+      "words": 3,
+      "chars": 14,
+      "lines": 1,
+      "size": 30.1,
+      "vw": 3.9,
+      "font": "Fraunces",
+      "weight": 500,
+      "tracking": -0.02,
+      "leading": 1.2,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 1,
+      "top": 2916,
+      "tag": "h3",
+      "kind": "heading"
+     }
+    ],
+    "headingSummary": {
+     "count": 3,
+     "maxLines": 1,
+     "over2Lines": 0,
+     "statements": 0,
+     "centered": 0,
+     "medianWords": 3,
+     "mixedFontHeadings": 0
+    },
+    "type": {
+     "families": [
+      {
+       "family": "Space Grotesk",
+       "share": 0.75,
+       "mono": false
+      },
+      {
+       "family": "Arial",
+       "share": 0.14,
+       "mono": false
+      },
+      {
+       "family": "Fraunces",
+       "share": 0.11,
+       "mono": false
+      }
+     ],
+     "familyCount": 3,
+     "sizes": [
+      13,
+      16,
+      30,
+      32
+     ],
+     "sizeCount": 4,
+     "notLoaded": [],
+     "body": {
+      "font": "Space Grotesk",
+      "size": 16,
+      "leading": 1.2,
+      "weight": 400,
+      "tracking": 0,
+      "contrast": 18.4
+     },
+     "measureChars": 96,
+     "max": {
+      "size": 32,
+      "vw": 4.2,
+      "font": "Fraunces",
+      "text": "Meet Eric — before the terminal."
+     },
+     "monoShare": 0,
+     "monoProseShare": 0,
+     "monoFamilies": [],
+     "monoSamples": [],
+     "microLabels": 0,
+     "microLabelShare": 0,
+     "microSamples": [],
+     "upperShare": 0.01,
+     "centerShare": 0.16,
+     "smallText": 0
+    },
+    "eyebrows": [
+     {
+      "text": "Backend / AI Developer · Former Nurse",
+      "above": "Meet Eric — before the terminal.",
+      "upper": false,
+      "tracked": false,
+      "mono": false,
+      "pill": false,
+      "size": 16,
+      "top": 938
+     }
+    ],
+    "numbered": [],
+    "color": {
+     "bodyBg": "#070a10",
+     "bodyBgHsl": {
+      "h": 220,
+      "s": 0.39,
+      "l": 0.05
+     },
+     "dark": true,
+     "sectionBgs": [],
+     "textColors": [
+      {
+       "color": "#f4f7fb",
+       "share": 0.75
+      },
+      {
+       "color": "#000000",
+       "share": 0.11
+      },
+      {
+       "color": "#ffb4bd",
+       "share": 0.06
+      },
+      {
+       "color": "#ffffff",
+       "share": 0.05
+      },
+      {
+       "color": "#0000ee",
+       "share": 0.03
+      }
+     ],
+     "button": null,
+     "lowContrast": [
+      {
+       "text": "About",
+       "ratio": 2.1,
+       "need": 4.5,
+       "size": 16,
+       "fg": "#0000ee",
+       "bg": "#070a10"
+      },
+      {
+       "text": "Projects",
+       "ratio": 2.1,
+       "need": 4.5,
+       "size": 16,
+       "fg": "#0000ee",
+       "bg": "#070a10"
+      },
+      {
+       "text": "GitHub",
+       "ratio": 2.1,
+       "need": 4.5,
+       "size": 16,
+       "fg": "#0000ee",
+       "bg": "#070a10"
+      },
+      {
+       "text": "Initialize Local AI (~500 MB)",
+       "ratio": 3,
+       "need": 4.5,
+       "size": 13.3,
+       "fg": "#ffffff",
+       "bg": "#ff5a6e"
+      }
+     ]
+    },
+    "buttons": {
+     "count": 0,
+     "inHero": 0,
+     "withShadow": 0,
+     "withGradient": 0,
+     "mono": 0,
+     "upper": 0,
+     "heroLabels": []
+    },
+    "surfaces": {
+     "shadowStatic": 0,
+     "shadowOverlay": 0,
+     "shadowSamples": [],
+     "gradients": 0,
+     "scrims": 0,
+     "gradientSamples": [],
+     "gradientText": 0,
+     "hairlines": 0,
+     "hairlineSamples": [],
+     "outlinedBoxes": 0,
+     "dashed": 0,
+     "blurred": 0,
+     "roundedBoxes": 0,
+     "boxRadius": 0,
+     "squareMedia": 1,
+     "roundedMedia": 0,
+     "mediaRadius": 0,
+     "textShadow": 0,
+     "cardRows": []
+    },
+    "heroMedia": [],
+    "nav": {
+     "links": 0,
+     "fixed": false,
+     "height": 42,
+     "floatingPill": false,
+     "blur": false
+    },
+    "fontsLoaded": []
+   },
+   "layout": {
+    "viewport": {
+     "w": 768,
+     "h": 1024
+    },
+    "pageH": 3104,
+    "margins": {
+     "left": 0,
+     "right": 38
+    },
+    "sections": [
+     {
+      "sel": "div.glow-sphere.rounded-full",
+      "tag": "div",
+      "top": 0,
+      "height": 480,
+      "words": 0,
+      "media": 0,
+      "middle": 0,
+      "heading": null,
+      "left": null,
+      "right": null,
+      "textLeft": null,
+      "textRight": null,
+      "fullBleed": false,
+      "footer": false,
+      "hero": true,
+      "continues": false,
+      "pinned": false
+     },
+     {
+      "sel": "div.max-w-2xl.space-y-5",
+      "tag": "div",
+      "top": 938,
+      "height": 341,
+      "words": 50,
+      "media": 0,
+      "middle": 0,
+      "heading": {
+       "text": "Meet Eric — before the terminal.",
+       "size": 32,
+       "tag": "h1"
+      },
+      "left": 0,
+      "right": 38,
+      "textLeft": 0,
+      "textRight": 38,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section.space-y-5.md:sticky",
+      "tag": "section",
+      "top": 1295,
+      "height": 1591,
+      "words": 11,
+      "media": 1,
+      "middle": 16,
+      "heading": null,
+      "left": 0,
+      "right": 494,
+      "textLeft": 0,
+      "textRight": 494,
+      "fullBleed": true,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section.space-y-4",
+      "tag": "section",
+      "top": 2916,
+      "height": 120,
+      "words": 22,
+      "media": 0,
+      "middle": 0,
+      "heading": {
+       "text": "Chat with Eric",
+       "size": 30,
+       "tag": "h3"
+      },
+      "left": 0,
+      "right": 189,
+      "textLeft": 0,
+      "textRight": 189,
+      "fullBleed": false,
+      "footer": true,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     }
+    ],
+    "gaps": [],
+    "h1s": [
+     {
+      "text": "Meet Eric — before the terminal.",
+      "size": 32,
+      "top": 977,
+      "firstScreen": false
+     }
+    ],
+    "edgeText": [
+     {
+      "text": "Eric.exe",
+      "side": "left",
+      "px": 8
+     },
+     {
+      "text": "Chat",
+      "side": "left",
+      "px": 8
+     },
+     {
+      "text": "Backend / AI Developer · Former Nurse",
+      "side": "left",
+      "px": 0
+     },
+     {
+      "text": "Meet Eric — before the terminal.",
+      "side": "left",
+      "px": 0
+     },
+     {
+      "text": "Ask me anything about my education, skills, or pro",
+      "side": "left",
+      "px": 0
+     },
+     {
+      "text": "Zero API calls",
+      "side": "left",
+      "px": 0
+     },
+     {
+      "text": "Local inference",
+      "side": "left",
+      "px": 0
+     },
+     {
+      "text": "Verified health data",
+      "side": "left",
+      "px": 0
+     }
+    ],
+    "edges": [
+     {
+      "x": 0,
+      "n": 5
+     }
+    ],
+    "leftBlocks": 5,
+    "bodySize": 16,
+    "stage": false,
+    "explains": false,
+    "slivers": [],
+    "voidShare": 0,
+    "voidBox": null
+   },
+   "app": null,
+   "consoleErrors": []
+  },
+  {
+   "width": 390,
+   "height": 844,
+   "load": "load",
+   "screens": 4,
+   "filled": [
+    0.59,
+    0.68,
+    0.68,
+    0.68
+   ],
+   "motion": {
+    "elements": 0,
+    "css": 0,
+    "transitions": 0,
+    "scripted": 0,
+    "videos": 0,
+    "playingVideos": 0
+   },
+   "metrics": {
+    "viewport": {
+     "w": 1086,
+     "h": 2351
+    },
+    "page": {
+     "height": 3175,
+     "screens": 1.4,
+     "words": 101,
+     "img": 1,
+     "video": 0,
+     "canvas": 0,
+     "svg": 0,
+     "sections": 2,
+     "horizontalOverflow": 0,
+     "overflowCulprits": [],
+     "uiFragments": 0,
+     "uiAbuse": false,
+     "realPictures": 1,
+     "videoCount": 0,
+     "uiPictures": 0,
+     "pictureSamples": [
+      "avatar.png"
+     ],
+     "blendText": 0,
+     "sideScrollers": 0,
+     "brokenImages": [],
+     "emoji": [],
+     "videosNoPoster": 0
+    },
+    "hero": {
+     "text": "Meet Eric — before the terminal.",
+     "words": 6,
+     "chars": 32,
+     "lines": 2,
+     "size": 32,
+     "vw": 2.9,
+     "font": "Fraunces",
+     "weight": 600,
+     "tracking": -0.01,
+     "leading": 1.2,
+     "upper": false,
+     "italic": false,
+     "mono": false,
+     "align": "left",
+     "position": "left",
+     "widthRatio": 0.36,
+     "top": 977,
+     "tag": "h1",
+     "kind": "heading"
+    },
+    "h1": {
+     "text": "Meet Eric — before the terminal.",
+     "words": 6,
+     "lines": 2,
+     "size": 32,
+     "font": "Fraunces"
+    },
+    "headings": [
+     {
+      "text": "Meet Eric — before the terminal.",
+      "words": 6,
+      "chars": 32,
+      "lines": 2,
+      "size": 32,
+      "vw": 2.9,
+      "font": "Fraunces",
+      "weight": 600,
+      "tracking": -0.01,
+      "leading": 1.2,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.36,
+      "top": 977,
+      "tag": "h1",
+      "kind": "heading"
+     },
+     {
+      "text": "Portfolio",
+      "words": 1,
+      "chars": 9,
+      "lines": 1,
+      "size": 27.2,
+      "vw": 2.5,
+      "font": "Fraunces",
+      "weight": 500,
+      "tracking": -0.02,
+      "leading": 1.2,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.36,
+      "top": 2856,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "Chat with Eric",
+      "words": 3,
+      "chars": 14,
+      "lines": 1,
+      "size": 27.2,
+      "vw": 2.5,
+      "font": "Fraunces",
+      "weight": 500,
+      "tracking": -0.02,
+      "leading": 1.2,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.36,
+      "top": 2958,
+      "tag": "h3",
+      "kind": "heading"
+     }
+    ],
+    "headingSummary": {
+     "count": 3,
+     "maxLines": 2,
+     "over2Lines": 0,
+     "statements": 0,
+     "centered": 0,
+     "medianWords": 3,
+     "mixedFontHeadings": 0
+    },
+    "type": {
+     "families": [
+      {
+       "family": "Space Grotesk",
+       "share": 0.75,
+       "mono": false
+      },
+      {
+       "family": "Arial",
+       "share": 0.14,
+       "mono": false
+      },
+      {
+       "family": "Fraunces",
+       "share": 0.11,
+       "mono": false
+      }
+     ],
+     "familyCount": 3,
+     "sizes": [
+      13,
+      16,
+      27,
+      32
+     ],
+     "sizeCount": 4,
+     "notLoaded": [],
+     "body": {
+      "font": "Space Grotesk",
+      "size": 16,
+      "leading": 1.2,
+      "weight": 400,
+      "tracking": 0,
+      "contrast": 18.4
+     },
+     "measureChars": 49,
+     "max": {
+      "size": 32,
+      "vw": 2.9,
+      "font": "Fraunces",
+      "text": "Meet Eric — before the terminal."
+     },
+     "monoShare": 0,
+     "monoProseShare": 0,
+     "monoFamilies": [],
+     "monoSamples": [],
+     "microLabels": 0,
+     "microLabelShare": 0,
+     "microSamples": [],
+     "upperShare": 0.01,
+     "centerShare": 0.16,
+     "smallText": 0
+    },
+    "eyebrows": [
+     {
+      "text": "Backend / AI Developer · Former Nurse",
+      "above": "Meet Eric — before the terminal.",
+      "upper": false,
+      "tracked": false,
+      "mono": false,
+      "pill": false,
+      "size": 16,
+      "top": 938
+     }
+    ],
+    "numbered": [],
+    "color": {
+     "bodyBg": "#070a10",
+     "bodyBgHsl": {
+      "h": 220,
+      "s": 0.39,
+      "l": 0.05
+     },
+     "dark": true,
+     "sectionBgs": [],
+     "textColors": [
+      {
+       "color": "#f4f7fb",
+       "share": 0.75
+      },
+      {
+       "color": "#000000",
+       "share": 0.11
+      },
+      {
+       "color": "#ffb4bd",
+       "share": 0.06
+      },
+      {
+       "color": "#ffffff",
+       "share": 0.05
+      },
+      {
+       "color": "#0000ee",
+       "share": 0.03
+      }
+     ],
+     "button": null,
+     "lowContrast": [
+      {
+       "text": "About",
+       "ratio": 2.1,
+       "need": 4.5,
+       "size": 16,
+       "fg": "#0000ee",
+       "bg": "#070a10"
+      },
+      {
+       "text": "Projects",
+       "ratio": 2.1,
+       "need": 4.5,
+       "size": 16,
+       "fg": "#0000ee",
+       "bg": "#070a10"
+      },
+      {
+       "text": "GitHub",
+       "ratio": 2.1,
+       "need": 4.5,
+       "size": 16,
+       "fg": "#0000ee",
+       "bg": "#070a10"
+      },
+      {
+       "text": "Initialize Local AI (~500 MB)",
+       "ratio": 3,
+       "need": 4.5,
+       "size": 13.3,
+       "fg": "#ffffff",
+       "bg": "#ff5a6e"
+      }
+     ]
+    },
+    "buttons": {
+     "count": 0,
+     "inHero": 0,
+     "withShadow": 0,
+     "withGradient": 0,
+     "mono": 0,
+     "upper": 0,
+     "heroLabels": []
+    },
+    "surfaces": {
+     "shadowStatic": 0,
+     "shadowOverlay": 0,
+     "shadowSamples": [],
+     "gradients": 0,
+     "scrims": 0,
+     "gradientSamples": [],
+     "gradientText": 0,
+     "hairlines": 0,
+     "hairlineSamples": [],
+     "outlinedBoxes": 0,
+     "dashed": 0,
+     "blurred": 0,
+     "roundedBoxes": 0,
+     "boxRadius": 0,
+     "squareMedia": 1,
+     "roundedMedia": 0,
+     "mediaRadius": 0,
+     "textShadow": 0,
+     "cardRows": []
+    },
+    "heroMedia": [
+     {
+      "type": "img",
+      "ratio": 0.43
+     }
+    ],
+    "nav": {
+     "links": 0,
+     "fixed": false,
+     "height": 42,
+     "floatingPill": false,
+     "blur": false
+    },
+    "fontsLoaded": []
+   },
+   "layout": {
+    "viewport": {
+     "w": 1086,
+     "h": 2351
+    },
+    "pageH": 3175,
+    "margins": {
+     "left": 0,
+     "right": 696
+    },
+    "sections": [],
+    "gaps": [],
+    "h1s": [
+     {
+      "text": "Meet Eric — before the terminal.",
+      "size": 32,
+      "top": 977,
+      "firstScreen": true
+     }
+    ],
+    "edgeText": [
+     {
+      "text": "Eric.exe",
+      "side": "left",
+      "px": 8
+     },
+     {
+      "text": "Chat",
+      "side": "left",
+      "px": 8
+     },
+     {
+      "text": "Backend / AI Developer · Former Nurse",
+      "side": "left",
+      "px": 0
+     },
+     {
+      "text": "Meet Eric — before the terminal.",
+      "side": "left",
+      "px": 0
+     },
+     {
+      "text": "Ask me anything about my education, skills, or pro",
+      "side": "left",
+      "px": 0
+     },
+     {
+      "text": "Zero API calls",
+      "side": "left",
+      "px": 0
+     },
+     {
+      "text": "Local inference",
+      "side": "left",
+      "px": 0
+     },
+     {
+      "text": "Verified health data",
+      "side": "left",
+      "px": 0
+     }
+    ],
+    "edges": [
+     {
+      "x": 0,
+      "n": 5
+     }
+    ],
+    "leftBlocks": 5,
+    "bodySize": 16,
+    "stage": false,
+    "explains": false,
+    "slivers": [],
+    "voidShare": 0.29,
+    "voidBox": {
+     "x": 407,
+     "y": 157,
+     "w": 679,
+     "h": 1097
+    }
+   },
+   "app": null,
+   "consoleErrors": []
+  }
+ ],
+ "findings": [
+  {
+   "level": "FAIL",
+   "id": "eyebrow",
+   "width": 1440,
+   "message": "2 eyebrow/kicker label(s) above headings: \"Backend / AI Developer · Former Nurse\" above \"Meet Eric — before the terminal.\"; \"Eric — online\" above \"Portfolio\"",
+   "fix": "Delete them. If the label carried real information, fold it into the headline or the supporting sentence.",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "WARN",
+   "id": "default-link",
+   "width": 1440,
+   "message": "Browser-default blue/purple link colour is showing.",
+   "fix": "Style every link: inherit the text colour and mark it with weight, underline offset, or the accent.",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "FAIL",
+   "id": "contrast",
+   "width": 1440,
+   "message": "Unreadable text: \"About\" 2.1:1 (#0000ee on #070a10); \"Projects\" 2.1:1 (#0000ee on #070a10); \"GitHub\" 2.1:1 (#0000ee on #070a10)",
+   "fix": "Raise contrast to at least 4.5:1 for text, 3:1 for large display.",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "WARN",
+   "id": "font-count",
+   "width": 1440,
+   "message": "3 typefaces in use (Space Grotesk, Arial, Fraunces).",
+   "fix": "Two at most.",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "WARN",
+   "id": "first-action",
+   "width": 1440,
+   "message": "No visible button in the first screen.",
+   "fix": "Give the one primary action a real button in the first screen (a filled or solid-bordered control, 44px or taller), not only a link in the navigation.",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "FAIL",
+   "id": "few-pictures",
+   "width": 1440,
+   "message": "Only 1 picture(s) on the page (1 photographs, footage or raster images, 0 interface fragments). Drawings in SVG do not count.",
+   "fix": "Find real pictures of the subject's world with scripts/assets.mjs (photographs, archival images, maps, engravings, footage), download them to assets/ and give them room: a hero picture, one per section that has a subject, a full-width band. At least four, usually six to twelve."
+  },
+  {
+   "level": "WARN",
+   "id": "no-footage",
+   "width": 1440,
+   "message": "No video anywhere on the page.",
+   "fix": "Look for one honest clip with scripts/assets.mjs --video (the place, the material, the process) and use it as a muted loop with a poster frame. Defend its absence only if no clip fits the subject."
+  },
+  {
+   "level": "WARN",
+   "id": "measure",
+   "width": 1440,
+   "message": "Longest paragraph runs about 180 characters per line.",
+   "fix": "Cap paragraphs at 45–75 characters (max-width: 60ch).",
+   "alsoAt": [
+    768
+   ]
+  },
+  {
+   "level": "WARN",
+   "id": "no-hero",
+   "width": 1440,
+   "message": "No headline found in the first viewport.",
+   "fix": "The first screen needs a clear focal statement or image.",
+   "alsoAt": [
+    768
+   ]
+  },
+  {
+   "level": "FAIL",
+   "id": "off-centre",
+   "width": 1440,
+   "message": "The page sits off-centre: its content comes to 0px from the left edge but only to 354px from the right, at 1440px.",
+   "fix": "Give the page one pair of equal margins. Check the wrapper for a max-width without margin-inline: auto, a grid with an empty last column, or padding on one side only. If one side is meant to hold air, it must still be closed by something that reaches the margin (a picture, the navigation's last item, a figure).",
+   "alsoAt": [
+    390
+   ]
+  },
+  {
+   "level": "FAIL",
+   "id": "no-title",
+   "width": 1440,
+   "message": "The h1 (\"Meet Eric — before the terminal.\") is not on the first screen (it starts 977px down).",
+   "fix": "The title belongs on the first screen, where a visitor decides whether to stay.",
+   "alsoAt": [
+    768
+   ]
+  },
+  {
+   "level": "WARN",
+   "id": "hero-void",
+   "width": 1440,
+   "message": "80% of the first screen is one empty block (1440×720px at 0,120).",
+   "fix": "Place the void on purpose or fill it: move the picture, the film or one fact into it, grow the headline to meet it, or shrink the screen to its content. A void reads as placed only when something closes it on the far side and it is the screen's one rest."
+  },
+  {
+   "level": "FAIL",
+   "id": "edge-text",
+   "width": 1440,
+   "message": "8 text block(s) sit within 16px of the screen edge: \"Eric.exe\" (8px from the left); \"Chat\" (8px from the left); \"Backend / AI Developer · Forme\" (0px from the left); \"Meet Eric — before the termina\" (0px from the left)",
+   "fix": "Keep text inside the page margin (16–32px or more). Only display type deliberately bled past the edge may touch it.",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "FAIL",
+   "id": "still-page",
+   "width": 1440,
+   "message": "Only 0 element(s) moved while the page loaded and scrolled.",
+   "fix": "Build the motion layer (SKILL.md step 9, references/motion.md): the signature move, an entrance for the parts of every section, feedback on every control, and one moving picture. Transform and opacity only, with a reduced-motion fallback."
+  },
+  {
+   "level": "FAIL",
+   "id": "overflow",
+   "width": 768,
+   "message": "Page scrolls sideways by 318px at 768px. Widest offenders: img.w-full.h-full (+318px).",
+   "fix": "Constrain the element that is wider than the viewport (max-width: 100%, or overflow: clip on its section)."
+  },
+  {
+   "level": "WARN",
+   "id": "off-centre",
+   "width": 768,
+   "message": "The margins differ: 0px on the left, 38px on the right, at 768px.",
+   "fix": "Put the navigation and the content on one pair of margins; check for padding on one side only, a scrollbar gutter, or a header on another inset than the page."
+  }
+ ],
+ "images": [
+  {
+   "viewport": "desktop",
+   "width": 1440,
+   "fold": "/Users/erictung/Documents/portfolio website/.taste-skill/before/desktop-fold.jpg",
+   "pages": [
+    "/Users/erictung/Documents/portfolio website/.taste-skill/before/desktop-page-01.jpg"
+   ],
+   "film": []
+  },
+  {
+   "viewport": "tablet",
+   "width": 768,
+   "fold": "/Users/erictung/Documents/portfolio website/.taste-skill/before/tablet-fold.jpg",
+   "pages": [
+    "/Users/erictung/Documents/portfolio website/.taste-skill/before/tablet-page-01.jpg"
+   ],
+   "film": []
+  },
+  {
+   "viewport": "mobile",
+   "width": 390,
+   "fold": "/Users/erictung/Documents/portfolio website/.taste-skill/before/mobile-fold.jpg",
+   "pages": [
+    "/Users/erictung/Documents/portfolio website/.taste-skill/before/mobile-page-01.jpg"
+   ],
+   "film": []
+  }
+ ]
+}

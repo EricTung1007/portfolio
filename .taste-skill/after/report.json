@@ -1,0 +1,1208 @@
+{
+ "url": "http://localhost:5173",
+ "at": "2026-10-23T14:16:07.800Z",
+ "allow": [],
+ "viewports": [
+  {
+   "width": 1440,
+   "height": 900,
+   "load": "load",
+   "screens": 5,
+   "filled": [
+    0.79,
+    0.62,
+    0.69,
+    0.42,
+    0.34
+   ],
+   "motion": {
+    "elements": 0,
+    "css": 0,
+    "transitions": 0,
+    "scripted": 0,
+    "videos": 0,
+    "playingVideos": 0
+   },
+   "metrics": {
+    "viewport": {
+     "w": 1440,
+     "h": 900
+    },
+    "page": {
+     "height": 3713,
+     "screens": 4.1,
+     "words": 104,
+     "img": 6,
+     "video": 0,
+     "canvas": 0,
+     "svg": 0,
+     "sections": 1,
+     "horizontalOverflow": 0,
+     "overflowCulprits": [],
+     "uiFragments": 0,
+     "uiAbuse": false,
+     "realPictures": 6,
+     "videoCount": 0,
+     "uiPictures": 0,
+     "pictureSamples": [
+      "avatar.png",
+      "women-s-surgical-ward.jpg",
+      "ward-for-men-a-mental-hosptial-in.jpg",
+      "ward-for-women-a-mental-hosptial-in.jpg",
+      "ward-at-st-louis-female-hospital.jpg",
+      "avatar.png"
+     ],
+     "blendText": 0,
+     "sideScrollers": 0,
+     "brokenImages": [],
+     "emoji": [],
+     "videosNoPoster": 0
+    },
+    "hero": {
+     "text": "Software that speaks.",
+     "words": 3,
+     "chars": 21,
+     "lines": 1,
+     "size": 48,
+     "vw": 3.3,
+     "font": "Erode",
+     "weight": 700,
+     "tracking": -0.03,
+     "leading": 0.96,
+     "upper": false,
+     "italic": false,
+     "mono": false,
+     "align": "left",
+     "position": "center",
+     "widthRatio": 1,
+     "top": 760,
+     "tag": "h1",
+     "kind": "heading"
+    },
+    "h1": {
+     "text": "Software that speaks.",
+     "words": 3,
+     "lines": 1,
+     "size": 48,
+     "font": "Erode"
+    },
+    "headings": [
+     {
+      "text": "Software that speaks.",
+      "words": 3,
+      "chars": 21,
+      "lines": 1,
+      "size": 48,
+      "vw": 3.3,
+      "font": "Erode",
+      "weight": 700,
+      "tracking": -0.03,
+      "leading": 0.96,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 1,
+      "top": 760,
+      "tag": "h1",
+      "kind": "heading"
+     }
+    ],
+    "headingSummary": {
+     "count": 1,
+     "maxLines": 1,
+     "over2Lines": 0,
+     "statements": 0,
+     "centered": 0,
+     "medianWords": null,
+     "mixedFontHeadings": 0
+    },
+    "type": {
+     "families": [
+      {
+       "family": "Erode",
+       "share": 0.93,
+       "mono": false
+      },
+      {
+       "family": "Arial",
+       "share": 0.07,
+       "mono": false
+      }
+     ],
+     "familyCount": 2,
+     "sizes": [
+      13,
+      16,
+      19,
+      24,
+      48
+     ],
+     "sizeCount": 5,
+     "notLoaded": [],
+     "body": {
+      "font": "Erode",
+      "size": 16,
+      "leading": 1.2,
+      "weight": 400,
+      "tracking": -0.01,
+      "contrast": 16.3
+     },
+     "measureChars": 38,
+     "max": {
+      "size": 48,
+      "vw": 3.3,
+      "font": "Erode",
+      "text": "Software that speaks."
+     },
+     "monoShare": 0,
+     "monoProseShare": 0,
+     "monoFamilies": [],
+     "monoSamples": [],
+     "microLabels": 0,
+     "microLabelShare": 0,
+     "microSamples": [],
+     "upperShare": 0,
+     "centerShare": 0.07,
+     "smallText": 0
+    },
+    "eyebrows": [],
+    "numbered": [],
+    "color": {
+     "bodyBg": "#141210",
+     "bodyBgHsl": {
+      "h": 30,
+      "s": 0.11,
+      "l": 0.07
+     },
+     "dark": true,
+     "sectionBgs": [],
+     "textColors": [
+      {
+       "color": "#f4efe9",
+       "share": 0.93
+      },
+      {
+       "color": "#141210",
+       "share": 0.07
+      }
+     ],
+     "button": {
+      "bg": "#b49a6f",
+      "hsl": {
+       "h": 37,
+       "s": 0.32,
+       "l": 0.57
+      },
+      "fg": "#141210"
+     },
+     "lowContrast": []
+    },
+    "buttons": {
+     "count": 1,
+     "inHero": 0,
+     "radius": 0,
+     "height": 51,
+     "withShadow": 0,
+     "withGradient": 0,
+     "mono": 0,
+     "upper": 0,
+     "heroLabels": []
+    },
+    "surfaces": {
+     "shadowStatic": 0,
+     "shadowOverlay": 0,
+     "shadowSamples": [],
+     "gradients": 0,
+     "scrims": 0,
+     "gradientSamples": [],
+     "gradientText": 0,
+     "hairlines": 0,
+     "hairlineSamples": [],
+     "outlinedBoxes": 1,
+     "dashed": 0,
+     "blurred": 0,
+     "roundedBoxes": 0,
+     "boxRadius": 0,
+     "squareMedia": 6,
+     "roundedMedia": 0,
+     "mediaRadius": 0,
+     "textShadow": 0,
+     "cardRows": []
+    },
+    "heroMedia": [
+     {
+      "type": "img",
+      "ratio": 0.76
+     }
+    ],
+    "nav": {
+     "links": 0,
+     "fixed": false,
+     "height": 185,
+     "floatingPill": false,
+     "blur": false
+    },
+    "fontsLoaded": [
+     "erode"
+    ]
+   },
+   "layout": {
+    "viewport": {
+     "w": 1440,
+     "h": 900
+    },
+    "pageH": 3713,
+    "margins": {
+     "left": 0,
+     "right": 322
+    },
+    "sections": [
+     {
+      "sel": "div.relative.min-h-screen",
+      "tag": "div",
+      "top": 0,
+      "height": 1807,
+      "words": 16,
+      "media": 5,
+      "middle": 0,
+      "heading": {
+       "text": "Software that speaks.",
+       "size": 48,
+       "tag": "h1"
+      },
+      "left": 0,
+      "right": 435,
+      "textLeft": 0,
+      "textRight": 1029,
+      "fullBleed": true,
+      "footer": false,
+      "hero": true,
+      "continues": false,
+      "pinned": false
+     },
+     {
+      "sel": "main.relative",
+      "tag": "main",
+      "top": 1807,
+      "height": 1721,
+      "words": 36,
+      "media": 1,
+      "middle": 0,
+      "heading": {
+       "text": "Chat with Eric",
+       "size": 19,
+       "tag": "h3"
+      },
+      "left": 32,
+      "right": 322,
+      "textLeft": 32,
+      "textRight": 1197,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": false,
+      "pinned": false
+     },
+     {
+      "sel": "footer.wrap.pt-16",
+      "tag": "footer",
+      "top": 3528,
+      "height": 185,
+      "words": 17,
+      "media": 0,
+      "middle": 25,
+      "heading": {
+       "text": "Eric.exe",
+       "size": 24,
+       "tag": "h2"
+      },
+      "left": 32,
+      "right": 1135,
+      "textLeft": 32,
+      "textRight": 1135,
+      "fullBleed": false,
+      "footer": true,
+      "hero": false,
+      "continues": false,
+      "pinned": false
+     }
+    ],
+    "gaps": [],
+    "h1s": [
+     {
+      "text": "Software that speaks.",
+      "size": 48,
+      "top": 760,
+      "firstScreen": true
+     }
+    ],
+    "edgeText": [
+     {
+      "text": "See my work",
+      "side": "left",
+      "px": 8
+     },
+     {
+      "text": "A browser-native portfolio chatbot — ask Eric abou",
+      "side": "left",
+      "px": 0
+     }
+    ],
+    "edges": [
+     {
+      "x": 0,
+      "n": 2
+     },
+     {
+      "x": 148,
+      "n": 2
+     },
+     {
+      "x": 32,
+      "n": 1
+     }
+    ],
+    "leftBlocks": 5,
+    "bodySize": 16,
+    "stage": false,
+    "explains": false,
+    "slivers": [],
+    "voidShare": 0.14,
+    "voidBox": {
+     "x": 420,
+     "y": 720,
+     "w": 1020,
+     "h": 180
+    }
+   },
+   "app": null,
+   "consoleErrors": []
+  },
+  {
+   "width": 768,
+   "height": 1024,
+   "load": "load",
+   "screens": 4,
+   "filled": [
+    0.77,
+    0.97,
+    0.93,
+    0.36
+   ],
+   "motion": {
+    "elements": 0,
+    "css": 0,
+    "transitions": 0,
+    "scripted": 0,
+    "videos": 0,
+    "playingVideos": 0
+   },
+   "metrics": {
+    "viewport": {
+     "w": 768,
+     "h": 1024
+    },
+    "page": {
+     "height": 3926,
+     "screens": 3.8,
+     "words": 104,
+     "img": 6,
+     "video": 0,
+     "canvas": 0,
+     "svg": 0,
+     "sections": 1,
+     "horizontalOverflow": 633,
+     "overflowCulprits": [
+      "img.h-full.w-full (+633px)",
+      "img.w-full.h-auto (+67px)",
+      "img.w-full.h-full (+335px)"
+     ],
+     "uiFragments": 0,
+     "uiAbuse": false,
+     "realPictures": 6,
+     "videoCount": 0,
+     "uiPictures": 0,
+     "pictureSamples": [
+      "avatar.png",
+      "women-s-surgical-ward.jpg",
+      "ward-for-men-a-mental-hosptial-in.jpg",
+      "ward-for-women-a-mental-hosptial-in.jpg",
+      "ward-at-st-louis-female-hospital.jpg",
+      "avatar.png"
+     ],
+     "blendText": 0,
+     "sideScrollers": 0,
+     "brokenImages": [],
+     "emoji": [],
+     "videosNoPoster": 0
+    },
+    "hero": {
+     "text": "Software that speaks.",
+     "words": 3,
+     "chars": 21,
+     "lines": 1,
+     "size": 36,
+     "vw": 4.7,
+     "font": "Erode",
+     "weight": 700,
+     "tracking": -0.03,
+     "leading": 0.96,
+     "upper": false,
+     "italic": false,
+     "mono": false,
+     "align": "left",
+     "position": "center",
+     "widthRatio": 1,
+     "top": 752,
+     "tag": "h1",
+     "kind": "heading"
+    },
+    "h1": {
+     "text": "Software that speaks.",
+     "words": 3,
+     "lines": 1,
+     "size": 36,
+     "font": "Erode"
+    },
+    "headings": [
+     {
+      "text": "Software that speaks.",
+      "words": 3,
+      "chars": 21,
+      "lines": 1,
+      "size": 36,
+      "vw": 4.7,
+      "font": "Erode",
+      "weight": 700,
+      "tracking": -0.03,
+      "leading": 0.96,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 1,
+      "top": 752,
+      "tag": "h1",
+      "kind": "heading"
+     }
+    ],
+    "headingSummary": {
+     "count": 1,
+     "maxLines": 1,
+     "over2Lines": 0,
+     "statements": 0,
+     "centered": 0,
+     "medianWords": null,
+     "mixedFontHeadings": 0
+    },
+    "type": {
+     "families": [
+      {
+       "family": "Erode",
+       "share": 0.93,
+       "mono": false
+      },
+      {
+       "family": "Arial",
+       "share": 0.07,
+       "mono": false
+      }
+     ],
+     "familyCount": 2,
+     "sizes": [
+      13,
+      16,
+      19,
+      24,
+      36
+     ],
+     "sizeCount": 5,
+     "notLoaded": [],
+     "body": {
+      "font": "Erode",
+      "size": 16,
+      "leading": 1.2,
+      "weight": 400,
+      "tracking": -0.01,
+      "contrast": 16.3
+     },
+     "measureChars": 38,
+     "max": {
+      "size": 36,
+      "vw": 4.7,
+      "font": "Erode",
+      "text": "Software that speaks."
+     },
+     "monoShare": 0,
+     "monoProseShare": 0,
+     "monoFamilies": [],
+     "monoSamples": [],
+     "microLabels": 0,
+     "microLabelShare": 0,
+     "microSamples": [],
+     "upperShare": 0,
+     "centerShare": 0.07,
+     "smallText": 0
+    },
+    "eyebrows": [],
+    "numbered": [],
+    "color": {
+     "bodyBg": "#141210",
+     "bodyBgHsl": {
+      "h": 30,
+      "s": 0.11,
+      "l": 0.07
+     },
+     "dark": true,
+     "sectionBgs": [],
+     "textColors": [
+      {
+       "color": "#f4efe9",
+       "share": 0.93
+      },
+      {
+       "color": "#141210",
+       "share": 0.07
+      }
+     ],
+     "button": {
+      "bg": "#b49a6f",
+      "hsl": {
+       "h": 37,
+       "s": 0.32,
+       "l": 0.57
+      },
+      "fg": "#141210"
+     },
+     "lowContrast": []
+    },
+    "buttons": {
+     "count": 1,
+     "inHero": 0,
+     "radius": 0,
+     "height": 66,
+     "withShadow": 0,
+     "withGradient": 0,
+     "mono": 0,
+     "upper": 0,
+     "heroLabels": []
+    },
+    "surfaces": {
+     "shadowStatic": 0,
+     "shadowOverlay": 0,
+     "shadowSamples": [],
+     "gradients": 0,
+     "scrims": 0,
+     "gradientSamples": [],
+     "gradientText": 0,
+     "hairlines": 0,
+     "hairlineSamples": [],
+     "outlinedBoxes": 1,
+     "dashed": 0,
+     "blurred": 0,
+     "roundedBoxes": 0,
+     "boxRadius": 0,
+     "squareMedia": 6,
+     "roundedMedia": 0,
+     "mediaRadius": 0,
+     "textShadow": 0,
+     "cardRows": []
+    },
+    "heroMedia": [
+     {
+      "type": "img",
+      "ratio": 0.68
+     }
+    ],
+    "nav": {
+     "links": 0,
+     "fixed": false,
+     "height": 245,
+     "floatingPill": false,
+     "blur": false
+    },
+    "fontsLoaded": [
+     "erode"
+    ]
+   },
+   "layout": {
+    "viewport": {
+     "w": 768,
+     "h": 1024
+    },
+    "pageH": 3926,
+    "margins": {
+     "left": 0,
+     "right": 63
+    },
+    "sections": [
+     {
+      "sel": "div.relative.min-h-screen",
+      "tag": "div",
+      "top": 0,
+      "height": 1780,
+      "words": 16,
+      "media": 5,
+      "middle": 0,
+      "heading": {
+       "text": "Software that speaks.",
+       "size": 36,
+       "tag": "h1"
+      },
+      "left": 0,
+      "right": 0,
+      "textLeft": 0,
+      "textRight": 385,
+      "fullBleed": true,
+      "footer": false,
+      "hero": true,
+      "continues": false,
+      "pinned": false
+     },
+     {
+      "sel": "main.relative",
+      "tag": "main",
+      "top": 1780,
+      "height": 1901,
+      "words": 36,
+      "media": 1,
+      "middle": 7,
+      "heading": {
+       "text": "Chat with Eric",
+       "size": 19,
+       "tag": "h3"
+      },
+      "left": 17,
+      "right": 625,
+      "textLeft": 17,
+      "textRight": 629,
+      "fullBleed": true,
+      "footer": false,
+      "hero": false,
+      "continues": false,
+      "pinned": false
+     },
+     {
+      "sel": "footer.wrap.pt-16",
+      "tag": "footer",
+      "top": 3681,
+      "height": 245,
+      "words": 17,
+      "media": 0,
+      "middle": 0,
+      "heading": {
+       "text": "Eric.exe",
+       "size": 24,
+       "tag": "h2"
+      },
+      "left": 17,
+      "right": 532,
+      "textLeft": 17,
+      "textRight": 532,
+      "fullBleed": false,
+      "footer": true,
+      "hero": false,
+      "continues": false,
+      "pinned": false
+     }
+    ],
+    "gaps": [],
+    "h1s": [
+     {
+      "text": "Software that speaks.",
+      "size": 36,
+      "top": 752,
+      "firstScreen": true
+     }
+    ],
+    "edgeText": [
+     {
+      "text": "See my work",
+      "side": "left",
+      "px": 8
+     },
+     {
+      "text": "Software that speaks.",
+      "side": "left",
+      "px": 0
+     },
+     {
+      "text": "A browser-native portfolio chatbot — ask Eric abou",
+      "side": "left",
+      "px": 0
+     }
+    ],
+    "edges": [
+     {
+      "x": 0,
+      "n": 2
+     },
+     {
+      "x": 79,
+      "n": 2
+     },
+     {
+      "x": 17,
+      "n": 1
+     }
+    ],
+    "leftBlocks": 5,
+    "bodySize": 16,
+    "stage": false,
+    "explains": false,
+    "slivers": [],
+    "voidShare": 0,
+    "voidBox": null
+   },
+   "app": null,
+   "consoleErrors": []
+  },
+  {
+   "width": 390,
+   "height": 844,
+   "load": "load",
+   "screens": 5,
+   "filled": [
+    0.66,
+    0.51,
+    0.54,
+    0.54,
+    0.54
+   ],
+   "motion": {
+    "elements": 0,
+    "css": 0,
+    "transitions": 0,
+    "scripted": 0,
+    "videos": 0,
+    "playingVideos": 0
+   },
+   "metrics": {
+    "viewport": {
+     "w": 1401,
+     "h": 3032
+    },
+    "page": {
+     "height": 4106,
+     "screens": 1.4,
+     "words": 104,
+     "img": 6,
+     "video": 0,
+     "canvas": 0,
+     "svg": 0,
+     "sections": 1,
+     "horizontalOverflow": 0,
+     "overflowCulprits": [],
+     "uiFragments": 0,
+     "uiAbuse": false,
+     "realPictures": 6,
+     "videoCount": 0,
+     "uiPictures": 0,
+     "pictureSamples": [
+      "avatar.png",
+      "women-s-surgical-ward.jpg",
+      "ward-for-men-a-mental-hosptial-in.jpg",
+      "ward-for-women-a-mental-hosptial-in.jpg",
+      "ward-at-st-louis-female-hospital.jpg",
+      "avatar.png"
+     ],
+     "blendText": 0,
+     "sideScrollers": 0,
+     "brokenImages": [],
+     "emoji": [],
+     "videosNoPoster": 0
+    },
+    "hero": {
+     "text": "Software that speaks.",
+     "words": 3,
+     "chars": 21,
+     "lines": 1,
+     "size": 36,
+     "vw": 2.6,
+     "font": "Erode",
+     "weight": 700,
+     "tracking": -0.03,
+     "leading": 0.96,
+     "upper": false,
+     "italic": false,
+     "mono": false,
+     "align": "left",
+     "position": "left",
+     "widthRatio": 0.28,
+     "top": 752,
+     "tag": "h1",
+     "kind": "heading"
+    },
+    "h1": {
+     "text": "Software that speaks.",
+     "words": 3,
+     "lines": 1,
+     "size": 36,
+     "font": "Erode"
+    },
+    "headings": [
+     {
+      "text": "Software that speaks.",
+      "words": 3,
+      "chars": 21,
+      "lines": 1,
+      "size": 36,
+      "vw": 2.6,
+      "font": "Erode",
+      "weight": 700,
+      "tracking": -0.03,
+      "leading": 0.96,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.28,
+      "top": 752,
+      "tag": "h1",
+      "kind": "heading"
+     }
+    ],
+    "headingSummary": {
+     "count": 1,
+     "maxLines": 1,
+     "over2Lines": 0,
+     "statements": 0,
+     "centered": 0,
+     "medianWords": null,
+     "mixedFontHeadings": 0
+    },
+    "type": {
+     "families": [
+      {
+       "family": "Erode",
+       "share": 0.93,
+       "mono": false
+      },
+      {
+       "family": "Arial",
+       "share": 0.07,
+       "mono": false
+      }
+     ],
+     "familyCount": 2,
+     "sizes": [
+      13,
+      16,
+      19,
+      24,
+      36
+     ],
+     "sizeCount": 5,
+     "notLoaded": [],
+     "body": {
+      "font": "Erode",
+      "size": 16,
+      "leading": 1.2,
+      "weight": 400,
+      "tracking": -0.01,
+      "contrast": 16.3
+     },
+     "measureChars": 38,
+     "max": {
+      "size": 36,
+      "vw": 2.6,
+      "font": "Erode",
+      "text": "Software that speaks."
+     },
+     "monoShare": 0,
+     "monoProseShare": 0,
+     "monoFamilies": [],
+     "monoSamples": [],
+     "microLabels": 0,
+     "microLabelShare": 0,
+     "microSamples": [],
+     "upperShare": 0,
+     "centerShare": 0.07,
+     "smallText": 0
+    },
+    "eyebrows": [],
+    "numbered": [],
+    "color": {
+     "bodyBg": "#141210",
+     "bodyBgHsl": {
+      "h": 30,
+      "s": 0.11,
+      "l": 0.07
+     },
+     "dark": true,
+     "sectionBgs": [],
+     "textColors": [
+      {
+       "color": "#f4efe9",
+       "share": 0.93
+      },
+      {
+       "color": "#141210",
+       "share": 0.07
+      }
+     ],
+     "button": {
+      "bg": "#b49a6f",
+      "hsl": {
+       "h": 37,
+       "s": 0.32,
+       "l": 0.57
+      },
+      "fg": "#141210"
+     },
+     "lowContrast": []
+    },
+    "buttons": {
+     "count": 1,
+     "inHero": 1,
+     "radius": 0,
+     "height": 66,
+     "withShadow": 0,
+     "withGradient": 0,
+     "mono": 0,
+     "upper": 0,
+     "heroLabels": [
+      "Initialize Local AI (~500 MB)"
+     ]
+    },
+    "surfaces": {
+     "shadowStatic": 0,
+     "shadowOverlay": 0,
+     "shadowSamples": [],
+     "gradients": 0,
+     "scrims": 0,
+     "gradientSamples": [],
+     "gradientText": 0,
+     "hairlines": 0,
+     "hairlineSamples": [],
+     "outlinedBoxes": 1,
+     "dashed": 0,
+     "blurred": 0,
+     "roundedBoxes": 0,
+     "boxRadius": 0,
+     "squareMedia": 6,
+     "roundedMedia": 0,
+     "mediaRadius": 0,
+     "textShadow": 0,
+     "cardRows": []
+    },
+    "heroMedia": [
+     {
+      "type": "img",
+      "ratio": 0.32
+     },
+     {
+      "type": "img",
+      "ratio": 0.23
+     },
+     {
+      "type": "img",
+      "ratio": 0.11
+     },
+     {
+      "type": "img",
+      "ratio": 0.11
+     }
+    ],
+    "nav": {
+     "links": 0,
+     "fixed": false,
+     "height": 325,
+     "floatingPill": false,
+     "blur": false
+    },
+    "fontsLoaded": [
+     "erode"
+    ]
+   },
+   "layout": {
+    "viewport": {
+     "w": 1401,
+     "h": 3032
+    },
+    "pageH": 4106,
+    "margins": {
+     "left": 0,
+     "right": 299
+    },
+    "sections": [],
+    "gaps": [],
+    "h1s": [
+     {
+      "text": "Software that speaks.",
+      "size": 36,
+      "top": 752,
+      "firstScreen": true
+     }
+    ],
+    "edgeText": [
+     {
+      "text": "See my work",
+      "side": "left",
+      "px": 8
+     },
+     {
+      "text": "Software that speaks.",
+      "side": "left",
+      "px": 0
+     },
+     {
+      "text": "A browser-native portfolio chatbot — ask Eric abou",
+      "side": "left",
+      "px": 0
+     }
+    ],
+    "edges": [
+     {
+      "x": 0,
+      "n": 2
+     },
+     {
+      "x": 47,
+      "n": 2
+     },
+     {
+      "x": 16,
+      "n": 1
+     }
+    ],
+    "leftBlocks": 5,
+    "bodySize": 16,
+    "stage": false,
+    "explains": false,
+    "slivers": [],
+    "voidShare": 0.15,
+    "voidBox": {
+     "x": 1109,
+     "y": 809,
+     "w": 292,
+     "h": 2223
+    }
+   },
+   "app": null,
+   "consoleErrors": []
+  }
+ ],
+ "findings": [
+  {
+   "level": "WARN",
+   "id": "outlined-box",
+   "width": 1440,
+   "message": "1 box(es) drawn with a 1px outline.",
+   "fix": "Prefer a filled surface or no box.",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "WARN",
+   "id": "palette-cream",
+   "width": 1440,
+   "message": "Yellow-cream background (text #f4efe9).",
+   "fix": "Use the drawn palette. If you want warmth, take a low-chroma stone or bone, not a yellow cream.",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "WARN",
+   "id": "first-action",
+   "width": 1440,
+   "message": "No visible button in the first screen.",
+   "fix": "Give the one primary action a real button in the first screen (a filled or solid-bordered control, 44px or taller), not only a link in the navigation.",
+   "alsoAt": [
+    768
+   ]
+  },
+  {
+   "level": "WARN",
+   "id": "no-footage",
+   "width": 1440,
+   "message": "No video anywhere on the page.",
+   "fix": "Look for one honest clip with scripts/assets.mjs --video (the place, the material, the process) and use it as a muted loop with a poster frame. Defend its absence only if no clip fits the subject."
+  },
+  {
+   "level": "FAIL",
+   "id": "off-centre",
+   "width": 1440,
+   "message": "The page sits off-centre: its content comes to 0px from the left edge but only to 322px from the right, at 1440px.",
+   "fix": "Give the page one pair of equal margins. Check the wrapper for a max-width without margin-inline: auto, a grid with an empty last column, or padding on one side only. If one side is meant to hold air, it must still be closed by something that reaches the margin (a picture, the navigation's last item, a figure).",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "WARN",
+   "id": "name-only-title",
+   "width": 1440,
+   "message": "The h1 is a bare name (\"Software that speaks.\") and nothing else on the first screen says what this is.",
+   "fix": "Keep the name if it leads, and give the line under it (18px or more) the plain words: what it is, for whom, where or when. In the study of 97 Sites of the Day, first screens that named nothing lost usability and content points.",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "FAIL",
+   "id": "edge-text",
+   "width": 1440,
+   "message": "2 text block(s) sit within 16px of the screen edge: \"See my work\" (8px from the left); \"A browser-native portfolio cha\" (0px from the left)",
+   "fix": "Keep text inside the page margin (16–32px or more). Only display type deliberately bled past the edge may touch it.",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "FAIL",
+   "id": "still-page",
+   "width": 1440,
+   "message": "Only 0 element(s) moved while the page loaded and scrolled.",
+   "fix": "Build the motion layer (SKILL.md step 9, references/motion.md): the signature move, an entrance for the parts of every section, feedback on every control, and one moving picture. Transform and opacity only, with a reduced-motion fallback."
+  },
+  {
+   "level": "FAIL",
+   "id": "overflow",
+   "width": 768,
+   "message": "Page scrolls sideways by 633px at 768px. Widest offenders: img.h-full.w-full (+633px), img.w-full.h-auto (+67px), img.w-full.h-full (+335px).",
+   "fix": "Constrain the element that is wider than the viewport (max-width: 100%, or overflow: clip on its section)."
+  }
+ ],
+ "images": [
+  {
+   "viewport": "desktop",
+   "width": 1440,
+   "fold": "/Users/erictung/Documents/portfolio website/.taste-skill/after/desktop-fold.jpg",
+   "pages": [
+    "/Users/erictung/Documents/portfolio website/.taste-skill/after/desktop-page-01.jpg",
+    "/Users/erictung/Documents/portfolio website/.taste-skill/after/desktop-page-02.jpg"
+   ],
+   "film": []
+  },
+  {
+   "viewport": "tablet",
+   "width": 768,
+   "fold": "/Users/erictung/Documents/portfolio website/.taste-skill/after/tablet-fold.jpg",
+   "pages": [
+    "/Users/erictung/Documents/portfolio website/.taste-skill/after/tablet-page-01.jpg"
+   ],
+   "film": []
+  },
+  {
+   "viewport": "mobile",
+   "width": 390,
+   "fold": "/Users/erictung/Documents/portfolio website/.taste-skill/after/mobile-fold.jpg",
+   "pages": [
+    "/Users/erictung/Documents/portfolio website/.taste-skill/after/mobile-page-01.jpg"
+   ],
+   "film": []
+  }
+ ]
+}

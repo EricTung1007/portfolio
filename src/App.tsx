@@ -60,7 +60,7 @@ export default function App() {
         <div style={{ display: 'flex', justifyContent: 'center' }}>
           <img
             data-hero-move
-            src="/avatar.png"
+            src={`${import.meta.env.BASE_URL}avatar.png`}
             alt="Eric — hand-drawn portrait"
             width="1400"
             height="700"

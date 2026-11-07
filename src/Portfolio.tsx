@@ -28,11 +28,11 @@ export default function Portfolio({ onBack, data }: PortfolioProps) {
       <Section id="about" title="About">
         <div className="grid md:grid-cols-12 gap-8">
           <div className="md:col-span-8">
-            <p className="text-[clamp(1.5rem,2.4vw,2.375rem)] leading-[1.25] max-w-2xl" data-reveal style={{ fontFamily: "'Erode', system-ui, sans-serif" }}>
+            <p className="text-[clamp(1.5rem,2.4vw,2.375rem)] leading-[1.25] max-w-2xl" style={{ fontFamily: "'Erode', system-ui, sans-serif" }}>
               {data.profile.tagline}
             </p>
           </div>
-          <div className="md:col-span-4 flex md:flex-col gap-6 pt-2" data-reveal>
+          <div className="md:col-span-4 flex md:flex-col gap-6 pt-2">
             <Fact label="Based in" value="Taipei, Taiwan" />
             <Fact label="Role" value="Backend / AI" />
             <Fact label="GitHub" value="EricTung1007" href={data.profile.contact.github} />
@@ -42,7 +42,7 @@ export default function Portfolio({ onBack, data }: PortfolioProps) {
 
         <div className="grid md:grid-cols-2 gap-5 mt-16">
           {data.experience.map((ex: Experience, i: number) => (
-            <article key={i} className="card space-y-2" data-reveal data-stagger>
+            <article key={i} className="card space-y-2">
               <div className="flex flex-wrap items-baseline gap-2">
                 <h4 className="font-medium text-[var(--ink)]">{ex.company}</h4>
                 <span className="text-sm text-[var(--muted)]">{ex.role} · {ex.period}</span>
@@ -61,7 +61,7 @@ export default function Portfolio({ onBack, data }: PortfolioProps) {
       <Section id="projects" title="Selected work">
         <div className="space-y-5">
           {data.projects.map((p: Project, i: number) => (
-            <article key={i} className="card space-y-3" data-reveal data-stagger>
+            <article key={i} className="card space-y-3">
               <div className="flex flex-wrap items-baseline gap-3">
                 <h4 className="text-lg font-medium text-[var(--ink)]">{p.title}</h4>
                 {p.year && <span className="text-sm text-[var(--muted)]">{p.year}</span>}
@@ -90,7 +90,7 @@ export default function Portfolio({ onBack, data }: PortfolioProps) {
         <Section id="publications" title="Publications">
           <div className="space-y-4 max-w-2xl">
             {data.publications.map((pub, i) => (
-              <div key={i} className="flex items-baseline gap-3" data-reveal data-stagger>
+              <div key={i} className="flex items-baseline gap-3">
                 <span className="text-sm text-[var(--muted)] shrink-0">{pub.year}</span>
                 <div>
                   <a href={pub.doi} target="_blank" rel="noopener noreferrer" className="text-[var(--ink)] hover:text-[var(--accent)] transition-colors">
@@ -108,7 +108,7 @@ export default function Portfolio({ onBack, data }: PortfolioProps) {
       <Section id="faq" title="Frequently asked">
         <div className="space-y-3 max-w-2xl">
           {data.faqs.map((f: FAQ, i: number) => (
-            <details key={i} open={openFaq === i} onChange={(e) => setOpenFaq(e.currentTarget.open ? i : null)} className="border-l pl-4" data-reveal style={{ borderColor: 'var(--line-strong)' }}>
+            <details key={i} open={openFaq === i} onChange={(e) => setOpenFaq(e.currentTarget.open ? i : null)} className="border-l pl-4" style={{ borderColor: 'var(--line-strong)' }}>
               <summary className="flex cursor-pointer items-center justify-between gap-3 font-medium text-[var(--ink)] list-none">
                 <span>{f.q}</span>
                 <span className="text-[var(--accent)] text-xl leading-none">{openFaq === i ? '−' : '+'}</span>

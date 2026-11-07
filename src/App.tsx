@@ -94,7 +94,10 @@ export default function App() {
 
           <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
             <button
-              onClick={() => setAndPersist('chat')}
+              onClick={() => {
+                setAndPersist('chat');
+                setTimeout(() => document.getElementById('chat-panel')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+              }}
               className="btn-primary"
               style={{ fontSize: '0.9375rem', padding: '0.7rem 1.5rem' }}
             >
@@ -115,7 +118,7 @@ export default function App() {
       <main className="wrap" style={{ paddingTop: '1rem', paddingBottom: '4rem' }}>
         {view === 'chat' ? (
           <>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '2rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+            <div id="chat-panel" className="scroll-mt-24" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '2rem', flexWrap: 'wrap', gap: '0.5rem' }}>
               <h2 className="section-title" style={{ fontSize: 'clamp(1.25rem, 1.8vw, 1.5rem)', margin: 0 }}>
                 Talk to Eric
               </h2>

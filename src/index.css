@@ -354,7 +354,13 @@ a { color: inherit; }
 
 @media (max-width: 640px) {
   .chat-layout { grid-template-columns: 1fr; }
-  .chat-aside { display: none; }
+  .chat-aside {
+    display: flex;
+    order: -1;
+    position: static;
+    padding-top: 0;
+  }
+  .chat-aside img { max-width: 200px; }
 }
 
 .chat-aside {

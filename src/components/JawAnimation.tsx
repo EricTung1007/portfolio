@@ -4,7 +4,7 @@ export default function AvatarAnimation({ running }: { running: boolean }) {
   const reduced = useReducedMotion();
 
   return (
-    <div style={{ width: '120px', position: 'relative' }}>
+    <div style={{ width: '100%', position: 'relative' }}>
       <img src={`${import.meta.env.BASE_URL}desk.png`} alt="Eric's information desk" style={{ width: '100%', height: 'auto', display: 'block' }} />
       {running && !reduced && (
         <span aria-hidden style={{ position: 'absolute', bottom: '8%', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '4px' }}>

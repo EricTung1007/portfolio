@@ -1,22 +1,24 @@
 {
- "url": "http://localhost:5174",
- "at": "2026-10-23T16:14:43.993Z",
+ "url": "http://localhost:5174/",
+ "at": "2026-11-08T11:32:02.578Z",
  "allow": [],
  "viewports": [
   {
    "width": 1440,
    "height": 900,
    "load": "load",
-   "screens": 3,
+   "screens": 5,
    "filled": [
-    0.49,
-    0.76,
-    0.39
+    0.07,
+    0.16,
+    0.15,
+    0.16,
+    0.19
    ],
    "motion": {
-    "elements": 0,
+    "elements": 1,
     "css": 0,
-    "transitions": 0,
+    "transitions": 1,
     "scripted": 0,
     "videos": 0,
     "playingVideos": 0
@@ -27,14 +29,14 @@
      "h": 900
     },
     "page": {
-     "height": 2231,
-     "screens": 2.5,
-     "words": 108,
-     "img": 6,
+     "height": 4345,
+     "screens": 4.8,
+     "words": 521,
+     "img": 0,
      "video": 0,
      "canvas": 0,
-     "svg": 0,
-     "sections": 1,
+     "svg": 3,
+     "sections": 4,
      "horizontalOverflow": 0,
      "overflowCulprits": [],
      "uiFragments": 0,
@@ -45,137 +47,216 @@
      "pictureSamples": [],
      "blendText": 0,
      "sideScrollers": 0,
-     "brokenImages": [
-      "http://localhost:5174/avatar.png",
-      "http://localhost:5174/assets/women-s-surgical-ward.jpg",
-      "http://localhost:5174/assets/ward-for-men-a-mental-hosptial-in.jpg",
-      "http://localhost:5174/assets/ward-for-women-a-mental-hosptial-in.jpg",
-      "http://localhost:5174/assets/ward-at-st-louis-female-hospital.jpg",
-      "http://localhost:5174/avatar.png"
-     ],
+     "brokenImages": [],
      "emoji": [],
      "videosNoPoster": 0
     },
     "hero": {
-     "text": "Software that speaks.",
-     "words": 3,
-     "chars": 21,
-     "lines": 1,
-     "size": 52,
-     "vw": 3.6,
-     "font": "Erode",
-     "weight": 700,
-     "tracking": -0.03,
-     "leading": 0.96,
+     "text": "Quiet software that holds up.",
+     "words": 5,
+     "chars": 29,
+     "lines": 2,
+     "size": 56,
+     "vw": 3.9,
+     "font": "Switzer",
+     "weight": 500,
+     "tracking": -0.02,
+     "leading": 1.08,
      "upper": false,
      "italic": false,
      "mono": false,
      "align": "left",
      "position": "center",
-     "widthRatio": 0.96,
-     "top": 585,
+     "widthRatio": 0.3,
+     "top": 255,
      "tag": "h1",
      "kind": "heading"
     },
     "h1": {
-     "text": "Software that speaks.",
-     "words": 3,
-     "lines": 1,
-     "size": 52,
-     "font": "Erode"
+     "text": "Quiet software that holds up.",
+     "words": 5,
+     "lines": 2,
+     "size": 56,
+     "font": "Switzer"
     },
     "headings": [
      {
-      "text": "Software that speaks.",
-      "words": 3,
-      "chars": 21,
-      "lines": 1,
-      "size": 52,
-      "vw": 3.6,
-      "font": "Erode",
-      "weight": 700,
-      "tracking": -0.03,
-      "leading": 0.96,
+      "text": "Quiet software that holds up.",
+      "words": 5,
+      "chars": 29,
+      "lines": 2,
+      "size": 56,
+      "vw": 3.9,
+      "font": "Switzer",
+      "weight": 500,
+      "tracking": -0.02,
+      "leading": 1.08,
       "upper": false,
       "italic": false,
       "mono": false,
       "align": "left",
       "position": "center",
-      "widthRatio": 0.96,
-      "top": 585,
+      "widthRatio": 0.3,
+      "top": 255,
       "tag": "h1",
       "kind": "heading"
      },
      {
-      "text": "Eric.exe",
+      "text": "About",
       "words": 1,
-      "chars": 8,
+      "chars": 5,
       "lines": 1,
-      "size": 32,
-      "vw": 2.2,
-      "font": "Erode",
+      "size": 40,
+      "vw": 2.8,
+      "font": "Switzer",
       "weight": 500,
-      "tracking": 0,
-      "leading": 1.2,
+      "tracking": -0.015,
+      "leading": 1.1,
       "upper": false,
       "italic": false,
       "mono": false,
       "align": "left",
-      "position": "left",
-      "widthRatio": 0.79,
-      "top": 2076,
+      "position": "center",
+      "widthRatio": 0.36,
+      "top": 848,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "Work",
+      "words": 1,
+      "chars": 4,
+      "lines": 1,
+      "size": 40,
+      "vw": 2.8,
+      "font": "Switzer",
+      "weight": 500,
+      "tracking": -0.015,
+      "leading": 1.1,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.36,
+      "top": 1546,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "Projects",
+      "words": 1,
+      "chars": 8,
+      "lines": 1,
+      "size": 40,
+      "vw": 2.8,
+      "font": "Switzer",
+      "weight": 500,
+      "tracking": -0.015,
+      "leading": 1.1,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.36,
+      "top": 2554,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "Writing",
+      "words": 1,
+      "chars": 7,
+      "lines": 1,
+      "size": 40,
+      "vw": 2.8,
+      "font": "Switzer",
+      "weight": 500,
+      "tracking": -0.015,
+      "leading": 1.1,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.36,
+      "top": 3267,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "Let's build something that holds up.",
+      "words": 6,
+      "chars": 36,
+      "lines": 2,
+      "size": 64,
+      "vw": 4.4,
+      "font": "Switzer",
+      "weight": 500,
+      "tracking": -0.02,
+      "leading": 1.05,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "center",
+      "position": "center",
+      "widthRatio": 0.46,
+      "top": 3902,
       "tag": "h2",
       "kind": "heading"
      }
     ],
     "headingSummary": {
-     "count": 2,
-     "maxLines": 1,
+     "count": 6,
+     "maxLines": 2,
      "over2Lines": 0,
      "statements": 0,
-     "centered": 0,
+     "centered": 1,
      "medianWords": 1,
      "mixedFontHeadings": 0
     },
     "type": {
      "families": [
       {
-       "family": "Erode",
-       "share": 0.95,
+       "family": "Switzer",
+       "share": 1,
        "mono": false
       },
       {
        "family": "Arial",
-       "share": 0.05,
+       "share": 0,
        "mono": false
       }
      ],
      "familyCount": 2,
      "sizes": [
-      12,
-      13,
       14,
+      15,
       16,
-      21,
-      32,
-      52
+      17,
+      18,
+      19,
+      40,
+      56,
+      64
      ],
-     "sizeCount": 7,
+     "sizeCount": 9,
      "notLoaded": [],
      "body": {
-      "font": "Erode",
+      "font": "Switzer",
       "size": 16,
-      "leading": 1.65,
+      "leading": 1.55,
       "weight": 400,
       "tracking": 0,
-      "contrast": 5.5
+      "contrast": 14.6
      },
-     "measureChars": 40,
+     "measureChars": 64,
      "max": {
-      "size": 52,
-      "vw": 3.6,
-      "font": "Erode",
-      "text": "Software that speaks."
+      "size": 64,
+      "vw": 4.4,
+      "font": "Switzer",
+      "text": "Let's build something that holds up."
      },
      "monoShare": 0,
      "monoProseShare": 0,
@@ -184,79 +265,57 @@
      "microLabels": 0,
      "microLabelShare": 0,
      "microSamples": [],
-     "upperShare": 0.02,
-     "centerShare": 0.05,
+     "upperShare": 0,
+     "centerShare": 0.02,
      "smallText": 0
     },
     "eyebrows": [],
     "numbered": [],
     "color": {
-     "bodyBg": "#141210",
+     "bodyBg": "#141312",
      "bodyBgHsl": {
       "h": 30,
-      "s": 0.11,
+      "s": 0.05,
       "l": 0.07
      },
      "dark": true,
-     "sectionBgs": [
-      {
-       "color": "#141210",
-       "top": 0,
-       "hsl": {
-        "h": 30,
-        "s": 0.11,
-        "l": 0.07
-       }
-      },
-      {
-       "color": "#1e1b18",
-       "top": 1428,
-       "hsl": {
-        "h": 30,
-        "s": 0.11,
-        "l": 0.11
-       }
-      }
-     ],
+     "sectionBgs": [],
      "textColors": [
       {
-       "color": "#8f8a82",
-       "share": 0.64
+       "color": "#9d978e",
+       "share": 0.73
       },
       {
-       "color": "#f4efe9",
-       "share": 0.31
+       "color": "#e8e4dd",
+       "share": 0.27
       },
       {
-       "color": "#141210",
-       "share": 0.04
-      },
-      {
-       "color": "#141211",
-       "share": 0.02
+       "color": "#141312",
+       "share": 0.01
       }
      ],
      "button": {
-      "bg": "#b49a6f",
+      "bg": "#e8e4dd",
       "hsl": {
-       "h": 37,
-       "s": 0.32,
-       "l": 0.57
+       "h": 38,
+       "s": 0.19,
+       "l": 0.89
       },
-      "fg": "#141210"
+      "fg": "#141312"
      },
      "lowContrast": []
     },
     "buttons": {
-     "count": 1,
-     "inHero": 1,
-     "radius": 0,
-     "height": 40,
+     "count": 7,
+     "inHero": 2,
+     "radius": "pill",
+     "height": 42,
      "withShadow": 0,
      "withGradient": 0,
      "mono": 0,
      "upper": 0,
      "heroLabels": [
+      "Ask the desk",
       "See my work"
      ]
     },
@@ -268,36 +327,29 @@
      "scrims": 0,
      "gradientSamples": [],
      "gradientText": 0,
-     "hairlines": 1,
-     "hairlineSamples": [
-      "footer 1440px"
-     ],
-     "outlinedBoxes": 1,
+     "hairlines": 0,
+     "hairlineSamples": [],
+     "outlinedBoxes": 0,
      "dashed": 0,
      "blurred": 0,
-     "roundedBoxes": 1,
-     "boxRadius": 6,
+     "roundedBoxes": 0,
+     "boxRadius": 0,
      "squareMedia": 0,
-     "roundedMedia": 5,
-     "mediaRadius": 4,
+     "roundedMedia": 0,
+     "mediaRadius": 0,
      "textShadow": 0,
      "cardRows": []
     },
-    "heroMedia": [
-     {
-      "type": "img",
-      "ratio": 0.42
-     }
-    ],
+    "heroMedia": [],
     "nav": {
      "links": 0,
      "fixed": false,
-     "height": 1332,
+     "height": 792,
      "floatingPill": false,
      "blur": false
     },
     "fontsLoaded": [
-     "erode"
+     "switzer"
     ]
    },
    "layout": {
@@ -305,25 +357,29 @@
      "w": 1440,
      "h": 900
     },
-    "pageH": 2231,
+    "pageH": 4345,
     "margins": {
-     "left": 32,
-     "right": 32
+     "left": 425,
+     "right": 426
     },
     "sections": [
      {
-      "sel": "header",
+      "sel": "header.hero",
       "tag": "header",
       "top": 0,
-      "height": 1332,
-      "words": 3,
-      "media": 1,
+      "height": 792,
+      "words": 33,
+      "media": 0,
       "middle": 0,
-      "heading": null,
-      "left": 33,
-      "right": 32,
-      "textLeft": 1305,
-      "textRight": 54,
+      "heading": {
+       "text": "Quiet software",
+       "size": 56,
+       "tag": "h1"
+      },
+      "left": 505,
+      "right": 507,
+      "textLeft": 505,
+      "textRight": 507,
       "fullBleed": false,
       "footer": false,
       "hero": true,
@@ -333,16 +389,20 @@
      {
       "sel": "main",
       "tag": "main",
-      "top": 1332,
-      "height": 652,
-      "words": 49,
+      "top": 792,
+      "height": 3407,
+      "words": 535,
       "media": 0,
-      "middle": 40,
-      "heading": null,
-      "left": 32,
-      "right": 589,
-      "textLeft": 32,
-      "textRight": 589,
+      "middle": 0,
+      "heading": {
+       "text": "About",
+       "size": 40,
+       "tag": "h2"
+      },
+      "left": 425,
+      "right": 426,
+      "textLeft": 425,
+      "textRight": 426,
       "fullBleed": false,
       "footer": false,
       "hero": false,
@@ -350,22 +410,18 @@
       "pinned": false
      },
      {
-      "sel": "footer",
+      "sel": "footer.footer",
       "tag": "footer",
-      "top": 1984,
-      "height": 247,
+      "top": 4199,
+      "height": 146,
       "words": 17,
       "media": 0,
-      "middle": 969,
-      "heading": {
-       "text": "Eric.exe",
-       "size": 32,
-       "tag": "h2"
-      },
-      "left": 32,
-      "right": 32,
-      "textLeft": 32,
-      "textRight": 32,
+      "middle": 114,
+      "heading": null,
+      "left": 304,
+      "right": 321,
+      "textLeft": 304,
+      "textRight": 321,
       "fullBleed": false,
       "footer": true,
       "hero": false,
@@ -375,33 +431,40 @@
     ],
     "gaps": [
      {
-      "top": 496,
-      "height": 916
+      "top": 572,
+      "height": 272
      }
     ],
-    "h1s": [],
+    "h1s": [
+     {
+      "text": "Quiet software that holds up.",
+      "size": 56,
+      "top": 255,
+      "firstScreen": true
+     }
+    ],
     "edgeText": [],
     "edges": [
      {
-      "x": 32,
-      "n": 1
+      "x": 464,
+      "n": 6
      },
      {
-      "x": 312,
-      "n": 1
+      "x": 505,
+      "n": 3
      }
     ],
-    "leftBlocks": 2,
+    "leftBlocks": 9,
     "bodySize": 16,
     "stage": false,
     "explains": false,
     "slivers": [],
-    "voidShare": 0.41,
+    "voidShare": 0.29,
     "voidBox": {
-     "x": 0,
-     "y": 480,
-     "w": 1260,
-     "h": 420
+     "x": 960,
+     "y": 120,
+     "w": 480,
+     "h": 780
     }
    },
    "app": null,
@@ -411,15 +474,18 @@
    "width": 768,
    "height": 1024,
    "load": "load",
-   "screens": 2,
+   "screens": 5,
    "filled": [
-    0.56,
-    0.44
+    0.11,
+    0.27,
+    0.23,
+    0.32,
+    0.19
    ],
    "motion": {
-    "elements": 0,
+    "elements": 1,
     "css": 0,
-    "transitions": 0,
+    "transitions": 1,
     "scripted": 0,
     "videos": 0,
     "playingVideos": 0
@@ -430,14 +496,14 @@
      "h": 1024
     },
     "page": {
-     "height": 2039,
-     "screens": 2,
-     "words": 108,
-     "img": 6,
+     "height": 4407,
+     "screens": 4.3,
+     "words": 521,
+     "img": 0,
      "video": 0,
      "canvas": 0,
-     "svg": 0,
-     "sections": 1,
+     "svg": 3,
+     "sections": 4,
      "horizontalOverflow": 0,
      "overflowCulprits": [],
      "uiFragments": 0,
@@ -448,137 +514,216 @@
      "pictureSamples": [],
      "blendText": 0,
      "sideScrollers": 0,
-     "brokenImages": [
-      "http://localhost:5174/avatar.png",
-      "http://localhost:5174/assets/women-s-surgical-ward.jpg",
-      "http://localhost:5174/assets/ward-for-men-a-mental-hosptial-in.jpg",
-      "http://localhost:5174/assets/ward-for-women-a-mental-hosptial-in.jpg",
-      "http://localhost:5174/assets/ward-at-st-louis-female-hospital.jpg",
-      "http://localhost:5174/avatar.png"
-     ],
+     "brokenImages": [],
      "emoji": [],
      "videosNoPoster": 0
     },
     "hero": {
-     "text": "Software that speaks.",
-     "words": 3,
-     "chars": 21,
-     "lines": 1,
-     "size": 36,
-     "vw": 4.7,
-     "font": "Erode",
-     "weight": 700,
-     "tracking": -0.03,
-     "leading": 0.96,
+     "text": "Quiet software that holds up.",
+     "words": 5,
+     "chars": 29,
+     "lines": 2,
+     "size": 38.4,
+     "vw": 5,
+     "font": "Switzer",
+     "weight": 500,
+     "tracking": -0.02,
+     "leading": 1.08,
      "upper": false,
      "italic": false,
      "mono": false,
      "align": "left",
      "position": "center",
-     "widthRatio": 0.96,
-     "top": 629,
+     "widthRatio": 0.56,
+     "top": 329,
      "tag": "h1",
      "kind": "heading"
     },
     "h1": {
-     "text": "Software that speaks.",
-     "words": 3,
-     "lines": 1,
-     "size": 36,
-     "font": "Erode"
+     "text": "Quiet software that holds up.",
+     "words": 5,
+     "lines": 2,
+     "size": 38.4,
+     "font": "Switzer"
     },
     "headings": [
      {
-      "text": "Software that speaks.",
-      "words": 3,
-      "chars": 21,
-      "lines": 1,
-      "size": 36,
-      "vw": 4.7,
-      "font": "Erode",
-      "weight": 700,
-      "tracking": -0.03,
-      "leading": 0.96,
+      "text": "Quiet software that holds up.",
+      "words": 5,
+      "chars": 29,
+      "lines": 2,
+      "size": 38.4,
+      "vw": 5,
+      "font": "Switzer",
+      "weight": 500,
+      "tracking": -0.02,
+      "leading": 1.08,
       "upper": false,
       "italic": false,
       "mono": false,
       "align": "left",
       "position": "center",
-      "widthRatio": 0.96,
-      "top": 629,
+      "widthRatio": 0.56,
+      "top": 329,
       "tag": "h1",
       "kind": "heading"
      },
      {
-      "text": "Eric.exe",
+      "text": "About",
       "words": 1,
-      "chars": 8,
+      "chars": 5,
       "lines": 1,
-      "size": 32,
-      "vw": 4.2,
-      "font": "Erode",
+      "size": 30.7,
+      "vw": 4,
+      "font": "Switzer",
       "weight": 500,
-      "tracking": 0,
-      "leading": 1.2,
+      "tracking": -0.015,
+      "leading": 1.1,
       "upper": false,
       "italic": false,
       "mono": false,
       "align": "left",
-      "position": "left",
-      "widthRatio": 0.64,
-      "top": 1883,
+      "position": "center",
+      "widthRatio": 0.67,
+      "top": 957,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "Work",
+      "words": 1,
+      "chars": 4,
+      "lines": 1,
+      "size": 30.7,
+      "vw": 4,
+      "font": "Switzer",
+      "weight": 500,
+      "tracking": -0.015,
+      "leading": 1.1,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.67,
+      "top": 1645,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "Projects",
+      "words": 1,
+      "chars": 8,
+      "lines": 1,
+      "size": 30.7,
+      "vw": 4,
+      "font": "Switzer",
+      "weight": 500,
+      "tracking": -0.015,
+      "leading": 1.1,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.67,
+      "top": 2642,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "Writing",
+      "words": 1,
+      "chars": 7,
+      "lines": 1,
+      "size": 30.7,
+      "vw": 4,
+      "font": "Switzer",
+      "weight": 500,
+      "tracking": -0.015,
+      "leading": 1.1,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.67,
+      "top": 3346,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "Let's build something that holds up.",
+      "words": 6,
+      "chars": 36,
+      "lines": 2,
+      "size": 42.2,
+      "vw": 5.5,
+      "font": "Switzer",
+      "weight": 500,
+      "tracking": -0.02,
+      "leading": 1.05,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "center",
+      "position": "center",
+      "widthRatio": 0.57,
+      "top": 3970,
       "tag": "h2",
       "kind": "heading"
      }
     ],
     "headingSummary": {
-     "count": 2,
-     "maxLines": 1,
+     "count": 6,
+     "maxLines": 2,
      "over2Lines": 0,
      "statements": 0,
-     "centered": 0,
+     "centered": 1,
      "medianWords": 1,
      "mixedFontHeadings": 0
     },
     "type": {
      "families": [
       {
-       "family": "Erode",
-       "share": 0.95,
+       "family": "Switzer",
+       "share": 1,
        "mono": false
       },
       {
        "family": "Arial",
-       "share": 0.05,
+       "share": 0,
        "mono": false
       }
      ],
      "familyCount": 2,
      "sizes": [
-      12,
-      13,
       14,
+      15,
       16,
+      17,
       18,
-      32,
-      36
+      19,
+      31,
+      38,
+      42
      ],
-     "sizeCount": 7,
+     "sizeCount": 9,
      "notLoaded": [],
      "body": {
-      "font": "Erode",
+      "font": "Switzer",
       "size": 16,
-      "leading": 1.65,
+      "leading": 1.55,
       "weight": 400,
       "tracking": 0,
-      "contrast": 5.5
+      "contrast": 14.6
      },
-     "measureChars": 40,
+     "measureChars": 64,
      "max": {
-      "size": 36,
-      "vw": 4.7,
-      "font": "Erode",
-      "text": "Software that speaks."
+      "size": 42.2,
+      "vw": 5.5,
+      "font": "Switzer",
+      "text": "Let's build something that holds up."
      },
      "monoShare": 0,
      "monoProseShare": 0,
@@ -587,70 +732,57 @@
      "microLabels": 0,
      "microLabelShare": 0,
      "microSamples": [],
-     "upperShare": 0.02,
-     "centerShare": 0.05,
+     "upperShare": 0,
+     "centerShare": 0.02,
      "smallText": 0
     },
     "eyebrows": [],
     "numbered": [],
     "color": {
-     "bodyBg": "#141210",
+     "bodyBg": "#141312",
      "bodyBgHsl": {
       "h": 30,
-      "s": 0.11,
+      "s": 0.05,
       "l": 0.07
      },
      "dark": true,
-     "sectionBgs": [
-      {
-       "color": "#141210",
-       "top": 0,
-       "hsl": {
-        "h": 30,
-        "s": 0.11,
-        "l": 0.07
-       }
-      }
-     ],
+     "sectionBgs": [],
      "textColors": [
       {
-       "color": "#8f8a82",
-       "share": 0.64
+       "color": "#9d978e",
+       "share": 0.73
       },
       {
-       "color": "#f4efe9",
-       "share": 0.31
+       "color": "#e8e4dd",
+       "share": 0.27
       },
       {
-       "color": "#141210",
-       "share": 0.04
-      },
-      {
-       "color": "#141211",
-       "share": 0.02
+       "color": "#141312",
+       "share": 0.01
       }
      ],
      "button": {
-      "bg": "#b49a6f",
+      "bg": "#e8e4dd",
       "hsl": {
-       "h": 37,
-       "s": 0.32,
-       "l": 0.57
+       "h": 38,
+       "s": 0.19,
+       "l": 0.89
       },
-      "fg": "#141210"
+      "fg": "#141312"
      },
      "lowContrast": []
     },
     "buttons": {
-     "count": 1,
-     "inHero": 1,
-     "radius": 0,
-     "height": 40,
+     "count": 7,
+     "inHero": 2,
+     "radius": "pill",
+     "height": 42,
      "withShadow": 0,
      "withGradient": 0,
      "mono": 0,
      "upper": 0,
      "heroLabels": [
+      "Ask the desk",
       "See my work"
      ]
     },
@@ -662,36 +794,29 @@
      "scrims": 0,
      "gradientSamples": [],
      "gradientText": 0,
-     "hairlines": 1,
-     "hairlineSamples": [
-      "footer 768px"
-     ],
-     "outlinedBoxes": 1,
+     "hairlines": 0,
+     "hairlineSamples": [],
+     "outlinedBoxes": 0,
      "dashed": 0,
      "blurred": 0,
-     "roundedBoxes": 1,
-     "boxRadius": 6,
+     "roundedBoxes": 0,
+     "boxRadius": 0,
      "squareMedia": 0,
-     "roundedMedia": 1,
-     "mediaRadius": 6,
+     "roundedMedia": 0,
+     "mediaRadius": 0,
      "textShadow": 0,
      "cardRows": []
     },
-    "heroMedia": [
-     {
-      "type": "img",
-      "ratio": 0.42
-     }
-    ],
+    "heroMedia": [],
     "nav": {
      "links": 0,
      "fixed": false,
-     "height": 1140,
+     "height": 901,
      "floatingPill": false,
      "blur": false
     },
     "fontsLoaded": [
-     "erode"
+     "switzer"
     ]
    },
    "layout": {
@@ -699,25 +824,29 @@
      "w": 768,
      "h": 1024
     },
-    "pageH": 2039,
+    "pageH": 4407,
     "margins": {
-     "left": 17,
-     "right": 17
+     "left": 63,
+     "right": 128
     },
     "sections": [
      {
-      "sel": "header",
+      "sel": "header.hero",
       "tag": "header",
       "top": 0,
-      "height": 1140,
-      "words": 3,
-      "media": 1,
+      "height": 901,
+      "words": 33,
+      "media": 0,
       "middle": 0,
-      "heading": null,
-      "left": 18,
-      "right": 17,
-      "textLeft": 648,
-      "textRight": 39,
+      "heading": {
+       "text": "Quiet software",
+       "size": 38,
+       "tag": "h1"
+      },
+      "left": 169,
+      "right": 171,
+      "textLeft": 169,
+      "textRight": 171,
       "fullBleed": false,
       "footer": false,
       "hero": true,
@@ -725,41 +854,125 @@
       "pinned": false
      },
      {
-      "sel": "main",
-      "tag": "main",
-      "top": 1140,
-      "height": 652,
-      "words": 49,
+      "sel": "section.section",
+      "tag": "section",
+      "top": 901,
+      "height": 688,
+      "words": 89,
       "media": 0,
-      "middle": 40,
-      "heading": null,
-      "left": 17,
-      "right": 21,
-      "textLeft": 17,
-      "textRight": 21,
+      "middle": 0,
+      "heading": {
+       "text": "About",
+       "size": 31,
+       "tag": "h2"
+      },
+      "left": 128,
+      "right": 147,
+      "textLeft": 128,
+      "textRight": 147,
       "fullBleed": false,
       "footer": false,
       "hero": false,
-      "continues": false,
+      "continues": true,
       "pinned": false
      },
      {
-      "sel": "footer",
-      "tag": "footer",
-      "top": 1792,
-      "height": 247,
-      "words": 17,
+      "sel": "ul.ledger",
+      "tag": "ul",
+      "top": 1711,
+      "height": 876,
+      "words": 193,
       "media": 0,
-      "middle": 327,
+      "middle": 0,
+      "heading": null,
+      "left": 128,
+      "right": 128,
+      "textLeft": 128,
+      "textRight": 128,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "ul.ledger",
+      "tag": "ul",
+      "top": 2708,
+      "height": 525,
+      "words": 155,
+      "media": 0,
+      "middle": 0,
+      "heading": null,
+      "left": 128,
+      "right": 128,
+      "textLeft": 128,
+      "textRight": 128,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section.section",
+      "tag": "section",
+      "top": 3290,
+      "height": 609,
+      "words": 86,
+      "media": 0,
+      "middle": 0,
       "heading": {
-       "text": "Eric.exe",
-       "size": 32,
+       "text": "Writing",
+       "size": 31,
        "tag": "h2"
       },
-      "left": 17,
-      "right": 17,
-      "textLeft": 17,
-      "textRight": 17,
+      "left": 128,
+      "right": 129,
+      "textLeft": 128,
+      "textRight": 129,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section.cta",
+      "tag": "section",
+      "top": 3898,
+      "height": 323,
+      "words": 10,
+      "media": 0,
+      "middle": 0,
+      "heading": {
+       "text": "Let's build something that holds up.",
+       "size": 42,
+       "tag": "h2"
+      },
+      "left": 190,
+      "right": 190,
+      "textLeft": 190,
+      "textRight": 190,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "footer.footer",
+      "tag": "footer",
+      "top": 4222,
+      "height": 185,
+      "words": 17,
+      "media": 0,
+      "middle": 0,
+      "heading": null,
+      "left": 24,
+      "right": 315,
+      "textLeft": 24,
+      "textRight": 315,
       "fullBleed": false,
       "footer": true,
       "hero": false,
@@ -769,23 +982,30 @@
     ],
     "gaps": [
      {
-      "top": 552,
-      "height": 664
+      "top": 608,
+      "height": 344
      }
     ],
-    "h1s": [],
+    "h1s": [
+     {
+      "text": "Quiet software that holds up.",
+      "size": 38,
+      "top": 329,
+      "firstScreen": true
+     }
+    ],
     "edgeText": [],
     "edges": [
      {
-      "x": 17,
-      "n": 1
+      "x": 128,
+      "n": 6
      },
      {
-      "x": 297,
-      "n": 1
+      "x": 169,
+      "n": 3
      }
     ],
-    "leftBlocks": 2,
+    "leftBlocks": 9,
     "bodySize": 16,
     "stage": false,
     "explains": false,
@@ -800,16 +1020,19 @@
    "width": 390,
    "height": 844,
    "load": "load",
-   "screens": 3,
+   "screens": 6,
    "filled": [
-    0.43,
-    0.6,
-    0.59
+    0.23,
+    0.44,
+    0.45,
+    0.69,
+    0.46,
+    0.42
    ],
    "motion": {
-    "elements": 0,
+    "elements": 1,
     "css": 0,
-    "transitions": 0,
+    "transitions": 1,
     "scripted": 0,
     "videos": 0,
     "playingVideos": 0
@@ -820,14 +1043,14 @@
      "h": 844
     },
     "page": {
-     "height": 1879,
-     "screens": 2.2,
-     "words": 81,
-     "img": 6,
+     "height": 5027,
+     "screens": 6,
+     "words": 521,
+     "img": 0,
      "video": 0,
      "canvas": 0,
-     "svg": 0,
-     "sections": 1,
+     "svg": 3,
+     "sections": 4,
      "horizontalOverflow": 0,
      "overflowCulprits": [],
      "uiFragments": 0,
@@ -838,136 +1061,216 @@
      "pictureSamples": [],
      "blendText": 0,
      "sideScrollers": 0,
-     "brokenImages": [
-      "http://localhost:5174/avatar.png",
-      "http://localhost:5174/assets/women-s-surgical-ward.jpg",
-      "http://localhost:5174/assets/ward-for-men-a-mental-hosptial-in.jpg",
-      "http://localhost:5174/assets/ward-for-women-a-mental-hosptial-in.jpg",
-      "http://localhost:5174/assets/ward-at-st-louis-female-hospital.jpg"
-     ],
+     "brokenImages": [],
      "emoji": [],
      "videosNoPoster": 0
     },
     "hero": {
-     "text": "Software that speaks.",
-     "words": 3,
-     "chars": 21,
-     "lines": 1,
+     "text": "Quiet software that holds up.",
+     "words": 5,
+     "chars": 29,
+     "lines": 2,
      "size": 36,
      "vw": 9.2,
-     "font": "Erode",
-     "weight": 700,
-     "tracking": -0.03,
-     "leading": 0.96,
+     "font": "Switzer",
+     "weight": 500,
+     "tracking": -0.02,
+     "leading": 1.08,
      "upper": false,
      "italic": false,
      "mono": false,
      "align": "left",
      "position": "center",
-     "widthRatio": 0.92,
-     "top": 549,
+     "widthRatio": 0.88,
+     "top": 252,
      "tag": "h1",
      "kind": "heading"
     },
     "h1": {
-     "text": "Software that speaks.",
-     "words": 3,
-     "lines": 1,
+     "text": "Quiet software that holds up.",
+     "words": 5,
+     "lines": 2,
      "size": 36,
-     "font": "Erode"
+     "font": "Switzer"
     },
     "headings": [
      {
-      "text": "Software that speaks.",
-      "words": 3,
-      "chars": 21,
-      "lines": 1,
+      "text": "Quiet software that holds up.",
+      "words": 5,
+      "chars": 29,
+      "lines": 2,
       "size": 36,
       "vw": 9.2,
-      "font": "Erode",
-      "weight": 700,
-      "tracking": -0.03,
-      "leading": 0.96,
+      "font": "Switzer",
+      "weight": 500,
+      "tracking": -0.02,
+      "leading": 1.08,
       "upper": false,
       "italic": false,
       "mono": false,
       "align": "left",
       "position": "center",
-      "widthRatio": 0.92,
-      "top": 549,
+      "widthRatio": 0.88,
+      "top": 252,
       "tag": "h1",
       "kind": "heading"
      },
      {
-      "text": "Eric.exe",
+      "text": "About",
       "words": 1,
-      "chars": 8,
+      "chars": 5,
       "lines": 1,
-      "size": 32,
-      "vw": 8.2,
-      "font": "Erode",
+      "size": 28,
+      "vw": 7.2,
+      "font": "Switzer",
       "weight": 500,
-      "tracking": 0,
-      "leading": 1.2,
+      "tracking": -0.015,
+      "leading": 1.1,
       "upper": false,
       "italic": false,
       "mono": false,
       "align": "left",
-      "position": "left",
-      "widthRatio": 0.3,
-      "top": 1703,
+      "position": "center",
+      "widthRatio": 0.88,
+      "top": 799,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "Work",
+      "words": 1,
+      "chars": 4,
+      "lines": 1,
+      "size": 28,
+      "vw": 7.2,
+      "font": "Switzer",
+      "weight": 500,
+      "tracking": -0.015,
+      "leading": 1.1,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.88,
+      "top": 1658,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "Projects",
+      "words": 1,
+      "chars": 8,
+      "lines": 1,
+      "size": 28,
+      "vw": 7.2,
+      "font": "Switzer",
+      "weight": 500,
+      "tracking": -0.015,
+      "leading": 1.1,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.88,
+      "top": 2960,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "Writing",
+      "words": 1,
+      "chars": 7,
+      "lines": 1,
+      "size": 28,
+      "vw": 7.2,
+      "font": "Switzer",
+      "weight": 500,
+      "tracking": -0.015,
+      "leading": 1.1,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.88,
+      "top": 3892,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "Let's build something that holds up.",
+      "words": 6,
+      "chars": 36,
+      "lines": 2,
+      "size": 32,
+      "vw": 8.2,
+      "font": "Switzer",
+      "weight": 500,
+      "tracking": -0.02,
+      "leading": 1.05,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "center",
+      "position": "center",
+      "widthRatio": 0.85,
+      "top": 4589,
       "tag": "h2",
       "kind": "heading"
      }
     ],
     "headingSummary": {
-     "count": 2,
-     "maxLines": 1,
+     "count": 6,
+     "maxLines": 2,
      "over2Lines": 0,
      "statements": 0,
-     "centered": 0,
+     "centered": 1,
      "medianWords": 1,
      "mixedFontHeadings": 0
     },
     "type": {
      "families": [
       {
-       "family": "Erode",
-       "share": 0.93,
+       "family": "Switzer",
+       "share": 1,
        "mono": false
       },
       {
        "family": "Arial",
-       "share": 0.07,
+       "share": 0,
        "mono": false
       }
      ],
      "familyCount": 2,
      "sizes": [
-      12,
-      13,
       14,
+      15,
       16,
+      17,
       18,
+      19,
+      28,
       32,
       36
      ],
-     "sizeCount": 7,
+     "sizeCount": 9,
      "notLoaded": [],
      "body": {
-      "font": "Erode",
+      "font": "Switzer",
       "size": 16,
-      "leading": 1.65,
+      "leading": 1.55,
       "weight": 400,
       "tracking": 0,
-      "contrast": 5.5
+      "contrast": 14.6
      },
-     "measureChars": 40,
+     "measureChars": 43,
      "max": {
       "size": 36,
       "vw": 9.2,
-      "font": "Erode",
-      "text": "Software that speaks."
+      "font": "Switzer",
+      "text": "Quiet softwarethat holds up."
      },
      "monoShare": 0,
      "monoProseShare": 0,
@@ -976,79 +1279,57 @@
      "microLabels": 0,
      "microLabelShare": 0,
      "microSamples": [],
-     "upperShare": 0.02,
-     "centerShare": 0.07,
+     "upperShare": 0,
+     "centerShare": 0.02,
      "smallText": 0
     },
     "eyebrows": [],
     "numbered": [],
     "color": {
-     "bodyBg": "#141210",
+     "bodyBg": "#141312",
      "bodyBgHsl": {
       "h": 30,
-      "s": 0.11,
+      "s": 0.05,
       "l": 0.07
      },
      "dark": true,
-     "sectionBgs": [
-      {
-       "color": "#141210",
-       "top": 0,
-       "hsl": {
-        "h": 30,
-        "s": 0.11,
-        "l": 0.07
-       }
-      },
-      {
-       "color": "#1e1b18",
-       "top": 1056,
-       "hsl": {
-        "h": 30,
-        "s": 0.11,
-        "l": 0.11
-       }
-      }
-     ],
+     "sectionBgs": [],
      "textColors": [
       {
-       "color": "#8f8a82",
-       "share": 0.69
+       "color": "#9d978e",
+       "share": 0.73
       },
       {
-       "color": "#f4efe9",
-       "share": 0.24
+       "color": "#e8e4dd",
+       "share": 0.27
       },
       {
-       "color": "#141210",
-       "share": 0.05
-      },
-      {
-       "color": "#141211",
-       "share": 0.02
+       "color": "#141312",
+       "share": 0.01
       }
      ],
      "button": {
-      "bg": "#b49a6f",
+      "bg": "#e8e4dd",
       "hsl": {
-       "h": 37,
-       "s": 0.32,
-       "l": 0.57
+       "h": 38,
+       "s": 0.19,
+       "l": 0.89
       },
-      "fg": "#141210"
+      "fg": "#141312"
      },
      "lowContrast": []
     },
     "buttons": {
-     "count": 1,
-     "inHero": 1,
-     "radius": 0,
-     "height": 40,
+     "count": 7,
+     "inHero": 2,
+     "radius": "pill",
+     "height": 42,
      "withShadow": 0,
      "withGradient": 0,
      "mono": 0,
      "upper": 0,
      "heroLabels": [
+      "Ask the desk",
       "See my work"
      ]
     },
@@ -1060,36 +1341,29 @@
      "scrims": 0,
      "gradientSamples": [],
      "gradientText": 0,
-     "hairlines": 1,
-     "hairlineSamples": [
-      "footer 390px"
-     ],
-     "outlinedBoxes": 1,
+     "hairlines": 0,
+     "hairlineSamples": [],
+     "outlinedBoxes": 0,
      "dashed": 0,
      "blurred": 0,
-     "roundedBoxes": 1,
-     "boxRadius": 6,
+     "roundedBoxes": 0,
+     "boxRadius": 0,
      "squareMedia": 0,
-     "roundedMedia": 1,
-     "mediaRadius": 6,
+     "roundedMedia": 0,
+     "mediaRadius": 0,
      "textShadow": 0,
      "cardRows": []
     },
-    "heroMedia": [
-     {
-      "type": "img",
-      "ratio": 0.4
-     }
-    ],
+    "heroMedia": [],
     "nav": {
      "links": 0,
      "fixed": false,
-     "height": 960,
+     "height": 743,
      "floatingPill": false,
      "blur": false
     },
     "fontsLoaded": [
-     "erode"
+     "switzer"
     ]
    },
    "layout": {
@@ -1097,25 +1371,29 @@
      "w": 390,
      "h": 844
     },
-    "pageH": 1879,
+    "pageH": 5027,
     "margins": {
-     "left": 16,
-     "right": 16
+     "left": 24,
+     "right": 24
     },
     "sections": [
      {
-      "sel": "header",
+      "sel": "header.hero",
       "tag": "header",
       "top": 0,
-      "height": 960,
-      "words": 3,
-      "media": 1,
+      "height": 743,
+      "words": 33,
+      "media": 0,
       "middle": 0,
-      "heading": null,
-      "left": 17,
-      "right": 16,
-      "textLeft": 271,
-      "textRight": 38,
+      "heading": {
+       "text": "Quiet software",
+       "size": 36,
+       "tag": "h1"
+      },
+      "left": 24,
+      "right": 32,
+      "textLeft": 24,
+      "textRight": 32,
       "fullBleed": false,
       "footer": false,
       "hero": true,
@@ -1123,41 +1401,125 @@
       "pinned": false
      },
      {
-      "sel": "main",
-      "tag": "main",
-      "top": 960,
-      "height": 652,
-      "words": 23,
+      "sel": "section.section",
+      "tag": "section",
+      "top": 743,
+      "height": 859,
+      "words": 89,
       "media": 0,
       "middle": 0,
-      "heading": null,
-      "left": 16,
-      "right": 26,
-      "textLeft": 16,
-      "textRight": 26,
+      "heading": {
+       "text": "About",
+       "size": 28,
+       "tag": "h2"
+      },
+      "left": 24,
+      "right": 39,
+      "textLeft": 24,
+      "textRight": 39,
       "fullBleed": false,
       "footer": false,
       "hero": false,
-      "continues": false,
+      "continues": true,
       "pinned": false
      },
      {
-      "sel": "footer",
-      "tag": "footer",
-      "top": 1612,
-      "height": 268,
-      "words": 17,
+      "sel": "ul.ledger",
+      "tag": "ul",
+      "top": 1721,
+      "height": 1183,
+      "words": 193,
       "media": 0,
-      "middle": 37,
+      "middle": 0,
+      "heading": null,
+      "left": 24,
+      "right": 24,
+      "textLeft": 24,
+      "textRight": 24,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "ul.ledger",
+      "tag": "ul",
+      "top": 3023,
+      "height": 757,
+      "words": 155,
+      "media": 0,
+      "middle": 0,
+      "heading": null,
+      "left": 24,
+      "right": 24,
+      "textLeft": 24,
+      "textRight": 24,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section.section",
+      "tag": "section",
+      "top": 3836,
+      "height": 681,
+      "words": 86,
+      "media": 0,
+      "middle": 0,
       "heading": {
-       "text": "Eric.exe",
+       "text": "Writing",
+       "size": 28,
+       "tag": "h2"
+      },
+      "left": 24,
+      "right": 27,
+      "textLeft": 24,
+      "textRight": 27,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section.cta",
+      "tag": "section",
+      "top": 4517,
+      "height": 302,
+      "words": 10,
+      "media": 0,
+      "middle": 0,
+      "heading": {
+       "text": "Let's build something that holds up.",
        "size": 32,
        "tag": "h2"
       },
-      "left": 16,
-      "right": 16,
-      "textLeft": 16,
-      "textRight": 16,
+      "left": 48,
+      "right": 48,
+      "textLeft": 48,
+      "textRight": 48,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "footer.footer",
+      "tag": "footer",
+      "top": 4819,
+      "height": 208,
+      "words": 17,
+      "media": 0,
+      "middle": 0,
+      "heading": null,
+      "left": 24,
+      "right": 32,
+      "textLeft": 24,
+      "textRight": 32,
       "fullBleed": false,
       "footer": true,
       "hero": false,
@@ -1167,23 +1529,26 @@
     ],
     "gaps": [
      {
-      "top": 472,
-      "height": 580
-     },
-     {
-      "top": 1180,
-      "height": 524
+      "top": 524,
+      "height": 272
      }
     ],
-    "h1s": [],
+    "h1s": [
+     {
+      "text": "Quiet software that holds up.",
+      "size": 36,
+      "top": 252,
+      "firstScreen": true
+     }
+    ],
     "edgeText": [],
     "edges": [
      {
-      "x": 16,
-      "n": 1
+      "x": 24,
+      "n": 9
      }
     ],
-    "leftBlocks": 1,
+    "leftBlocks": 9,
     "bodySize": 16,
     "stage": false,
     "explains": false,
@@ -1198,43 +1563,10 @@
  "findings": [
   {
    "level": "WARN",
-   "id": "hairline",
-   "width": 1440,
-   "message": "1 thin rule(s)/divider line(s): footer 1440px",
-   "fix": "Delete. Separate with space, a tone change, or scale. Lines are only for real tables and form fields.",
-   "alsoAt": [
-    768,
-    390
-   ]
-  },
-  {
-   "level": "WARN",
-   "id": "outlined-box",
-   "width": 1440,
-   "message": "1 box(es) drawn with a 1px outline.",
-   "fix": "Prefer a filled surface or no box.",
-   "alsoAt": [
-    768,
-    390
-   ]
-  },
-  {
-   "level": "WARN",
    "id": "palette-cream",
    "width": 1440,
-   "message": "Yellow-cream background (text #f4efe9).",
+   "message": "Yellow-cream background (button #e8e4dd, text #e8e4dd).",
    "fix": "Use the drawn palette. If you want warmth, take a low-chroma stone or bone, not a yellow cream.",
-   "alsoAt": [
-    768,
-    390
-   ]
-  },
-  {
-   "level": "WARN",
-   "id": "grey-body",
-   "width": 1440,
-   "message": "The running text is a soft grey on its ground (5.5:1).",
-   "fix": "Set body copy in the full ink (7:1 or more). Keep the muted ink for secondary notes; pages read thin and unfinished when everything is grey.",
    "alsoAt": [
     768,
     390
@@ -1256,71 +1588,45 @@
   },
   {
    "level": "FAIL",
-   "id": "broken-image",
+   "id": "focal-point",
    "width": 1440,
-   "message": "Broken image(s): http://localhost:5174/avatar.png, http://localhost:5174/assets/women-s-surgical-ward.jpg, http://localhost:5174/assets/ward-for-men-a-mental-hosptial-in.jpg, http://localhost:5174/assets/ward-for-women-a-mental-hosptial-in.jpg",
-   "fix": "Fix the URL or replace the asset.",
-   "alsoAt": [
-    768,
-    390
-   ]
-  },
-  {
-   "level": "FAIL",
-   "id": "late-title",
-   "width": 1440,
-   "message": "The title is not readable 1.2s after the page loaded (it is at 0% opacity).",
-   "fix": "Put the headline in the HTML, painted on the first frame; the load sequence only adds arrival and is settled by 1.2s (references/motion.md, \"Load sequence in 1.2 seconds\"). No preloader, no gate, no waiting for the load event.",
-   "alsoAt": [
-    768,
-    390
-   ]
-  },
-  {
-   "level": "FAIL",
-   "id": "blank-gap",
-   "width": 1440,
-   "message": "1 stretch(es) of the page hold nothing at all: 916px at 496px (the screen is 900px tall).",
-   "fix": "Close the gap: a section gap is 120–240px on desktop and 72–112px on a phone. Look for a min-height: 100vh on a short section, an empty grid row, a hidden element still holding its space, or a reveal that never fired. A deliberate rest is a placed picture or colour field, not nothing.",
-   "alsoAt": [
-    768,
-    390
-   ]
-  },
-  {
-   "level": "FAIL",
-   "id": "no-title",
-   "width": 1440,
-   "message": "The page has no visible h1.",
-   "fix": "Give the first screen a clear title in an h1 that says what this is (a name with what it does, the product with what it is for, the event with its date and place).",
-   "alsoAt": [
-    768,
-    390
-   ]
+   "message": "The first screen has no dominant element: the largest type is 56px (3.9vw) and no single picture holds a third of the viewport.",
+   "fix": "Make one thing lead: the headline at display size, or one large picture. A grid of many small pictures is not one thing; in blind tests jurors marked a first screen without a headline down every time. On the strongest studied sites the largest type has a median of 8.4vw."
   },
   {
    "level": "WARN",
-   "id": "untitled-section",
+   "id": "font-not-dealt",
    "width": 1440,
-   "message": "A section carries text but no heading: main at 1332px.",
-   "fix": "Name it with a short heading unless it is the continuation of the section above.",
-   "alsoAt": [
-    768
-   ]
+   "message": "The sheet dealt Erode and Erode, but the page renders Switzer, Arial.",
+   "fix": "Load the dealt face (the link on the sheet) and put it first in font-family. A build that falls back to a default face lands on the default look."
   },
   {
    "level": "WARN",
    "id": "hero-void",
    "width": 1440,
-   "message": "41% of the first screen is one empty block (1260×420px at 0,480).",
+   "message": "29% of the first screen is one empty block (480×780px at 960,120).",
    "fix": "Place the void on purpose or fill it: move the picture, the film or one fact into it, grow the headline to meet it, or shrink the screen to its content. A void reads as placed only when something closes it on the far side and it is the screen's one rest."
   },
   {
    "level": "FAIL",
    "id": "still-page",
    "width": 1440,
-   "message": "Only 0 element(s) moved while the page loaded and scrolled.",
+   "message": "Only 1 element(s) moved while the page loaded and scrolled.",
    "fix": "Build the motion layer (SKILL.md step 9, references/motion.md): the signature move, an entrance for the parts of every section, feedback on every control, and one moving picture. Transform and opacity only, with a reduced-motion fallback."
+  },
+  {
+   "level": "FAIL",
+   "id": "empty-screens",
+   "width": 1440,
+   "message": "5 of 5 desktop screens are almost empty ground (under 20% of the screen holds text, a picture or a colour field): screens 1, 2, 3, 4, 5.",
+   "fix": "An empty screen is a rest only once per page. Elsewhere it means the section is underbuilt: set its content larger, give it the full information, put it on a colour field, or cut it."
+  },
+  {
+   "level": "FAIL",
+   "id": "off-centre",
+   "width": 768,
+   "message": "The page sits off-centre: its content comes to 63px from the left edge but only to 128px from the right, at 768px.",
+   "fix": "Give the page one pair of equal margins. Check the wrapper for a max-width without margin-inline: auto, a grid with an empty last column, or padding on one side only. If one side is meant to hold air, it must still be closed by something that reaches the margin (a picture, the navigation's last item, a figure)."
   }
  ],
  "images": [
@@ -1329,7 +1635,8 @@
    "width": 1440,
    "fold": "/Users/erictung/Documents/portfolio website/.taste-skill/inspect/desktop-fold.jpg",
    "pages": [
-    "/Users/erictung/Documents/portfolio website/.taste-skill/inspect/desktop-page-01.jpg"
+    "/Users/erictung/Documents/portfolio website/.taste-skill/inspect/desktop-page-01.jpg",
+    "/Users/erictung/Documents/portfolio website/.taste-skill/inspect/desktop-page-02.jpg"
    ],
    "film": []
   },

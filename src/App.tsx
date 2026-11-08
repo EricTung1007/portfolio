@@ -40,16 +40,17 @@ function Hero({ view, setView }: { view: View; setView: (v: View) => void }) {
     <header className="hero">
       <div className="hero-rail">
         <h1>
-          Quiet software
+          I build software
           <br />
-          that holds up.
+          that <span className="hl">holds up</span>.
         </h1>
         <p className="hero-sub">
-          {knowledge.profile.tagline}
+          Software engineer — backend, AI, and the systems that keep them running.
+          I ship things that work, not things that demo.
         </p>
         <div className="hero-actions">
           <button className="btn btn-primary" onClick={() => setView('chat')}>Ask the desk</button>
-          <button className="btn btn-ghost" onClick={() => setView('portfolio')}>See my work</button>
+          <a className="btn btn-ghost" href="#work">See my work</a>
         </div>
       </div>
     </header>
@@ -182,7 +183,7 @@ function Portfolio({ theme, setView }: { theme: string; setView: (v: View) => vo
 
       {/* cta */}
       <section className="cta">
-        <h2>Let's build something that holds up.</h2>
+        <h2>Let's build something that works.</h2>
         <div className="cta-actions">
           <a className="btn btn-primary" href={LINKS.email}>Email me</a>
           <a className="btn btn-ghost" href="CV.pdf" download>Download CV</a>

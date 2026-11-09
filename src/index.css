@@ -850,3 +850,11 @@ a { color: inherit; }
   .desk-display .desk-nameplate { font-size:9px; }
   .desk-display .desk-drawer-handle { font-size:9px; }
 }
+
+
+/* Conservative optional browser AI selector */
+.rpg-model-selection { display: flex; align-items: stretch; flex-direction: column; gap: 7px; margin: 0 auto 12px; max-width: 310px; text-align: left; }
+.rpg-model-selection label { font-size: 12px; font-weight: 600; color: #53412d; }
+.rpg-model-selection select { width: 100%; padding: 10px; border: 1px solid #9c8464; border-radius: 6px; color: #322920; background: #f9efdc; font: inherit; font-size: 13px; }
+.rpg-init .rpg-primary:disabled { opacity: .5; cursor: not-allowed; }
+.topbar .wordmark { white-space: nowrap; }

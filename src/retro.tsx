@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { getPosts } from './posts.js';
+import { readTableCard, saveTableCard, guestbookUrl, siteQrSvg } from './visitor-card.js';
 import './retro.css';
 
 export type SiteLanguage = 'en' | 'zh';
@@ -264,18 +265,26 @@ export function punchSvg(visitor:VisitorData,alias:string,role:string,interest:s
  const fill=golden?'#d3a44e':'#efe0bf';
  const edge=golden?'#74541e':'#6b573d';
  const subtitle=golden?'GOLDEN VISITOR CARD · ACCESS CODE 0451':'VISITOR MESSAGE / PUNCH CARD';
- const messageLine=encode(message.replace(/\s+/g,' ').slice(0,84));
- return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 520" width="1100" height="520"><rect width="1100" height="520" fill="${fill}"/><rect x="14" y="14" width="1072" height="492" rx="8" fill="none" stroke="${edge}" stroke-width="4"/><text x="40" y="62" font-size="30" font-weight="bold" font-family="Georgia,serif" fill="#473522">MINERVA'S DEN / ${subtitle}</text><text x="42" y="88" font-size="14" font-family="monospace" fill="#604f3a">ERIC.EXE · PERSONAL WORKSTATION · 12 ROWS / 40 COLUMNS</text><text x="42" y="112" font-size="13" font-family="monospace" fill="#604f3a">ALIAS: ${encode(alias.slice(0,28))} / CLASS: ${encode(role)} / INTEREST: ${encode(interest)}</text>${grid}${cols}${holes}<line x1="40" x2="1060" y1="421" y2="421" stroke="#887358"/><text x="42" y="449" font-size="16" font-family="Georgia,serif" fill="#45311d">MESSAGE: ${messageLine}</text><line x1="40" x2="1060" y1="467" y2="467" stroke="#887358"/><text x="42" y="492" font-size="12" font-family="monospace" fill="#604f3a">ARCHIVE VISIT ${String(visitor.achievements.length).padStart(2,'0')} STAMPS · ${String(visitor.posts.length).padStart(2,'0')} ARTICLES · LOCAL KEEPSAKE</text><text x="1044" y="492" text-anchor="end" font-size="12" font-family="monospace" fill="#604f3a">NOT AN ACCESS CREDENTIAL</text></svg>`;
+ const messageLine=encode(message.replace(/\s+/g,' ').slice(0,66));
+ const qr=siteQrSvg(902,451,4);
+ return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 650" width="1100" height="650"><rect width="1100" height="650" fill="${fill}"/><rect x="14" y="14" width="1072" height="622" rx="8" fill="none" stroke="${edge}" stroke-width="4"/><text x="40" y="62" font-size="30" font-weight="bold" font-family="Georgia,serif" fill="#473522">MINERVA'S DEN / ${subtitle}</text><text x="42" y="88" font-size="14" font-family="monospace" fill="#604f3a">ERIC.EXE · PERSONAL WORKSTATION · 12 ROWS / 40 COLUMNS</text><text x="42" y="112" font-size="13" font-family="monospace" fill="#604f3a">ALIAS: ${encode(alias.slice(0,28))} / CLASS: ${encode(role)} / INTEREST: ${encode(interest)}</text>${grid}${cols}${holes}<line x1="40" x2="1060" y1="421" y2="421" stroke="#887358"/><text x="42" y="448" font-size="16" font-family="Georgia,serif" fill="#45311d">MESSAGE: ${messageLine}</text><text x="43" y="490" font-size="15" font-family="monospace" fill="#604f3a">SCAN TO RETURN TO THE DESK</text><text x="43" y="514" font-size="13" font-family="monospace" fill="#604f3a">erictung1007.github.io</text>${qr}<line x1="40" x2="1060" y1="616" y2="616" stroke="#887358"/><text x="42" y="638" font-size="12" font-family="monospace" fill="#604f3a">ARCHIVE VISIT ${String(visitor.achievements.length).padStart(2,'0')} STAMPS · ${String(visitor.posts.length).padStart(2,'0')} ARTICLES · LOCAL KEEPSAKE</text></svg>`;
 }
 export function PunchCard({language,visitor,onClose}:{language:SiteLanguage;visitor:VisitorActions;onClose:()=>void}) {
-  const [alias,setAlias]=useState('VISITOR');
-  const [role,setRole]=useState('RESEARCHER');
-  const [interest,setInterest]=useState('AI');
-  const [message,setMessage]=useState('');
-  const [golden]=useState(()=>localStorage.getItem('eric_0451_unlocked')==='1');
+  const [initial] = useState(readTableCard);
+  const [alias,setAlias]=useState(initial?.alias ?? 'VISITOR');
+  const [role,setRole]=useState(initial?.role ?? 'RESEARCHER');
+  const [interest,setInterest]=useState(initial?.interest ?? 'AI');
+  const [message,setMessage]=useState(initial?.message ?? '');
+  const [saved,setSaved]=useState(Boolean(initial));
+  const [golden]=useState(()=>{try{return localStorage.getItem('eric_0451_unlocked')==='1' || initial?.golden === true;}catch{return initial?.golden === true;}});
   const svg=punchSvg(visitor.data,alias,role,interest,message,golden);
+  const save=()=>{
+    const ok=saveTableCard({alias:alias.trim()||'VISITOR',role,interest,message:message.trim(),golden,createdAt:initial?.createdAt||new Date().toISOString()});
+    if(ok){visitor.punch();setSaved(true);}
+    return ok;
+  };
   const download=()=>{
-    visitor.punch();
+    save();
     const blob=new Blob([svg],{type:'image/svg+xml;charset=utf-8'});
     const url=URL.createObjectURL(blob);
     const a=document.createElement('a');a.href=url;a.download=golden?'minervas-den-golden-0451-card.svg':'eric-visitor-message-card.svg';document.body.appendChild(a);a.click();a.remove();window.setTimeout(()=>URL.revokeObjectURL(url),1000);
@@ -288,8 +297,18 @@ export function PunchCard({language,visitor,onClose}:{language:SiteLanguage;visi
       <label>{labels(language,'Interest','興趣')}<select value={interest} onChange={e=>setInterest(e.target.value)}><option>AI</option><option>AGENTS</option><option>DESIGN</option><option>RESEARCH</option><option>SYSTEMS</option></select></label></div>
     <label className="retro-message-label">{labels(language,'Message for Eric (up to 84 characters printed on the card)','留給 Eric 的訊息（卡面最多顯示 84 字）')}<textarea maxLength={600} rows={3} value={message} onChange={e=>setMessage(e.target.value)} placeholder={labels(language,'Eric was away, so I left this note...','Eric 不在，所以我留下這張紙條…')}/></label>
     <div className="retro-card-preview" role="img" aria-label="Personal 12-row punch card" dangerouslySetInnerHTML={{__html:svg}}/>
-    <div className="retro-card-actions"><button onClick={download}>{labels(language,'PUNCH & SAVE SVG','打孔並儲存 SVG')}</button><button onClick={()=>window.print()}>{labels(language,'PRINT CARD','列印卡片')}</button><button onClick={()=>{void navigator.clipboard?.writeText(message);window.open('https://github.com/EricTung1007/portfolio/issues/new?template=guestbook.yml','_blank','noopener,noreferrer');}} disabled={!message.trim()}>{labels(language,'COPY NOTE & OPEN GUESTBOOK','複製訊息並開啟留言簿')}</button></div>
-    <small>{labels(language,'The downloaded keepsake stays local. For a public entry, use the GitHub guestbook button and paste the copied note. The punched holes are thematic, not historic Hollerith encoding.','下載的打孔卡只留在本機。若要公開留言，請開啟 GitHub 訪客簿並貼上複製的訊息。打孔位置是主題編碼，非歷史 Hollerith 編碼。')}</small>
+    <div className="retro-card-actions">
+      <button type="button" onClick={save}>{labels(language,saved?'UPDATE CARD ON DESK':'LEAVE CARD ON DESK',saved?'更新桌上的卡片':'將卡片留在桌上')}</button>
+      <button type="button" onClick={download}>{labels(language,'DOWNLOAD QR SVG','下載 QR SVG')}</button>
+      <button type="button" onClick={()=>window.print()}>{labels(language,'PRINT CARD','列印卡片')}</button>
+      <button type="button" disabled={!message.trim()} onClick={()=>{
+        if(!message.trim())return;
+        save();
+        window.open(guestbookUrl({alias,interest,message}), '_blank', 'noopener,noreferrer');
+      }}>{labels(language,'PUBLISH MESSAGE VIA GITHUB ↗','前往 GitHub 發布留言 ↗')}</button>
+    </div>
+    {saved && <p role="status" className="retro-card-saved">{labels(language,'Your card is on the desk in this browser.','你的卡片已留在這台瀏覽器的桌上。')}</p>}
+    <small>{labels(language,'Your card is saved locally. To let Eric see your message, open the prefilled GitHub Issue and click Submit new issue after signing in. GitHub will publicly show the alias and your account. QR links to the public website. Punch holes are thematic, not Hollerith encoding.','卡片保存在此瀏覽器。若要讓 Eric 真正看到留言，請登入 GitHub 並在已填好的 Issue 頁面按提交。留言及 GitHub 帳號公開可見。QR 可掃回本網站，孔位為主題編碼。')}</small>
   </section>;
 }
 export function BadgeToast({name,language,onDismiss}:{name:string;language:SiteLanguage;onDismiss:()=>void}) {

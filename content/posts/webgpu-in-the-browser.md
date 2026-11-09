@@ -1,6 +1,7 @@
 ---
 title: "Running a 1.5B LLM in your browser — what actually happens"
 date: "2026-11-08"
+category: "Technology"
 tags: ["webgpu", "llm", "local-ai"]
 ---
 

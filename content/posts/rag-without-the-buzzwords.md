@@ -1,6 +1,7 @@
 ---
 title: "RAG without the buzzwords: FAISS, embeddings, and a chatbot that knows my CV"
 date: "2026-11-08"
+category: "Technology"
 tags: ["rag", "faiss", "local-ai"]
 ---
 

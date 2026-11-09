@@ -1,6 +1,7 @@
 ---
 title: "Minerva's Den: Development Notes and Open Problems"
 date: "2026-11-09"
+category: "Minerva's Den"
 tags: [Minerva's Den, Devlog, Agents]
 ---
 

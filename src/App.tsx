@@ -91,7 +91,7 @@ function BlogPost({ slug, theme, setView, language }: { slug: string; theme: str
       <div className="post-body" dangerouslySetInnerHTML={{ __html: renderMarkdown(post.body) }} />
       <div className="giscus-wrap">
         <h3>{language === 'en' ? 'Comments' : '留言'}</h3>
-        <Giscus mapping="specific" term={`writing/${slug}`} theme={theme as 'light' | 'dark'} />
+        <Giscus mapping="specific" term={`writing/${slug}`} theme={theme as 'light' | 'dark'} language={language} />
       </div>
     </article>
   );

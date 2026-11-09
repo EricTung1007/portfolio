@@ -34,8 +34,8 @@ const COPY = {
   },
 } as const;
 
-export function ChatPanel({ onGenerationStart, onGenerationEnd, language }: {
-  onGenerationStart: () => void; onGenerationEnd: () => void; language: ChatLanguage;
+export function ChatPanel({ onGenerationStart, onGenerationEnd, onAnswer, language }: {
+  onGenerationStart: () => void; onGenerationEnd: () => void; onAnswer?: (answer:string) => void; language: ChatLanguage;
 }) {
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<MessageItem[]>([]);
@@ -69,8 +69,10 @@ export function ChatPanel({ onGenerationStart, onGenerationEnd, language }: {
     if (verified || !active) {
       setInput('');
       setCopied(false);
+      const response = verified ?? unknownDeskAnswer(language);
+      onAnswer?.(response);
       setMessages(items => [...items, { role: 'user', content: q },
-        { role: 'assistant', content: verified ?? unknownDeskAnswer(language), related: verified ? getEvidenceLink(q) : null }]);
+        { role: 'assistant', content: response, related: verified ? getEvidenceLink(q) : null }]);
       return;
     }
     setInput('');
@@ -78,7 +80,9 @@ export function ChatPanel({ onGenerationStart, onGenerationEnd, language }: {
     setMessages(items => [...items, { role: 'user', content: q }, { role: 'assistant', content: '' }]);
     onGenerationStart();
     try {
+      let complete = '';
       await generate(q, token => {
+        complete += token;
         setMessages(items => {
           const updated = [...items], index = updated.length - 1;
           if (updated[index]?.role === 'assistant')
@@ -86,6 +90,7 @@ export function ChatPanel({ onGenerationStart, onGenerationEnd, language }: {
           return updated;
         });
       }, language);
+      if (complete) onAnswer?.(complete);
     } catch {
       setMessages(items => {
         const updated = [...items], index = updated.length - 1;

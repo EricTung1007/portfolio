@@ -100,55 +100,139 @@ export function InteractiveDesk({language,onOpen,visitor}:{language:SiteLanguage
   </section>;
 }
 type TerminalProps={language:SiteLanguage;visitor:VisitorActions;navigate:(target:DeskTarget)=>void;onTheme:(theme:'dark'|'light')=>void;onLanguage:(language:SiteLanguage)=>void;onClose:()=>void};
+const TERMINAL_COMMANDS = [
+  'help','resume','cv','download cv','projects','portfolio','weekly','paper','archive','cabinet',
+  'research','timeline','experiments','publications','ask','about','contact','message','leave message',
+  'punchcard','guestbook','achievements','editorial','theme dark','theme light','lang en','lang zh',
+  '0451','would you kindly','open 0451','whoami','ls','clear','xyzzy','bioshock','make coffee','sudo hire-eric',
+] as const;
+
 export function TerminalWindow({language,visitor,navigate,onTheme,onLanguage,onClose}:TerminalProps) {
   const [entry,setEntry]=useState('');
-  const [history,setHistory]=useState<{input:string;output:string}[]>([{input:'',output:'ERIC.EXE TERMINAL v1.0\nType help for available commands.'}]);
-  const [secret,setSecret]=useState(false);
+  const [history,setHistory]=useState<{input:string;output:string}[]>([
+    {input:'',output:labels(language,'ERIC TERMINAL / USER SESSION READY\nThe owner is away. Browse his files or leave a message.','ERIC 終端機 / 訪客連線就緒\n主人暫時不在。你可以翻閱資料，或留下訊息。')}]);
+  const [booting,setBooting]=useState(()=>sessionStorage.getItem('eric_terminal_booted')!=='1');
+  const [bootStep,setBootStep]=useState(0);
+  const [secret,setSecret]=useState(()=>localStorage.getItem('eric_0451_unlocked')==='1');
+  const [selected,setSelected]=useState(0);
   const inputRef=useRef<HTMLInputElement>(null);
   const outputRef=useRef<HTMLDivElement>(null);
+  const choices = TERMINAL_COMMANDS.filter(cmd=>!entry.trim()||cmd.startsWith(entry.trim().toLowerCase()))
+    .filter(cmd=>!['0451','would you kindly','open 0451','xyzzy','bioshock','sudo hire-eric'].includes(cmd))
+    .slice(0,entry.trim()?6:7);
+  const finishBoot=()=>{
+    try{sessionStorage.setItem('eric_terminal_booted','1');}catch{/* storage disabled */}
+    setBooting(false);
+  };
+  useEffect(()=>{
+    if(!booting){inputRef.current?.focus();return;}
+    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){finishBoot();return;}
+    const timer=window.setInterval(()=>setBootStep(x=>Math.min(x+1,5)),260);
+    return ()=>window.clearInterval(timer);
+  },[booting]);
   useEffect(()=>{outputRef.current?.scrollTo({top:outputRef.current.scrollHeight,behavior:'smooth'});},[history]);
   const run=(raw:string)=>{
-    const cmd=raw.trim().toLowerCase().replace(/\s+/g,' ').replace(/[?？。！!]+$/g,'');
-    setEntry(''); if(!cmd)return;
+    const cmd=raw.trim().toLowerCase().replace(/\\s+/g,' ').replace(/[?？。！!]+$/g,'');
+    if(!cmd)return;
+    setEntry('');setSelected(0);
     visitor.command(cmd);
-    const text=labels(language,'Commands: help, whoami, ls, projects, weekly, cabinet, timeline, experiments, editorial, guestbook, resume, contact, achievements, punchcard, open minerva, open desk, theme dark/light, lang en/zh, clear','指令：help、whoami、ls、projects、weekly、cabinet、timeline、experiments、editorial、guestbook、resume、contact、achievements、punchcard、open minerva、open desk、theme dark/light、lang en/zh、clear');
+    const go=(target:DeskTarget,message:string)=>{navigate(target);return message;};
+    const cvUrl=`${import.meta.env.BASE_URL}CV.pdf`;
     const actions:Record<string,()=>string>={
-      help:()=>text,whoami:()=> 'Eric Tung / Software · AI · Research',
-      ls:()=> 'portfolio/  weekly/  minervas-den/  cabinet/  timeline/  experiments/  editorial/  guestbook/  achievements/  punchcard/',
-      cabinet:()=>{navigate('cabinet');return 'Opening filing cabinet...'},
-      timeline:()=>{navigate('timeline');return 'Opening project chronicle...'},
-      experiments:()=>{navigate('experiments');return 'Opening benchmark ledger...'},
-      editorial:()=>{navigate('editorial');return 'Opening editorial desk...'},
-      guestbook:()=>{navigate('guestbook');return 'Opening guestbook...'},
-      projects:()=>{navigate('portfolio');return 'Opening project ledger...'},
-      resume:()=>{navigate('portfolio');return 'Opening portfolio...'},
-      weekly:()=>{navigate('weekly');return 'Opening newspaper...'},
-      'open weekly':()=>{navigate('weekly');return 'Opening newspaper...'},
-      'open minerva':()=>{navigate('weekly');return 'Minerva’s Den articles are filed in the Weekly.'},
-      'open desk':()=>{navigate('chat');return 'Opening information desk...'},
-      achievements:()=>{navigate('achievements');return 'Opening achievement ledger...'},
-      punchcard:()=>{navigate('punch');return 'Starting punch-card machine...'},
-      contact:()=> 'GitHub: github.com/EricTung1007',
-      'theme dark':()=>{onTheme('dark');return 'Dark mode enabled.'},
-      'theme light':()=>{onTheme('light');return 'Light mode enabled.'},
-      'lang en':()=>{onLanguage('en');return 'Language set to English.'},
-      'lang zh':()=>{onLanguage('zh');return '語言已切換為繁體中文。'},
+      help:()=>labels(language,
+        'FILES: resume / cv, projects, weekly / paper, archive, research, publications, timeline, experiments.\nMACHINES: ask, message / punchcard, contact, guestbook.\nSYSTEM: theme dark/light, lang en/zh, achievements, clear, ls, whoami.\nSelect any suggestion or press TAB to autocomplete.',
+        '檔案：resume / cv、projects、weekly / paper、archive、research、publications、timeline、experiments。\n機器：ask、message / punchcard、contact、guestbook。\n系統：theme dark/light、lang en/zh、achievements、clear、ls、whoami。\n可點選指令建議，或按 Tab 自動補全。'),
+      whoami:()=> 'ERIC TUNG / Software Engineering / Nursing / AI',
+      ls:()=> 'resume.pdf   weekly/   projects/   archive/   research/   messages/',
+      resume:()=>{window.open(cvUrl,'_blank','noopener,noreferrer');return labels(language,'Opening Eric’s public CV.pdf in a new tab.','已在新分頁開啟 Eric 的 CV.pdf。');},
+      cv:()=>actions.resume(),
+      'download cv':()=>{const a=document.createElement('a');a.href=cvUrl;a.download='Eric-Tung-CV.pdf';a.click();return 'Downloading CV.pdf...';},
+      projects:()=>go('cabinet','Opening project archives...'),
+      portfolio:()=>go('portfolio','Opening work history...'),
+      weekly:()=>go('weekly','Opening newspaper...'),
+      paper:()=>actions.weekly(),
+      archive:()=>go('cabinet','Opening filing cabinet...'),
+      cabinet:()=>actions.archive(),
+      research:()=>go('cabinet','Opening research records...'),
+      timeline:()=>go('timeline','Opening project timeline...'),
+      experiments:()=>go('experiments','Opening experiment ledger...'),
+      publications:()=>go('portfolio','Opening published record...'),
+      ask:()=>go('chat','Connecting to the MARK I answering machine...'),
+      about:()=>go('chat','Connecting to the information recorder...'),
+      contact:()=>{window.location.href='mailto:erictung911007@gmail.com';return 'Preparing a message for Eric...';},
+      message:()=>go('punch','Opening the visitor message-card machine...'),
+      'leave message':()=>actions.message(),
+      punchcard:()=>actions.message(),
+      guestbook:()=>go('guestbook','Opening public visitor guestbook...'),
+      achievements:()=>go('achievements','Opening the visitor stamp ledger...'),
+      editorial:()=>go('editorial','Opening editorial desk...'),
+      'theme dark':()=>{onTheme('dark');return 'Night lighting enabled.';},
+      'theme light':()=>{onTheme('light');return 'Day lighting enabled.';},
+      'lang en':()=>{onLanguage('en');return 'Language: English.';},
+      'lang zh':()=>{onLanguage('zh');return '語言已切換為繁體中文。';},
+      '0451':()=>{try{localStorage.setItem('eric_0451_unlocked','1');}catch{/* storage disabled */}setSecret(true);
+        return labels(language,'ACCESS CODE 0451 ACCEPTED.\nA personal note and a gold visitor punch card are now unlocked below.','已接受存取碼 0451。\n秘密文字與金色訪客打孔卡已解鎖，請查看下方。');},
+      'would you kindly':()=> 'A man chooses, a slave obeys. The choice is yours here. Try 0451.',
+      'open 0451':()=>actions['0451'](),
       xyzzy:()=> 'Nothing happens. Or does it?',
-      bioshock:()=> 'Welcome to Rapture. Would you kindly explore the archives?',
-      'would you kindly':()=>{setSecret(true);return labels(language,'CODE PHRASE RECOGNIZED. Directive overridden. You are free to choose. Classified drawer 0451 is now available below.','已識別隱藏口令。指令已解除，你仍保有選擇權。機密抽屜 0451 已在下方開啟。');},
-      'open 0451':()=>{navigate('cabinet');return 'Opening drawer 0451...'},
-      'sudo hire-eric':()=> 'Permission granted. Please contact Eric.',
-      'make coffee':()=> 'Error 418: I am a teapot.',
+      bioshock:()=> 'Welcome to the quiet study beneath the sea.',
+      'make coffee':()=> 'Error 418: the kettle is a teapot.',
+      'sudo hire-eric':()=> 'Access denied. Try the contact card instead.',
     };
     if(cmd==='clear'){setHistory([]);return;}
-    setHistory(p=>[...p,{input:raw,output:actions[cmd]?.()??'Command not found. Type help.'}].slice(-70));
+    const reply=actions[cmd]?.()??labels(language,'Command not recognized. Type help or select a suggestion.','找不到指令。請輸入 help 或點選建議指令。');
+    setHistory(p=>[...p,{input:raw,output:reply}].slice(-80));
   };
-  return <section className="retro-window" aria-label="ERIC.EXE terminal"><div className="retro-window-bar"><strong>▣ ERIC.EXE TERMINAL</strong><button onClick={onClose} aria-label="Close terminal">×</button></div>
-    <div className="retro-terminal-output" ref={outputRef} role="log" aria-live="polite">{history.map((h,i)=><div key={i}>{h.input&&<p><span>eric@minerva:~ %</span> {h.input}</p>}<pre>{h.output}</pre></div>)}</div>
-    <form className="retro-terminal-prompt" onSubmit={e=>{e.preventDefault();run(entry);}}><label htmlFor="retro-input">eric@minerva:~ %</label><input id="retro-input" ref={inputRef} value={entry} onChange={e=>setEntry(e.target.value)} autoComplete="off" spellCheck={false} aria-label="Terminal command"/><button type="submit">↵</button></form>
-    {secret && <div className="retro-secret" role="status"><strong>FILE 0451 · CLASSIFIED</strong><p>{labels(language,'The most important command is one you choose yourself.','最重要的指令，是你自己決定要執行的指令。')}</p><button type="button" onClick={()=>navigate('cabinet')}>{labels(language,'OPEN SECRET ARCHIVES →','開啟秘密檔案 →')}</button></div>}
-    <p className="retro-terminal-note">{labels(language,'Safe simulated commands; no shell access.','安全的模擬命令，不提供真實 Shell 權限。')}</p>
-  </section>;
+  const doAutocomplete=()=>{
+    if(choices.length){setEntry(choices[Math.min(selected,choices.length-1)]);setSelected(0);}
+  };
+  return <div className="terminal-modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget)onClose();}}>
+    <section className="terminal-machine" role="dialog" aria-modal="true" aria-label={labels(language,'Vintage terminal','復古終端機')}>
+      <div className="terminal-machine-head"><span>MINERVA COMPUTING SYSTEMS · MARK I / 0451</span>
+        <button type="button" onClick={onClose} aria-label={labels(language,'Close terminal','關閉終端機')}>×</button></div>
+      <div className="terminal-crt-frame">
+        {booting ? <div className="terminal-boot" aria-live="polite">
+          <span>ERIC.EXE / MINERVA NODE · INITIALIZING</span>
+          <h2>ERIC.EXE</h2>
+          {['POWERING VACUUM TUBES','MOUNTING PERSONNEL RECORDS','INDEXING ERICTUNG’S WEEKLY','CONNECTING TO MARK I RECORDER','MESSAGE SLOT READY','SYSTEM ONLINE'].slice(0,bootStep+1).map((line,i)=>
+            <p key={line}>{line}<b>{i===5?'READY':'OK'}</b></p>)}
+          <button type="button" onClick={finishBoot}>{labels(language,'SKIP BOOT / ENTER ↵','略過開機 / 進入 ↵')}</button>
+          {bootStep===5&&<button type="button" onClick={finishBoot}>{labels(language,'OPEN CONSOLE','開啟主控台')}</button>}
+        </div> : <>
+          <div className="retro-terminal-output" ref={outputRef} role="log" aria-live="polite">
+            {history.map((h,i)=><div key={i}>{h.input&&<p><span>visitor@minerva:~ %</span> {h.input}</p>}<pre>{h.output}</pre></div>)}
+          </div>
+          {secret && <div className="terminal-classified" role="status">
+            <strong>0451 · CLASSIFIED / PERSONAL NOTE</strong>
+            <p>{labels(language,
+              'You came looking for Eric, but found a room full of unfinished work. Curiosity is not trespassing here. Every experiment, page, and loose wire tells part of the story. If you leave a mark, make it one worth keeping.',
+              '你原本是來找 Eric 的，卻只找到滿室尚未完成的工作。在這裡，好奇不是擅闖。每一項實驗、每一頁筆記，都記錄著一段故事。若要留下痕跡，就留下一個值得收藏的吧。')}</p>
+            <button type="button" onClick={()=>navigate('punch')}>{labels(language,'CLAIM GOLDEN MESSAGE CARD →','領取金色留言打孔卡 →')}</button>
+          </div>}
+          <div className="terminal-suggestions" aria-label={labels(language,'Suggested commands','建議指令')}>
+            {choices.map((cmd,i)=><button key={cmd} type="button" className={i===selected?'selected':''}
+              onClick={()=>run(cmd)}>{cmd}</button>)}
+          </div>
+          <form className="retro-terminal-prompt terminal-input-line" onSubmit={e=>{e.preventDefault();run(entry);}}>
+            <label htmlFor="retro-input">visitor@minerva:~ %</label>
+            <input id="retro-input" ref={inputRef} value={entry}
+              onChange={e=>{setEntry(e.target.value);setSelected(0);}}
+              onKeyDown={e=>{
+                if(e.key==='Tab'&&choices.length){e.preventDefault();doAutocomplete();}
+                if(e.key==='ArrowDown'&&choices.length){e.preventDefault();setSelected(x=>(x+1)%choices.length);}
+                if(e.key==='ArrowUp'&&choices.length){e.preventDefault();setSelected(x=>(x+choices.length-1)%choices.length);}
+                if(e.key==='Escape')onClose();
+              }}
+              autoComplete="off" spellCheck={false} aria-label={labels(language,'Terminal command','終端機指令')}
+              placeholder={labels(language,'Type help or choose a command','輸入 help 或點選指令')}/>
+            <button type="submit">↵</button>
+          </form>
+        </>}
+      </div>
+      <footer className="terminal-machine-footer"><span>MINERVA / PERSONAL WORKSTATION</span>
+        <span>{labels(language,'SAFE SIMULATED COMMANDS · TAB TO COMPLETE','安全模擬指令 · TAB 自動補全')}</span></footer>
+    </section>
+  </div>;
 }
 export function AchievementPanel({language,visitor,onClose}:{language:SiteLanguage;visitor:VisitorActions;onClose:()=>void}) {
   return <section className="retro-ledger"><div className="retro-panel-head"><span>VISITOR ACHIEVEMENT LEDGER</span><button onClick={onClose}>×</button></div>

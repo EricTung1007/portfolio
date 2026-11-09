@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { getPosts } from './posts.js';
+import { terminalRecord, type TerminalFile } from './terminal-files.js';
+import { isDrawerUnlocked, unlockDrawer, drawerNote } from './secret.js';
 import { readTableCard, saveTableCard, guestbookUrl, siteQrSvg } from './visitor-card.js';
 import './retro.css';
 
@@ -276,7 +278,7 @@ export function PunchCard({language,visitor,onClose}:{language:SiteLanguage;visi
   const [interest,setInterest]=useState(initial?.interest ?? 'AI');
   const [message,setMessage]=useState(initial?.message ?? '');
   const [saved,setSaved]=useState(Boolean(initial));
-  const [golden]=useState(()=>{try{return localStorage.getItem('eric_0451_unlocked')==='1' || initial?.golden === true;}catch{return initial?.golden === true;}});
+  const [golden]=useState(isDrawerUnlocked);
   const svg=punchSvg(visitor.data,alias,role,interest,message,golden);
   const save=()=>{
     const ok=saveTableCard({alias:alias.trim()||'VISITOR',role,interest,message:message.trim(),golden,createdAt:initial?.createdAt||new Date().toISOString()});

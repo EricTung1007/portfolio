@@ -37,33 +37,34 @@ function SocialButtons() {
   );
 }
 
-function Hero({ setView }: { setView: (v: View) => void }) {
+function Hero({ setView, language }: { setView: (v: View) => void; language: Language }) {
   return (
     <header className="hero">
       <div className="hero-rail">
         <img className="profile-avatar" src={`${import.meta.env.BASE_URL}avatar.png`} alt="Illustrated portrait of Eric" />
         <h1>
-          I build software
+          {language === 'en' ? 'I build software' : '我打造'}
           <br />
-          that <span className="hl">holds up</span>.
+          {language === 'en' ? <>that <span className="hl">holds up</span>.</> : <><span className="hl">可靠的軟體系統</span>。</>}
         </h1>
         <p className="hero-sub">
-          Software engineer — backend, AI, and the systems that keep them running.
-          I ship things that work, not things that demo.
+          {language === 'en'
+            ? 'Software engineer, focused on backend, AI, and the systems that keep them running. I build things that work, not just demos.'
+            : '軟體工程師，專注後端、AI 與系統可靠性。我的目標是開發真正可用，而不只是展示的產品。'}
         </p>
         <div className="hero-actions">
-          <button className="btn btn-primary" onClick={() => setView('chat')}>Ask the desk</button>
-          <a className="btn btn-ghost" href="#/portfolio" onClick={(e) => { e.preventDefault(); setView("portfolio"); document.getElementById("work")?.scrollIntoView({ behavior: "smooth" }); }}>See my work</a>
+          <button className="btn btn-primary" onClick={() => setView('chat')}>{language === 'en' ? 'Ask the desk' : '詢問資訊台'}</button>
+          <a className="btn btn-ghost" href="#/portfolio" onClick={(e) => { e.preventDefault(); setView("portfolio"); document.getElementById("work")?.scrollIntoView({ behavior: "smooth" }); }}>{language === 'en' ? 'See my work' : '查看作品'}</a>
         </div>
       </div>
     </header>
   );
 }
 
-function BlogList({ setView }: { setView: (v: View) => void }) {
+function BlogList({ setView, language }: { setView: (v: View) => void; language: Language }) {
   return (
     <section className="section">
-      <h2>Writing</h2>
+      <h2>{language === 'en' ? 'Writing' : '文章與開發紀錄'}</h2>
       <ul className="post-list">
         {posts.map((p) => (
           <li key={p.slug}>
@@ -79,48 +80,44 @@ function BlogList({ setView }: { setView: (v: View) => void }) {
   );
 }
 
-function BlogPost({ slug, theme, setView }: { slug: string; theme: string; setView: (v: View) => void }) {
+function BlogPost({ slug, theme, setView, language }: { slug: string; theme: string; setView: (v: View) => void; language: Language }) {
   const post = getPost(slug);
-  if (!post) return <section className="section"><h2>Not found</h2></section>;
+  if (!post) return <section className="section"><h2>{language === 'en' ? 'Not found' : '找不到文章'}</h2></section>;
   return (
     <article className="section">
-      <a className="back-link" href="#/portfolio" onClick={(e) => { e.preventDefault(); setView('portfolio'); }}>← All writing</a>
+      <a className="back-link" href="#/portfolio" onClick={(e) => { e.preventDefault(); setView('portfolio'); }}>{language === 'en' ? '← All writing' : '← 返回文章列表'}</a>
       <h2>{post.title}</h2>
       <div className="post-date">{post.date}{post.tags.length ? ` · ${post.tags.join(" · ")}` : ""}</div>
       <div className="post-body" dangerouslySetInnerHTML={{ __html: renderMarkdown(post.body) }} />
       <div className="giscus-wrap">
-        <h3>Comments</h3>
+        <h3>{language === 'en' ? 'Comments' : '留言'}</h3>
         <Giscus mapping="specific" term={`writing/${slug}`} theme={theme as 'light' | 'dark'} />
       </div>
     </article>
   );
 }
 
-function Portfolio({ theme, setView }: { theme: string; setView: (v: View) => void }) {
+function Portfolio({ theme, setView, language }: { theme: string; setView: (v: View) => void; language: Language }) {
   const { profile, experience, projects, education, skills, publications } = knowledge;
   return (
     <main>
       {/* about */}
       <section className="section">
-        <h2>About</h2>
-        <p className="lede">
-          I'm a software engineer with a <span className="hl">nursing background</span> — I spent
-          four years at NTU learning how clinical systems actually work before I started building
-          them. That background shapes everything I do: <span className="hl">data privacy is a
-          default, not a feature</span>, and I design for the people on the other side of the
-          screen, not the other way around.
-        </p>
+        <h2>{language === 'en' ? 'About' : '關於我'}</h2>
+        <p className="lede">{language === 'en'
+          ? "I'm a software engineer with a nursing background. Clinical experience informs how I design reliable, privacy-conscious systems for real users."
+          : '我是一名具有護理背景的軟體工程師。臨床經驗讓我重視系統可靠性、資料隱私，以及實際使用者的需求。'}</p>
         <dl className="facts">
-          <div className="fact"><dt>Education</dt><dd>{education.map((e) => `${e.institution}, ${e.degree}`).join(' · ')}</dd></div>
-          <div className="fact"><dt>Publications</dt><dd>{(publications ?? []).map((p) => `${p.journal} ${p.year}`).join(' · ')}</dd></div>
-          <div className="fact"><dt>Focus</dt><dd>{(skills.ai_tools ?? []).slice(0, 5).join(', ')}</dd></div>
-          <div className="fact"><dt>Download</dt><dd><a href="CV.pdf" download>CV (PDF)</a></dd></div>
+          <div className="fact"><dt>{language === 'en' ? 'Education' : '教育背景'}</dt><dd>{education.map((e) => `${e.institution}, ${e.degree}`).join(' · ')}</dd></div>
+          <div className="fact"><dt>{language === 'en' ? 'Publications' : '學術發表'}</dt><dd>{(publications ?? []).map((p) => `${p.journal} ${p.year}`).join(' · ')}</dd></div>
+          <div className="fact"><dt>{language === 'en' ? 'Focus' : '技術方向'}</dt><dd>{(skills.ai_tools ?? []).slice(0, 5).join(', ')}</dd></div>
+          <div className="fact"><dt>{language === 'en' ? 'Download' : '下載'}</dt><dd><a href={`${import.meta.env.BASE_URL}CV.pdf`} download>CV (PDF)</a></dd></div>
         </dl>
       </section>
 
       {/* work */}
       <section className="section" id="work">
-        <h2>Work</h2>
+        <h2>{language === 'en' ? 'Work' : '工作經歷'}</h2>
         <ul className="ledger">
           {experience.map((e) => (
             <li className="ledger-item" key={e.company}>
@@ -133,7 +130,7 @@ function Portfolio({ theme, setView }: { theme: string; setView: (v: View) => vo
             </li>
           ))}
         </ul>
-        <h2 style={{ marginTop: 56 }}>Projects</h2>
+        <h2 style={{ marginTop: 56 }}>{language === 'en' ? 'Projects' : '專案作品'}</h2>
         <ul className="ledger">
           {projects.map((p) => (
             <li className="ledger-item" key={p.title}>
@@ -145,14 +142,14 @@ function Portfolio({ theme, setView }: { theme: string; setView: (v: View) => vo
       </section>
 
       {/* writing */}
-      <BlogList setView={setView} />
+      <BlogList setView={setView} language={language} />
 
       {/* cta */}
       <section className="cta">
-        <h2>Let's build something that works.</h2>
+        <h2>{language === 'en' ? "Let's build something that works." : '一起打造真正可用的系統。'}</h2>
         <div className="cta-actions">
-          <a className="btn btn-primary" href={LINKS.email}>Email me</a>
-          <a className="btn btn-ghost" href="CV.pdf" download>Download CV</a>
+          <a className="btn btn-primary" href={LINKS.email}>{language === 'en' ? 'Email me' : '聯絡我'}</a>
+          <a className="btn btn-ghost" href="CV.pdf" download>{language === 'en' ? 'Download CV' : '下載履歷'}</a>
         </div>
       </section>
     </main>
@@ -226,11 +223,11 @@ export default function App() {
         </div>
       ) : (
         <>
-          <Hero setView={setView} />
+          <Hero setView={setView} language={language} />
           {isPost ? (
-            <BlogPost slug={view.slice(5)} theme={theme} setView={setView} />
+            <BlogPost slug={view.slice(5)} theme={theme} setView={setView} language={language} />
           ) : (
-            <Portfolio theme={theme} setView={setView} />
+            <Portfolio theme={theme} setView={setView} language={language} />
           )}
           <footer className="footer">
             <p>© 2026 Eric Tung · Built with React, WebGPU, and a lot of coffee.</p>

@@ -122,7 +122,7 @@ function WeeklyPage({ setView, language }: { setView: (v: View) => void; languag
         <div className="weekly-grid">
           {visible.map((post, i) => (
             <article className={`weekly-story ${i === 0 ? 'weekly-lead' : ''}`} key={post.slug}>
-              <div className="weekly-story-top"><span>{post.category}</span><time dateTime={post.date}>{post.date}</time></div>
+              <div className="weekly-story-top"><span>{post.category} · <span className="weekly-ink-stamp">{post.stamp}</span></span><time dateTime={post.date}>{post.date}</time></div>
               <a href={`#/writing/${encodeURIComponent(post.slug)}`} onClick={e => { e.preventDefault(); setView(`post:${post.slug}`); }}>
                 <h2>{post.title}</h2>
                 <p>{post.excerpt}</p>
@@ -152,11 +152,12 @@ function BlogPost({ slug, theme, setView, language }: { slug: string; theme: str
       <WeeklyMasthead language={language} />
       <article className="weekly-article">
         <a className="weekly-back" href="#/weekly" onClick={e => { e.preventDefault(); setView('weekly'); }}>{language === 'en' ? '← BACK TO THE EDITION' : '← 返回週刊'}</a>
-        <div className="weekly-article-category">{post.category} / {post.date}</div>
+        <div className="weekly-article-category">{post.category} / {post.date} <span className="weekly-ink-stamp">{post.stamp}</span></div>
         <h2>{post.title}</h2>
         {language === 'zh' && !post.translated && <p className="weekly-original-note">此文目前只有英文版本，以下顯示英文原文。</p>}
         <div className="weekly-article-deck">{post.tags.join(' · ')}</div>
         <div className="post-body weekly-article-body" dangerouslySetInnerHTML={{ __html: renderMarkdown(post.body) }} />
+        {post.sources.length > 0 && <aside className="weekly-sources"><h3>{language==='en'?'Documented sources':'參考來源'}</h3>{post.sources.map((url,i)=><a key={url} href={url} target="_blank" rel="noopener noreferrer">{String(i+1).padStart(2,'0')} · {url}</a>)}</aside>}
         <div className="giscus-wrap"><h3>{language === 'en' ? 'Letters to the editor' : '讀者來信'}</h3>
           <Giscus mapping="specific" term={`writing/${slug}`} theme={theme as 'light' | 'dark'} language={language} />
         </div>

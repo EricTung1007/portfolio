@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "prebuild": "node scripts/sync-resume.mjs",
+    "predev": "node scripts/sync-resume.mjs"
   },
   "dependencies": {
     "@mlc-ai/web-llm": "^0.2.37",

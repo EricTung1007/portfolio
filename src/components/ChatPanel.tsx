@@ -2,9 +2,10 @@ import { useEffect, useRef, useState } from 'react';
 import { useWebLLM } from '../hooks.js';
 import type { ChatLanguage } from '../chat-engine.js';
 import { answerFromVerifiedProfile, unknownDeskAnswer } from '../desk-answers.js';
+import { getEvidenceLink } from '../archive.js';
 import { inspectBrowserCapability, chooseBrowserModel, getSystemBrand, type BrowserCapability, type BrowserModelTier } from '../browser-capability.js';
 
-interface MessageItem { role: 'user' | 'assistant'; content: string; }
+interface MessageItem { role: 'user' | 'assistant'; content: string; related?: { label:string; href:string } | null; }
 
 const COPY = {
   en: {
@@ -14,7 +15,8 @@ const COPY = {
     resume: 'VIEW RESUME', model: 'Optional SmolLM2 360M · Browser WebGPU',
     note: 'Answers are grounded in the CV text extracted at build time plus maintained profile data. Updating CV.pdf and rebuilding refreshes the reference.',
     placeholder: 'Ask the archivist...', send: 'SEND', retry: 'TRY AGAIN',
-    topics: ['Who is Eric?', 'What AI projects has Eric built?', 'What is his experience?', 'What can he build?'],
+    topics: ['Background', 'Engineering', 'Research', 'Contact'],
+    branches: [['Who is Eric?', 'What is his education?', 'What is his experience?'],['What AI projects has Eric built?', 'What can he build?', 'What skills does he have?'],['What has he published?', 'What is Minerva’s Den?', 'What is RAG?'],['How can I contact Eric?', 'Where is Eric’s CV?', 'Where is his GitHub?']],
     unknown: 'No published evidence is available for that detail.',
     copy: 'STAMP & COPY', copied: 'COPIED TO CLIPBOARD',
   },
@@ -25,7 +27,8 @@ const COPY = {
     resume: '查看履歷', model: '可選用 SmolLM2 360M · 瀏覽器 WebGPU',
     note: '回答依據建置時從 CV.pdf 擷取的文字及個人資料，更新履歷並重新建置後即可同步。',
     placeholder: '向檔案管理員提問…', send: '送出', retry: '重試',
-    topics: ['Eric 是誰？', 'Eric 做過哪些 AI 專案？', 'Eric 有哪些工作經歷？', 'Eric 能開發什麼？'],
+    topics: ['個人背景', '工程專案', '研究成果', '聯絡方式'],
+    branches: [['Eric 是誰？', 'Eric 的學歷？', 'Eric 有哪些工作經歷？'],['Eric 做過哪些 AI 專案？', 'Eric 能開發什麼？', 'Eric 有哪些技術能力？'],['Eric 發表過哪些論文？', '什麼是 Minerva’s Den？', '什麼是 RAG？'],['如何聯絡 Eric？', 'Eric 的履歷在哪裡？', 'Eric 的 GitHub？']],
     unknown: '公開資料中沒有這項資訊。',
     copy: '蓋章並複製', copied: '已複製至剪貼簿',
   },
@@ -37,6 +40,7 @@ export function ChatPanel({ onGenerationStart, onGenerationEnd, language }: {
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<MessageItem[]>([]);
   const [copied, setCopied] = useState(false);
+  const [topicBranch, setTopicBranch] = useState<number|null>(null);
   const [tier, setTier] = useState<BrowserModelTier>('small');
   const [capability, setCapability] = useState<BrowserCapability | null>(null);
   const { status, progress, progressText, error, initialize, generate } = useWebLLM();
@@ -66,7 +70,7 @@ export function ChatPanel({ onGenerationStart, onGenerationEnd, language }: {
       setInput('');
       setCopied(false);
       setMessages(items => [...items, { role: 'user', content: q },
-        { role: 'assistant', content: verified ?? unknownDeskAnswer(language) }]);
+        { role: 'assistant', content: verified ?? unknownDeskAnswer(language), related: verified ? getEvidenceLink(q) : null }]);
       return;
     }
     setInput('');
@@ -107,6 +111,7 @@ export function ChatPanel({ onGenerationStart, onGenerationEnd, language }: {
           <div className={`rpg-message ${item.role}`} key={index}>
             <span className="rpg-speaker">{item.role === 'user' ? (language === 'en' ? 'VISITOR' : '訪客') : (language === 'en' ? 'ARCHIVIST' : '檔案管理員')}</span>
             <p>{item.content || (busy && index === messages.length - 1 ? '…' : '')}</p>
+            {item.related && <a className="rpg-evidence" href={item.related.href} target="_blank" rel="noopener noreferrer">{language==='en'?'RELATED RECORD':'相關文件'} · {item.related.label} ↗</a>}
           </div>
         ))}
       </div>
@@ -137,12 +142,17 @@ export function ChatPanel({ onGenerationStart, onGenerationEnd, language }: {
             : (!capability ? 'Checking WebGPU…' : !capability.gpuAvailable ? 'WebGPU unavailable. Verified profile Q&A still works.' : tier === 'enhanced' && !capability.supportsF16 ? 'Enhanced model requires shader-f16.' : 'Available VRAM cannot be reliably measured. Use the small model if loading fails.')}</small>
         </div>
       )}
+      {topicBranch !== null && <button type="button" className="rpg-branch-back" onClick={()=>setTopicBranch(null)}>{language==='en'?'← BACK TO TOPICS':'← 返回主題'}</button>}
       <div className="rpg-actions">
-        {t.topics.map((topic, i) => (
+        {topicBranch===null ? t.topics.map((topic, i) => (
           <button className="rpg-choice" type="button" key={topic}
-            onClick={() => { void handleSend(topic); }}
-            disabled={busy}>
+            onClick={() => setTopicBranch(i)} disabled={busy}>
             <span>{String(i + 1).padStart(2, '0')}</span> {topic}
+          </button>
+        )) : t.branches[topicBranch].map((topic,i)=>(
+          <button className="rpg-choice" type="button" key={topic} disabled={busy}
+            onClick={()=>{void handleSend(topic);}}>
+            <span>{String(i + 1).padStart(2,'0')}</span> {topic}
           </button>
         ))}
       </div>

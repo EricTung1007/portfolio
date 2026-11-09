@@ -11,6 +11,8 @@ export interface Post {
   excerpt: string;
   language: PublicationLanguage;
   translated: boolean;
+  stamp: 'FIELD NOTES' | 'EXPERIMENTAL' | 'VERIFIED' | 'REVISED';
+  sources: string[];
 }
 
 interface SourcePost extends Omit<Post, 'translated'> {
@@ -69,11 +71,19 @@ function readFiles(files: Record<string, string>, language: PublicationLanguage)
     const slug = path.split('/').pop()!.replace(/\.md$/i, '');
     const { meta, body } = parseFrontmatter(md);
     const date = String(meta.date ?? '');
-    if (String(meta.draft ?? '').toLowerCase() === 'true' || !/^\d{4}-\d{2}-\d{2}$/.test(date)) continue;
+    // Schedule works without a server: only release once the daily build reaches publish_on.
+    const publishOn = String(meta.publish_on ?? '').trim();
+    const todayUTC = new Date().toISOString().slice(0, 10);
+    if (String(meta.draft ?? '').toLowerCase() === 'true' || !/^\d{4}-\d{2}-\d{2}$/.test(date) || (publishOn && (!/^\d{4}-\d{2}-\d{2}$/.test(publishOn) || publishOn > todayUTC))) continue;
+    const rawSources = Array.isArray(meta.sources) ? meta.sources : [];
+    const sources = rawSources.filter(s => /^(https?:\/\/)/i.test(s));
+    const requestedStamp = String(meta.stamp ?? 'FIELD NOTES').toUpperCase();
+    const stamp = (requestedStamp === 'VERIFIED' && sources.length === 0 ? 'FIELD NOTES' : requestedStamp);
     entries.set(slug, {
       slug, language, title: String(meta.title ?? slug),
       date, tags: Array.isArray(meta.tags) ? meta.tags : [],
       category: String(meta.category ?? 'Journal'), body, excerpt: excerptOf(body),
+      stamp: (['FIELD NOTES','EXPERIMENTAL','VERIFIED','REVISED'].includes(stamp) ? stamp : 'FIELD NOTES') as Post['stamp'], sources,
       draft: false,
     });
   }
@@ -90,7 +100,7 @@ export function getPosts(language: PublicationLanguage = 'en'): Post[] {
     const selected = zh ?? en;
     // The English article defines the stable publication section and date.
     // Translations only replace reader-facing text, not taxonomy.
-    return { ...selected, category: en.category, date: en.date, tags: en.tags, translated: Boolean(zh) };
+    return { ...selected, category: en.category, date: en.date, tags: en.tags, stamp: en.stamp, sources: en.sources, translated: Boolean(zh) };
   });
 }
 

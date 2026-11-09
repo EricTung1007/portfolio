@@ -4,6 +4,8 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  schedule:
+    - cron: '10 0 * * *' # Daily 00:10 UTC; enables scheduled article releases
 
 permissions:
   contents: read

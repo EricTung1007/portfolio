@@ -192,6 +192,8 @@ export default function App() {
     window.scrollTo({ top: 0 });
   };
 
+  const [deskBusy, setDeskBusy] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const isChat = view === 'chat';
   const isPost = view.startsWith('post:');
 
@@ -212,13 +214,35 @@ export default function App() {
 
       {isChat ? (
         <div className="chat-layout">
-          <div className="chat-desk">
-            <JawAnimation running={false} />
-            <p>{language === 'en' ? 'Local WebGPU inference. Your questions stay in the browser.' : '透過瀏覽器 WebGPU 本地推論，提問內容不傳送至伺服器。'}</p>
-          </div>
+          <aside className="chat-desk" aria-label={language === 'en' ? 'Information desk' : '資訊台'}>
+            <div className="desk-cabinet">
+              <div className="desk-cabinet-top">
+                <span className="desk-cabinet-label">EST. 2026 · ERIC.EXE</span>
+                <span className={`desk-pilot ${deskBusy ? 'working' : ''}`} title={deskBusy ? 'Working' : 'Ready'} aria-label={deskBusy ? 'Working' : 'Ready'} />
+              </div>
+              <JawAnimation running={deskBusy} />
+              <div className="desk-nameplate">{language === 'en' ? 'THE INFORMATION DESK' : '個人資訊台'}</div>
+              <div className="desk-cabinet-controls">
+                <button className="desk-drawer-handle" type="button" aria-expanded={drawerOpen} aria-controls="desk-file-drawer" onClick={() => setDrawerOpen(o => !o)}>
+                  <span aria-hidden="true">▤</span> {language === 'en' ? (drawerOpen ? 'CLOSE FILE DRAWER' : 'OPEN FILE DRAWER') : (drawerOpen ? '收起檔案抽屜' : '打開檔案抽屜')}
+                </button>
+              </div>
+              {drawerOpen && (
+                <div className="desk-file-drawer" id="desk-file-drawer">
+                  <div className="desk-file-title">{language === 'en' ? 'ARCHIVE / 001' : '檔案庫 / 001'}</div>
+                  <a href={`${import.meta.env.BASE_URL}CV.pdf`} target="_blank" rel="noopener noreferrer">{language === 'en' ? '01 · Resume / CV' : '01 · 個人履歷'} ↗</a>
+                  <a href="#/portfolio" onClick={(e) => { e.preventDefault(); setView('portfolio'); document.getElementById('work')?.scrollIntoView(); }}>{language === 'en' ? '02 · Project ledger' : '02 · 專案紀錄'} ↗</a>
+                  <a href="#/portfolio" onClick={(e) => { e.preventDefault(); setView('portfolio'); }}>{language === 'en' ? '03 · Writing archive' : '03 · 文章存檔'} ↗</a>
+                  <button type="button" onClick={() => { void navigator.clipboard?.writeText(knowledge.profile.contact.email); }}>
+                    {language === 'en' ? '04 · Copy contact address' : '04 · 複製聯絡信箱'}
+                  </button>
+                </div>
+              )}
+            </div>
+            <p className="desk-privacy-note">{language === 'en' ? 'Local WebGPU inference. Your questions stay in the browser.' : '瀏覽器 WebGPU 本地推論，提問內容不傳送至伺服器。'}</p>
+          </aside>
           <div className="chat-main">
-
-            <ChatPanel language={language} onGenerationStart={() => {}} onGenerationEnd={() => {}} />
+            <ChatPanel language={language} onGenerationStart={() => setDeskBusy(true)} onGenerationEnd={() => setDeskBusy(false)} />
           </div>
         </div>
       ) : (

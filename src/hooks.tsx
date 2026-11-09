@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import type { ChatLanguage } from './chat-engine.js';
 
 export function useReducedMotion(): boolean {
   if (typeof window === 'undefined') return false;
@@ -35,13 +36,13 @@ export function useWebLLM() {
     engineRef.current = engine;
   };
 
-  const generate = async (question: string, onToken: (t: string) => void): Promise<void> => {
+  const generate = async (question: string, onToken: (t: string) => void, language: ChatLanguage = 'en'): Promise<void> => {
     const engine = engineRef.current;
     if (!engine) throw new Error('Not initialized');
 
     setStatus('generating');
     try {
-      await engine.generate(question, onToken);
+      await engine.generate(question, onToken, language);
       setStatus('ready');
     } catch (e: unknown) {
       setStatus('error');

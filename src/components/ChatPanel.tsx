@@ -1,193 +1,119 @@
-import { useState, useRef, useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useWebLLM } from '../hooks.js';
+import type { ChatLanguage } from '../chat-engine.js';
 
 interface MessageItem { role: 'user' | 'assistant'; content: string; }
 
-const SUGGESTED = [
-  'Tell me about your nursing background.',
-  'What AI projects have you worked on?',
-  'How did you transition from nursing to AI?',
-  'What is your experience with Python and ML?',
-];
+const COPY = {
+  en: {
+    desk: 'INFORMATION DESK', title: 'Speak with the archivist',
+    intro: "Welcome, traveler. Explore Eric's work, research, and experience. Choose a topic or ask a question.",
+    init: 'AWAKEN THE ARCHIVIST', loading: 'Awakening the local model', ready: 'ARCHIVIST ONLINE', idle: 'DORMANT',
+    resume: 'VIEW RESUME', model: 'Qwen2.5-Coder 1.5B · Browser WebGPU',
+    note: 'Answers are grounded in the CV text extracted at build time plus maintained profile data. Updating CV.pdf and rebuilding refreshes the reference.',
+    placeholder: 'Ask the archivist...', send: 'SEND', retry: 'TRY AGAIN',
+    topics: ['Who is Eric?', 'What AI projects has Eric built?', 'What is his experience?', 'What can he build?'],
+    unknown: 'No published evidence is available for that detail.',
+  },
+  zh: {
+    desk: '個人資訊台', title: '與檔案管理員交談',
+    intro: '歡迎，旅人。你可以探索 Eric 的作品、研究與經歷，選擇主題或直接提問。',
+    init: '喚醒檔案管理員', loading: '正在啟動本地模型', ready: '檔案管理員已上線', idle: '尚未啟動',
+    resume: '查看履歷', model: 'Qwen2.5-Coder 1.5B · 瀏覽器 WebGPU',
+    note: '回答依據建置時從 CV.pdf 擷取的文字及個人資料，更新履歷並重新建置後即可同步。',
+    placeholder: '向檔案管理員提問…', send: '送出', retry: '重試',
+    topics: ['Eric 是誰？', 'Eric 做過哪些 AI 專案？', 'Eric 有哪些工作經歷？', 'Eric 能開發什麼？'],
+    unknown: '公開資料中沒有這項資訊。',
+  },
+} as const;
 
-function Message({ role, content }: { role: 'user' | 'assistant'; content: string }) {
-  return (
-    <div className={`flex msg-in ${role === 'user' ? 'justify-end' : 'justify-start'}`}>
-      <div
-        className="max-w-[85%] text-sm leading-relaxed"
-        style={
-          role === 'user'
-            ? { background: 'var(--bubble-user)', color: 'var(--bubble-user-ink)', borderRadius: '16px 16px 4px 16px', padding: '8px 14px' }
-            : { background: 'var(--surface)', color: 'var(--ink)', borderRadius: '16px 16px 16px 4px', padding: '8px 14px', border: '1px solid var(--line)' }
-        }
-      >
-        {content}
-      </div>
-    </div>
-  );
-}
-
-interface ChatPanelProps {
-  onGenerationStart: () => void;
-  onGenerationEnd: () => void;
-}
-
-export function ChatPanel({ onGenerationStart, onGenerationEnd }: ChatPanelProps) {
+export function ChatPanel({ onGenerationStart, onGenerationEnd, language }: {
+  onGenerationStart: () => void; onGenerationEnd: () => void; language: ChatLanguage;
+}) {
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<MessageItem[]>([]);
   const { status, progress, progressText, error, initialize, generate } = useWebLLM();
   const scrollRef = useRef<HTMLDivElement>(null);
-
-  // auto-scroll to latest message
+  const busy = status === 'generating';
+  const active = status === 'ready' || busy;
+  const t = COPY[language];
   useEffect(() => {
-    const el = scrollRef.current;
-    if (el) el.scrollTop = el.scrollHeight;
+    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [messages]);
 
-  const handleInit = async () => {
-    await initialize('Qwen2.5-Coder-1.5B-Instruct-q4f16_1-MLC');
-  };
-
-  const handleSend = async () => {
-    if (!input.trim() || (status !== 'ready' && status !== 'generating')) return;
-    const q = input.trim();
+  const handleInit = () => { void initialize('Qwen2.5-Coder-1.5B-Instruct-q4f16_1-MLC'); };
+  const handleSend = async (question = input) => {
+    const q = question.trim();
+    if (!q || !active || busy) { if (q) setInput(q); return; }
     setInput('');
-    setMessages((m) => [...m, { role: 'user', content: q }]);
+    setMessages((items) => [...items, { role: 'user', content: q }, { role: 'assistant', content: '' }]);
     onGenerationStart();
-
-    // add a placeholder assistant message immediately
-    setMessages((m) => [...m, { role: 'assistant', content: '' }]);
-
     try {
-      await generate(q, (token: string) => {
-        setMessages((m) => {
-          const copy = [...m];
-          const last = copy[copy.length - 1];
-          if (last?.role === 'assistant') {
-            copy[copy.length - 1] = { role: 'assistant', content: last.content + token };
-          }
-          return copy;
+      await generate(q, (token) => {
+        setMessages((items) => {
+          const updated = [...items];
+          const index = updated.length - 1;
+          if (updated[index]?.role === 'assistant') updated[index] = { role: 'assistant', content: updated[index].content + token };
+          return updated;
         });
-      });
+      }, language);
     } catch {
-      // error handled in hook
-    } finally {
-      onGenerationEnd();
-    }
+      setMessages((items) => {
+        const updated = [...items];
+        const index = updated.length - 1;
+        if (updated[index]?.role === 'assistant' && !updated[index].content) updated[index] = { role: 'assistant', content: t.unknown };
+        return updated;
+      });
+    } finally { onGenerationEnd(); }
   };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
-  };
-
-  const isActive = status === 'ready' || status === 'generating';
 
   return (
-    <div className="card flex flex-col" style={{ minHeight: '300px' }}>
-      <p className="mb-3" style={{ color: 'var(--muted)', fontSize: '0.9375rem' }}>Chat with Eric</p>
-
-      {/* ── not initialized ── */}
-      {status === 'not-initialized' && (
-        <div className="flex-1 flex flex-col items-center justify-center text-center gap-3 px-4">
-          <p className="max-w-[28ch] text-[0.9375rem]" style={{ color: 'var(--muted)', lineHeight: 1.6 }}>
-            Local AI — runs entirely in your browser via WebGPU. Nothing is sent to any server.
-          </p>
-          <button onClick={handleInit} className="btn-primary px-5 py-2.5 text-sm">
-            Load model <span style={{ color: 'rgba(127,120,110,0.7)', fontSize: '0.75rem' }}>(~500 MB)</span>
+    <section className="rpg-panel" aria-label={t.desk}>
+      <div className="rpg-panel-header">
+        <span className="rpg-kicker">◈ {t.desk} / ERIC.EXE</span>
+        <span className="rpg-status">{active ? t.ready : t.idle}</span>
+      </div>
+      <div className="rpg-npc">
+        <img src={`${import.meta.env.BASE_URL}avatar.png`} alt="Eric's illustrated portrait" className="rpg-npc-avatar" />
+        <div><div className="rpg-npc-label">THE ARCHIVIST</div><h2>{t.title}</h2><p>{t.intro}</p></div>
+      </div>
+      <div className="rpg-conversation" ref={scrollRef} aria-live="polite">
+        {messages.map((item, index) => (
+          <div className={`rpg-message ${item.role}`} key={index}>
+            <span className="rpg-speaker">{item.role === 'user' ? (language === 'en' ? 'VISITOR' : '訪客') : (language === 'en' ? 'ARCHIVIST' : '檔案管理員')}</span>
+            <p>{item.content || (busy && index === messages.length - 1 ? '…' : '')}</p>
+          </div>
+        ))}
+      </div>
+      {!active && (
+        <div className="rpg-init">
+          {status === 'downloading' ? (
+            <><p>{progressText || t.loading} {progress ? `${progress}%` : ''}</p>
+              <div className="rpg-progress"><span style={{ width: `${progress}%` }} /></div></>
+          ) : (
+            <button type="button" className="rpg-primary" onClick={handleInit}>{status === 'error' ? t.retry : t.init}</button>
+          )}
+          {status === 'error' && <p role="alert">{error}</p>}
+          <small>{t.model}</small>
+        </div>
+      )}
+      <div className="rpg-actions">
+        {t.topics.map((topic, i) => (
+          <button className="rpg-choice" type="button" key={topic}
+            onClick={() => { if (active) void handleSend(topic); else setInput(topic); }}
+            disabled={busy}>
+            <span>{String(i + 1).padStart(2, '0')}</span> {topic}
           </button>
-          <p style={{ color: 'var(--muted)', fontSize: '0.875rem' }}>
-            Qwen2.5-Coder-1.5B · MLC-LLM
-          </p>
-        </div>
-      )}
-
-      {/* ── downloading ── */}
-      {status === 'downloading' && (
-        <div className="flex-1 flex flex-col items-center justify-center gap-4">
-          <p className="text-sm" style={{ color: 'var(--muted)' }}>
-            {progressText || 'Downloading model…'} {progress > 0 && progress < 100 ? `${progress}%` : ''}
-          </p>
-          <div className="w-full rounded-full overflow-hidden" style={{ height: '3px', background: 'var(--line)' }}>
-            <div
-              className="h-full transition-all duration-300"
-              style={{ width: `${progress}%`, background: 'var(--accent)' }}
-            />
-          </div>
-        </div>
-      )}
-
-      {/* ── error ── */}
-      {status === 'error' && (
-        <div className="flex-1 flex flex-col items-center justify-center gap-3 text-center">
-          <p className="text-sm max-w-xs" style={{ color: 'var(--accent)' }}>{error}</p>
-          <button onClick={handleInit} className="btn-primary px-4 py-2 text-sm">Retry</button>
-        </div>
-      )}
-
-      {/* ── ready / generating — both show the message list ── */}
-      {isActive && (
-        <>
-          <div ref={scrollRef} className="flex-1 overflow-y-auto space-y-3 pr-1">
-            {messages.length === 0 && (
-              <p className="text-[0.9375rem]" style={{ color: 'var(--muted)' }}>
-                Ask anything about Eric's education, skills, or projects.
-              </p>
-            )}
-            {messages.map((m, i) => (
-              <Message key={i} role={m.role} content={m.content} />
-            ))}
-            {status === 'generating' && messages[messages.length - 1]?.role === 'assistant' && messages[messages.length - 1]?.content === '' && (
-              <div className="flex justify-start">
-                <span className="flex gap-1.5 items-center px-3 py-2" style={{ color: 'var(--muted)' }}>
-                  <span className="w-1.5 h-1.5 rounded-full animate-bounce" style={{ background: 'var(--accent)', animationDelay: '0ms' }} />
-                  <span className="w-1.5 h-1.5 rounded-full animate-bounce" style={{ background: 'var(--accent)', animationDelay: '150ms' }} />
-                  <span className="w-1.5 h-1.5 rounded-full animate-bounce" style={{ background: 'var(--accent)', animationDelay: '300ms' }} />
-                </span>
-              </div>
-            )}
-          </div>
-
-          <div className="mt-3 space-y-2.5">
-            {messages.length === 0 && (
-              <div className="flex flex-wrap gap-1.5">
-                {SUGGESTED.map((s) => (
-                  <button
-                    key={s}
-                    onClick={() => setInput(s)}
-                    className="text-xs px-2.5 py-1 rounded-full transition-colors"
-                    style={{ border: '1px solid var(--line-strong)', color: 'var(--muted)', background: 'transparent' }}
-                    onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--ink)'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--accent)'; }}
-                    onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--muted)'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--line-strong)'; }}
-                  >
-                    {s}
-                  </button>
-                ))}
-              </div>
-            )}
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Ask about Eric…"
-                disabled={status === 'generating'}
-                className="field"
-              />
-              <button
-                onClick={handleSend}
-                disabled={!input.trim() || status === 'generating'}
-                className="btn-primary px-4 py-2 text-sm"
-              >
-                Send
-              </button>
-            </div>
-          </div>
-        </>
-      )}
-    </div>
+        ))}
+      </div>
+      <form className="rpg-input" onSubmit={(e) => { e.preventDefault(); void handleSend(); }}>
+        <input value={input} onChange={(e) => setInput(e.target.value)} placeholder={t.placeholder} aria-label={t.placeholder} disabled={busy} />
+        <button type="submit" disabled={!input.trim() || busy || !active}>{t.send}</button>
+      </form>
+      <div className="rpg-foot">
+        <a href={`${import.meta.env.BASE_URL}CV.pdf`} target="_blank" rel="noreferrer">{t.resume} ↗</a>
+        <span>{t.note}</span>
+      </div>
+    </section>
   );
 }

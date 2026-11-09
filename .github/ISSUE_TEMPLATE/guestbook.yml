@@ -1,7 +1,6 @@
 name: "Visitor Guestbook / 訪客簽到"
 description: "Leave a note in the public EricTung information desk visitor book."
 title: "[Guestbook] "
-labels: ["guestbook"]
 body:
   - type: markdown
     attributes:

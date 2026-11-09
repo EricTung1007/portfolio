@@ -69,7 +69,10 @@ function readFiles(files: Record<string, string>, language: PublicationLanguage)
     const slug = path.split('/').pop()!.replace(/\.md$/i, '');
     const { meta, body } = parseFrontmatter(md);
     const date = String(meta.date ?? '');
-    if (String(meta.draft ?? '').toLowerCase() === 'true' || !/^\d{4}-\d{2}-\d{2}$/.test(date)) continue;
+    // Schedule works without a server: only release once the daily build reaches publish_on.
+    const publishOn = String(meta.publish_on ?? '').trim();
+    const todayUTC = new Date().toISOString().slice(0, 10);
+    if (String(meta.draft ?? '').toLowerCase() === 'true' || !/^\d{4}-\d{2}-\d{2}$/.test(date) || (publishOn && (!/^\d{4}-\d{2}-\d{2}$/.test(publishOn) || publishOn > todayUTC))) continue;
     entries.set(slug, {
       slug, language, title: String(meta.title ?? slug),
       date, tags: Array.isArray(meta.tags) ? meta.tags : [],

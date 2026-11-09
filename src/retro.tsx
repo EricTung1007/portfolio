@@ -134,7 +134,7 @@ export function TerminalWindow({language,visitor,navigate,onTheme,onLanguage,onC
   },[booting]);
   useEffect(()=>{outputRef.current?.scrollTo({top:outputRef.current.scrollHeight,behavior:'smooth'});},[history]);
   const run=(raw:string)=>{
-    const cmd=raw.trim().toLowerCase().replace(/\\s+/g,' ').replace(/[?？。！!]+$/g,'');
+    const cmd=raw.trim().toLowerCase().replace(/\s+/g,' ').replace(/[?？。！!]+$/g,'');
     if(!cmd)return;
     setEntry('');setSelected(0);
     visitor.command(cmd);
@@ -259,7 +259,7 @@ export function punchSvg(visitor:VisitorData,alias:string,role:string,interest:s
  const fill=golden?'#d3a44e':'#efe0bf';
  const edge=golden?'#74541e':'#6b573d';
  const subtitle=golden?'GOLDEN VISITOR CARD · ACCESS CODE 0451':'VISITOR MESSAGE / PUNCH CARD';
- const messageLine=encode(message.replace(/\\s+/g,' ').slice(0,84));
+ const messageLine=encode(message.replace(/\s+/g,' ').slice(0,84));
  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 520" width="1100" height="520"><rect width="1100" height="520" fill="${fill}"/><rect x="14" y="14" width="1072" height="492" rx="8" fill="none" stroke="${edge}" stroke-width="4"/><text x="40" y="62" font-size="30" font-weight="bold" font-family="Georgia,serif" fill="#473522">MINERVA'S DEN / ${subtitle}</text><text x="42" y="88" font-size="14" font-family="monospace" fill="#604f3a">ERIC.EXE · PERSONAL WORKSTATION · 12 ROWS / 40 COLUMNS</text><text x="42" y="112" font-size="13" font-family="monospace" fill="#604f3a">ALIAS: ${encode(alias.slice(0,28))} / CLASS: ${encode(role)} / INTEREST: ${encode(interest)}</text>${grid}${cols}${holes}<line x1="40" x2="1060" y1="421" y2="421" stroke="#887358"/><text x="42" y="449" font-size="16" font-family="Georgia,serif" fill="#45311d">MESSAGE: ${messageLine}</text><line x1="40" x2="1060" y1="467" y2="467" stroke="#887358"/><text x="42" y="492" font-size="12" font-family="monospace" fill="#604f3a">ARCHIVE VISIT ${String(visitor.achievements.length).padStart(2,'0')} STAMPS · ${String(visitor.posts.length).padStart(2,'0')} ARTICLES · LOCAL KEEPSAKE</text><text x="1044" y="492" text-anchor="end" font-size="12" font-family="monospace" fill="#604f3a">NOT AN ACCESS CREDENTIAL</text></svg>`;
 }
 export function PunchCard({language,visitor,onClose}:{language:SiteLanguage;visitor:VisitorActions;onClose:()=>void}) {

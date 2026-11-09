@@ -4,6 +4,7 @@ import JawAnimation from './components/JawAnimation.js';
 import { Giscus } from './components/Giscus.js';
 import { knowledge } from './data.js';
 import { posts, getPost } from './posts.js';
+import { renderMarkdown } from './markdown.js';
 import './motion.js';
 import './index.css';
 
@@ -35,10 +36,11 @@ function SocialButtons() {
   );
 }
 
-function Hero({ view, setView }: { view: View; setView: (v: View) => void }) {
+function Hero({ setView }: { setView: (v: View) => void }) {
   return (
     <header className="hero">
       <div className="hero-rail">
+        <img className="profile-avatar" src={`${import.meta.env.BASE_URL}avatar.png`} alt="Illustrated portrait of Eric" />
         <h1>
           I build software
           <br />
@@ -50,7 +52,7 @@ function Hero({ view, setView }: { view: View; setView: (v: View) => void }) {
         </p>
         <div className="hero-actions">
           <button className="btn btn-primary" onClick={() => setView('chat')}>Ask the desk</button>
-          <a className="btn btn-ghost" href="#work">See my work</a>
+          <a className="btn btn-ghost" href="#/portfolio" onClick={(e) => { e.preventDefault(); setView("portfolio"); document.getElementById("work")?.scrollIntoView({ behavior: "smooth" }); }}>See my work</a>
         </div>
       </div>
     </header>
@@ -64,9 +66,9 @@ function BlogList({ setView }: { setView: (v: View) => void }) {
       <ul className="post-list">
         {posts.map((p) => (
           <li key={p.slug}>
-            <a className="post-link" href="#" onClick={(e) => { e.preventDefault(); setView(`post:${p.slug}`); }}>
+            <a className="post-link" href={`#/writing/${encodeURIComponent(p.slug)}`} onClick={(e) => { e.preventDefault(); setView(`post:${p.slug}`); }}>
               <div className="post-title">{p.title}</div>
-              <div className="post-meta">{p.date}</div>
+              <div className="post-meta">{p.date}{p.tags.length ? ` · ${p.tags.join(" · ")}` : ""}</div>
               <div className="post-excerpt">{p.excerpt}</div>
             </a>
           </li>
@@ -81,53 +83,16 @@ function BlogPost({ slug, theme, setView }: { slug: string; theme: string; setVi
   if (!post) return <section className="section"><h2>Not found</h2></section>;
   return (
     <article className="section">
-      <a className="back-link" href="#" onClick={(e) => { e.preventDefault(); setView('portfolio'); }}>← All writing</a>
+      <a className="back-link" href="#/portfolio" onClick={(e) => { e.preventDefault(); setView('portfolio'); }}>← All writing</a>
       <h2>{post.title}</h2>
-      <div className="post-date">{post.date}</div>
+      <div className="post-date">{post.date}{post.tags.length ? ` · ${post.tags.join(" · ")}` : ""}</div>
       <div className="post-body" dangerouslySetInnerHTML={{ __html: renderMarkdown(post.body) }} />
       <div className="giscus-wrap">
         <h3>Comments</h3>
-        <Giscus mapping="specific" theme={theme as 'light' | 'dark'} />
+        <Giscus mapping="specific" term={`writing/${slug}`} theme={theme as 'light' | 'dark'} />
       </div>
     </article>
   );
-}
-
-/* Minimal Markdown → HTML (paragraphs, h2, lists, code, links). Good enough for two posts. */
-function renderMarkdown(md: string): string {
-  const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  const inline = (s: string) =>
-    esc(s)
-      .replace(/`([^`]+)`/g, '<code>$1</code>')
-      .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-      .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noreferrer">$1</a>');
-  const lines = md.split('\n');
-  let html = '';
-  let inList = false;
-  let inCode = false;
-  for (const line of lines) {
-    if (line.startsWith('```')) {
-      if (inCode) { html += '</code></pre>'; inCode = false; }
-      else { html += '<pre><code>'; inCode = true; }
-      continue;
-    }
-    if (inCode) { html += esc(line) + '\n'; continue; }
-    if (line.startsWith('## ')) {
-      if (inList) { html += '</ul>'; inList = false; }
-      html += `<h2>${inline(line.slice(3))}</h2>`;
-    } else if (line.startsWith('- ')) {
-      if (!inList) { html += '<ul>'; inList = true; }
-      html += `<li>${inline(line.slice(2))}</li>`;
-    } else if (line.trim() === '') {
-      if (inList) { html += '</ul>'; inList = false; }
-    } else {
-      if (inList) { html += '</ul>'; inList = false; }
-      html += `<p>${inline(line)}</p>`;
-    }
-  }
-  if (inList) html += '</ul>';
-  if (inCode) html += '</code></pre>';
-  return html;
 }
 
 function Portfolio({ theme, setView }: { theme: string; setView: (v: View) => void }) {
@@ -153,7 +118,7 @@ function Portfolio({ theme, setView }: { theme: string; setView: (v: View) => vo
       </section>
 
       {/* work */}
-      <section className="section">
+      <section className="section" id="work">
         <h2>Work</h2>
         <ul className="ledger">
           {experience.map((e) => (
@@ -194,10 +159,21 @@ function Portfolio({ theme, setView }: { theme: string; setView: (v: View) => vo
 }
 
 export default function App() {
-  const [view, setViewRaw] = useState<View>(() => {
-    const saved = localStorage.getItem('eric_view');
-    return saved === 'chat' || saved === 'portfolio' ? saved : 'portfolio';
-  });
+  const viewFromHash = (): View => {
+    const hash = window.location.hash;
+    if (hash === '#/chat') return 'chat';
+    if (hash.startsWith('#/writing/')) {
+      try { return `post:${decodeURIComponent(hash.slice('#/writing/'.length))}`; }
+      catch { return 'portfolio'; }
+    }
+    return 'portfolio';
+  };
+  const [view, setViewRaw] = useState<View>(viewFromHash);
+  useEffect(() => {
+    const onHashChange = () => setViewRaw(viewFromHash());
+    window.addEventListener('hashchange', onHashChange);
+    return () => window.removeEventListener('hashchange', onHashChange);
+  }, []);
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     const saved = localStorage.getItem('eric_theme') as 'light' | 'dark' | null;
     if (saved) return saved;
@@ -211,7 +187,8 @@ export default function App() {
 
   const setView = (v: View) => {
     setViewRaw(v);
-    localStorage.setItem('eric_view', v.startsWith('post:') ? 'portfolio' : v);
+    const hash = v.startsWith('post:') ? `#/writing/${encodeURIComponent(v.slice(5))}` : `#/${v}`;
+    if (window.location.hash !== hash) window.location.hash = hash;
     window.scrollTo({ top: 0 });
   };
 
@@ -221,7 +198,7 @@ export default function App() {
   return (
     <>
       <div className="topbar">
-        <a className="wordmark" href="#" onClick={(e) => { e.preventDefault(); setView('portfolio'); }}>eric.exe</a>
+        <a className="wordmark" href="#/portfolio" onClick={(e) => { e.preventDefault(); setView('portfolio'); }}>eric.exe</a>
         <div className="topbar-actions">
           <button className="theme-toggle" onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')} aria-label="Toggle theme">
             {theme === 'light' ? '◐' : '◑'}
@@ -231,15 +208,18 @@ export default function App() {
 
       {isChat ? (
         <div className="chat-layout">
-          <ChatPanel onGenerationStart={() => {}} onGenerationEnd={() => {}} />
-          <aside className="chat-aside">
+          <div className="chat-desk">
             <JawAnimation running={false} />
             <p>Runs entirely on your GPU. Nothing you type leaves this page.</p>
-          </aside>
+          </div>
+          <div className="chat-main">
+            <div className="chat-profile"><img src={`${import.meta.env.BASE_URL}avatar.png`} alt="Illustrated portrait of Eric" /><span>Ask Eric's desk</span></div>
+            <ChatPanel onGenerationStart={() => {}} onGenerationEnd={() => {}} />
+          </div>
         </div>
       ) : (
         <>
-          <Hero view={view} setView={setView} />
+          <Hero setView={setView} />
           {isPost ? (
             <BlogPost slug={view.slice(5)} theme={theme} setView={setView} />
           ) : (

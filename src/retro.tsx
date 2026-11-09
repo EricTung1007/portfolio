@@ -106,7 +106,7 @@ export function InteractiveDesk({language,onOpen,visitor}:{language:SiteLanguage
 }
 type TerminalProps={language:SiteLanguage;visitor:VisitorActions;navigate:(target:DeskTarget)=>void;onTheme:(theme:'dark'|'light')=>void;onLanguage:(language:SiteLanguage)=>void;onClose:()=>void};
 const TERMINAL_COMMANDS = [
-  'help','home','work','resume','cv','projects','portfolio','weekly','paper','archive','cabinet',
+  'help','home','work','resume','projects','portfolio','weekly','paper','archive','cabinet',
   'research','publications','timeline','experiments','ask','about','contact','message',
   'leave message','punchcard','guestbook','achievements','editorial','drawer',
   'unlock','theme dark','theme light','lang en','lang zh',
@@ -230,7 +230,7 @@ export function TerminalWindow({language,visitor,navigate,onTheme,onLanguage,onC
             {CRT_MENU.map(menu=><button type="button" key={menu.file}
               className={file===menu.file?'active':''} onClick={()=>openFile(menu.file,menu.command)}>
               {menu.label}</button>)}
-            <button type="button" className={lockOpen?'active':''} onClick={()=>{setLockOpen(true);setLockError(false);}}>▣ {labels(language,'LOCKED','已上鎖')}</button>
+            <button type="button" className={lockOpen?'active':''} onClick={()=>{if(secret){setLockOpen(false);return;}setLockOpen(true);setLockError(false);}}>▣ {secret ? labels(language,'UNLOCKED','已解鎖') : labels(language,'LOCKED','已上鎖')}</button>
           </nav>
           <div className="terminal-screen-scroll">
             <div className="terminal-file">

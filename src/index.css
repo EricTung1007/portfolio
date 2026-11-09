@@ -710,3 +710,143 @@ a { color: inherit; }
   .desk-nameplate { grid-column: 2; grid-row: 2; }
   .desk-cabinet-controls { grid-column: 2; grid-row: 3; }
 }
+
+
+/* Desk-first revision: the entire interactive conversation is built into the desk */
+.chat-layout.desk-first-layout {
+  display: block;
+  width: min(calc(100% - 28px), 1160px);
+  max-width: 1160px;
+  margin: 0 auto;
+  padding-top: 100px;
+}
+.desk-workstation {
+  width: 100%;
+  padding: clamp(14px,2.2vw,26px);
+  border-radius: 22px;
+  background: linear-gradient(135deg,#c6a077 0%,#a27854 30%,#8f5f41 70%,#705038 100%);
+  border: 3px solid #583d2d;
+  box-shadow: inset 0 2px 1px #e4c8a7, inset 0 -3px 0 #553924, 0 8px 0 #4b3325, 0 22px 45px rgba(0,0,0,.2);
+}
+.desk-workstation .desk-cabinet-top {
+  padding: 0 6px 12px;
+  border-bottom: 1px solid rgba(61,35,19,.35);
+  margin-bottom: 18px;
+}
+.desk-work-surface {
+  display: grid;
+  grid-template-columns: minmax(0,1.08fr) minmax(0,1fr);
+  align-items: start;
+  gap: clamp(16px,2.3vw,30px);
+}
+.desk-display {
+  position: sticky;
+  top: 90px;
+  align-self: start;
+  min-width: 0;
+  padding: 16px clamp(12px,2vw,22px) 18px;
+  background: linear-gradient(140deg,rgba(255,242,211,.12),rgba(82,44,21,.18));
+  border-radius: 13px;
+  border: 1px solid rgba(68,37,21,.37);
+  box-shadow: inset 0 2px 4px rgba(65,34,15,.12);
+  text-align: center;
+}
+.desk-display > div:first-child { width: 100% !important; }
+.desk-display img { width: 100%; max-height: min(57vh,500px); height: auto; object-fit: contain; display: block; margin: 0 auto; }
+.desk-workstation .desk-nameplate {
+  width: min(100%,390px); margin: 12px auto 16px; padding: 13px 10px;
+  font-size: clamp(11px,1.2vw,14px); letter-spacing: .12em;
+}
+.desk-display .desk-drawer-handle { max-width: 390px; margin: 0 auto; display: block; padding: 13px 12px; }
+.desk-desk-caption {
+  display: block; padding-top: 14px;
+  font: 700 9px/1.5 ui-monospace,monospace;
+  color: #38271c; letter-spacing: .1em;
+}
+.desk-workstation .chat-main {
+  width: 100%; min-width: 0;
+  position: relative;
+}
+.desk-workstation .rpg-panel {
+  background: #eadab9;
+  border: 1px solid #6f563d;
+  color: #2d2821;
+  border-radius: 4px 4px 12px 12px;
+  box-shadow: 4px 5px 0 #684a34, inset 0 0 0 5px rgba(255,255,255,.23);
+  padding: clamp(16px,2.4vw,28px);
+}
+.desk-workstation .rpg-panel::before { border-color: rgba(92,72,50,.23); }
+.desk-workstation .rpg-kicker, .desk-workstation .rpg-npc-label, .desk-workstation .rpg-speaker { color: #765132; }
+.desk-workstation .rpg-status, .desk-workstation .rpg-npc p, .desk-workstation .rpg-foot span { color: #685c4b; }
+.desk-workstation .rpg-npc { padding: 12px 0 16px; }
+.desk-workstation .rpg-npc-avatar { width: 55px; height: 55px; flex-basis: 55px; }
+.desk-workstation .rpg-npc h2 { font: 600 clamp(18px,2.3vw,23px)/1.2 Georgia,serif; color: #30271f; }
+.desk-workstation .rpg-npc p { font-size: 12px; }
+.desk-workstation .rpg-conversation {
+  min-height: 72px;
+  max-height: min(42vh,390px);
+  padding: 12px 10px;
+  background: #f4e9d2;
+  border: 1px solid #bba783;
+  border-radius: 4px;
+  box-shadow: inset 0 1px 4px rgba(68,46,23,.09);
+}
+.desk-workstation .rpg-message p { color: #2d2924; }
+.desk-workstation .rpg-message { border-color: #8e7453; }
+.desk-workstation .rpg-actions { gap: 6px; margin-top: 10px; }
+.desk-workstation .rpg-choice {
+  color: #382c20;
+  background: #e7d5b3;
+  border-color: #b19c7a;
+  padding: 10px 12px;
+  box-shadow: 0 2px 0 #b49c7b;
+}
+.desk-workstation .rpg-choice span { color: #825c3b; }
+.desk-workstation .rpg-input input { background:#f8efde; color:#2e291f; border-color:#a18c6c; }
+.desk-workstation .rpg-input button { background:#674a34; color:#fff1d6; border-color:#674a34; }
+.desk-workstation .rpg-foot { border-color:#b9a384; }
+.desk-workstation .rpg-foot a { color:#68472f; }
+.desk-workstation .rpg-init { padding: 6px 0 10px; }
+.desk-workstation .rpg-init small { color: #675847; }
+.desk-workstation .rpg-primary { background: #60452f; color: #fff2d6; border-color:#60452f; }
+.desk-workstation .desk-records {
+  display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 5px 20px;
+  margin-top: 22px; padding: 18px 24px;
+}
+.desk-workstation .desk-file-title { grid-column: 1/-1; }
+.desk-first-layout .desk-privacy-note { max-width: 70ch; margin: 22px auto; text-align: center; }
+@media (max-width: 760px) {
+  .chat-layout.desk-first-layout { display:block; width: min(calc(100% - 18px),640px); padding: 78px 0 25px; }
+  .desk-workstation { display:block; padding: 10px; border-radius: 17px; }
+  .desk-workstation .desk-cabinet-top { padding: 4px 5px 8px; margin-bottom: 10px; }
+  .desk-work-surface { display:flex; flex-direction:column; gap: 10px; }
+  .desk-display {
+    position: sticky;
+    top: 64px;
+    z-index: 12;
+    padding: 8px 10px 10px;
+    width: 100%;
+    display: grid;
+    grid-template-columns: minmax(0,1.25fr) minmax(0,1fr);
+    gap: 4px 12px; align-items: center;
+    background: linear-gradient(135deg,#c6a077,#9a6d48);
+    border: 1px solid #785235;
+    box-shadow: 0 5px 7px rgba(59,35,17,.22);
+  }
+  .desk-display > div:first-child { grid-column:1; grid-row: 1 / span 3; }
+  .desk-display img { width: 100%; max-height: 205px; object-fit: contain; }
+  .desk-display .desk-nameplate { grid-column:2; grid-row:1; margin:0; font-size:10px; padding:8px 5px; }
+  .desk-display .desk-drawer-handle { grid-column:2; grid-row:2; padding:10px 6px; font-size:10px; }
+  .desk-desk-caption { grid-column:2; grid-row:3; font-size:8px; padding:0; }
+  .desk-workstation .chat-main { width:100%; }
+  .desk-workstation .rpg-panel { padding:16px 14px; }
+  .desk-workstation .rpg-conversation { max-height: 290px; }
+  .desk-workstation .desk-records { display:block; }
+  .desk-workstation .rpg-npc p { font-size:12px; }
+  .desk-first-layout .desk-privacy-note { display:block; font-size:11px; }
+}
+@media (max-width: 390px) {
+  .desk-display img { max-height: 148px; }
+  .desk-display .desk-nameplate { font-size:9px; }
+  .desk-display .desk-drawer-handle { font-size:9px; }
+}

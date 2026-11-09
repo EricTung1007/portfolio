@@ -54,7 +54,7 @@ function Hero({ setView, language }: { setView: (v: View) => void; language: Lan
         </p>
         <div className="hero-actions">
           <button className="btn btn-primary" onClick={() => setView('chat')}>{language === 'en' ? 'Ask the desk' : '詢問資訊台'}</button>
-          <a className="btn btn-ghost" href="#/portfolio" onClick={(e) => { e.preventDefault(); setView("portfolio"); document.getElementById("work")?.scrollIntoView({ behavior: "smooth" }); }}>{language === 'en' ? 'See my work' : '查看作品'}</a>
+          <a className="btn btn-ghost" href="#/portfolio" onClick={(e) => { e.preventDefault(); setView("portfolio"); requestAnimationFrame(() => document.getElementById("work")?.scrollIntoView({ behavior: "smooth" })); }}>{language === 'en' ? 'See my work' : '查看作品'}</a>
         </div>
       </div>
     </header>
@@ -63,7 +63,7 @@ function Hero({ setView, language }: { setView: (v: View) => void; language: Lan
 
 function BlogList({ setView, language }: { setView: (v: View) => void; language: Language }) {
   return (
-    <section className="section">
+    <section className="section" id="writing">
       <h2>{language === 'en' ? 'Writing' : '文章與開發紀錄'}</h2>
       <ul className="post-list">
         {posts.map((p) => (
@@ -231,8 +231,8 @@ export default function App() {
                 <div className="desk-file-drawer" id="desk-file-drawer">
                   <div className="desk-file-title">{language === 'en' ? 'ARCHIVE / 001' : '檔案庫 / 001'}</div>
                   <a href={`${import.meta.env.BASE_URL}CV.pdf`} target="_blank" rel="noopener noreferrer">{language === 'en' ? '01 · Resume / CV' : '01 · 個人履歷'} ↗</a>
-                  <a href="#/portfolio" onClick={(e) => { e.preventDefault(); setView('portfolio'); document.getElementById('work')?.scrollIntoView(); }}>{language === 'en' ? '02 · Project ledger' : '02 · 專案紀錄'} ↗</a>
-                  <a href="#/portfolio" onClick={(e) => { e.preventDefault(); setView('portfolio'); }}>{language === 'en' ? '03 · Writing archive' : '03 · 文章存檔'} ↗</a>
+                  <a href="#/portfolio" onClick={(e) => { e.preventDefault(); setView('portfolio'); requestAnimationFrame(() => document.getElementById('work')?.scrollIntoView({ behavior: 'smooth' })); }}>{language === 'en' ? '02 · Project ledger' : '02 · 專案紀錄'} ↗</a>
+                  <a href="#/portfolio" onClick={(e) => { e.preventDefault(); setView('portfolio'); requestAnimationFrame(() => document.getElementById('writing')?.scrollIntoView({ behavior: 'smooth' })); }}>{language === 'en' ? '03 · Writing archive' : '03 · 文章存檔'} ↗</a>
                   <button type="button" onClick={() => { void navigator.clipboard?.writeText(knowledge.profile.contact.email); }}>
                     {language === 'en' ? '04 · Copy contact address' : '04 · 複製聯絡信箱'}
                   </button>

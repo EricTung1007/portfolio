@@ -6,10 +6,11 @@ import { knowledge } from './data.js';
 import { getPosts, getPost } from './posts.js';
 import { renderMarkdown } from './markdown.js';
 import { getSystemBrand } from './browser-capability.js';
+import { InteractiveDesk, BootSequence, TerminalWindow, AchievementPanel, PunchCard, BadgeToast, useVisitor } from './retro.js';
 import './motion.js';
 import './index.css';
 
-type View = 'chat' | 'portfolio' | 'weekly' | `post:${string}`;
+type View = 'desktop' | 'terminal' | 'achievements' | 'punch' | 'chat' | 'portfolio' | 'weekly' | `post:${string}`;
 type Language = 'en' | 'zh';
 
 const LINKS = {
@@ -96,8 +97,11 @@ function BlogList({ setView, language }: { setView: (v: View) => void; language:
 function WeeklyPage({ setView, language }: { setView: (v: View) => void; language: Language }) {
   const entries = getPosts(language);
   const [section, setSection] = useState('All');
+  const [archiveYear,setArchiveYear]=useState('All');
+  const years=['All',...new Set(entries.map(p=>p.date.slice(0,4)))];
   const sections = ['All', ...new Set(entries.map(p => p.category))];
-  const selected = section === 'All' ? entries : entries.filter(p => p.category === section);
+  const selected = entries.filter(p => (section === 'All' || p.category===section) && (archiveYear==='All'||p.date.startsWith(archiveYear)));
+  const lead=selected[0];
   return (
     <main className="weekly-paper">
       <WeeklyMasthead language={language} />
@@ -105,6 +109,8 @@ function WeeklyPage({ setView, language }: { setView: (v: View) => void; languag
         {sections.map(cat => <button type="button" key={cat} aria-pressed={cat === section} className={cat === section ? 'active' : ''}
           onClick={() => setSection(cat)}>{cat === 'All' ? (language === 'en' ? 'ALL STORIES' : '全部文章') : cat}</button>)}
       </nav>
+      <div className="retro-weekly-index"><span>ARCHIVE / {entries.length} STORIES · {years.length-1} YEARS</span><label>{language === 'en' ? 'EDITION YEAR' : '發行年份'} <select value={archiveYear} onChange={e=>setArchiveYear(e.target.value)}>{years.map(y=><option key={y} value={y}>{y==='All'?(language==='en'?'All years':'所有年份'):y}</option>)}</select></label></div>
+      {lead && <div className="retro-weekly-no">{language==='en'?'FRONT PAGE / FEATURED STORY':'頭版焦點'} · {lead.date}</div>}
       {selected.length === 0 ? <p className="weekly-empty">{language === 'en' ? 'No stories in this section yet.' : '這個欄目暫時沒有文章。'}</p> :
         <div className="weekly-grid">
           {selected.map((post, i) => (
@@ -209,12 +215,16 @@ export default function App() {
   const viewFromHash = (): View => {
     const hash = window.location.hash;
     if (hash === '#/chat') return 'chat';
+    if (hash === '#/terminal') return 'terminal';
+    if (hash === '#/achievements') return 'achievements';
+    if (hash === '#/punch') return 'punch';
+    if (hash === '#/desktop') return 'desktop';
     if (hash === '#/weekly') return 'weekly';
     if (hash.startsWith('#/writing/')) {
       try { return `post:${decodeURIComponent(hash.slice('#/writing/'.length))}`; }
       catch { return 'portfolio'; }
     }
-    return 'portfolio';
+    return 'desktop';
   };
   const [view, setViewRaw] = useState<View>(viewFromHash);
   useEffect(() => {
@@ -243,28 +253,41 @@ export default function App() {
   };
 
   const [systemBrand] = useState(getSystemBrand);
+  const visitor=useVisitor();
+  const [showBoot,setShowBoot]=useState(()=>sessionStorage.getItem('eric_boot_seen')!=='1');
+  const closeBoot=()=>{sessionStorage.setItem('eric_boot_seen','1');setShowBoot(false);};
+  useEffect(()=>{visitor.visit('site');},[]);
+  useEffect(()=>{if(view.startsWith('post:'))visitor.read(view.slice(5));},[view]);
   const [deskBusy, setDeskBusy] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const isChat = view === 'chat';
+  const isDesktop=view==='desktop';
+  const isUtility=view==='terminal'||view==='achievements'||view==='punch';
   const isPost = view.startsWith('post:');
 
   return (
     <>
       <div className="topbar">
-        <a className="wordmark" href="#/portfolio" onClick={(e) => { e.preventDefault(); setView('portfolio'); }} title="OS-inspired name, not an installer">{systemBrand}</a>
-        <div className="topbar-actions">
+        <a className="wordmark" href="#/desktop" onClick={(e) => { e.preventDefault(); setView('desktop'); }} title="OS-inspired name, not an installer">{systemBrand}</a>
+        <div className="topbar-actions"><button className="retro-nav" type="button" onClick={()=>setView('desktop')}>{language==='en'?'DESKTOP':'桌面'}</button>
           <a className="topbar-weekly" href="#/weekly" onClick={e => { e.preventDefault(); setView('weekly'); }}>{language === 'en' ? 'THE WEEKLY' : '個人週刊'}</a>
           <div className="language-switch" role="group" aria-label="Language">
             <button type="button" className={language === 'en' ? 'selected' : ''} onClick={() => setLanguage('en')} aria-pressed={language === 'en'}>EN</button>
             <button type="button" className={language === 'zh' ? 'selected' : ''} onClick={() => setLanguage('zh')} aria-pressed={language === 'zh'}>繁中</button>
           </div>
-          <button className="theme-toggle" onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')} aria-label="Toggle theme">
+          <button className="theme-toggle" onClick={() => {const next=theme==='light'?'dark':'light';setTheme(next);if(next==='dark')visitor.night();}} aria-label="Toggle theme">
             {theme === 'light' ? '◐' : '◑'}
           </button>
         </div>
       </div>
 
-      {isChat ? (
+      {showBoot && <BootSequence language={language} onDone={closeBoot} />}
+      <BadgeToast name={visitor.newBadge} language={language} onDismiss={visitor.clearBadge} />
+      {isDesktop ? <InteractiveDesk language={language} visitor={visitor} onOpen={target=>setView(target)} /> : isUtility ? (
+        view==='terminal' ? <TerminalWindow language={language} visitor={visitor} navigate={target=>setView(target)} onTheme={t=>{setTheme(t);if(t==='dark')visitor.night();}} onLanguage={setLanguage} onClose={()=>setView('desktop')} /> :
+        view==='achievements' ? <AchievementPanel language={language} visitor={visitor} onClose={()=>setView('desktop')} /> :
+        <PunchCard language={language} visitor={visitor} onClose={()=>setView('desktop')} />
+      ) : isChat ? (
         <main className="chat-layout desk-first-layout">
           <section className="desk-cabinet desk-workstation" aria-label={language === 'en' ? 'Eric’s information desk' : 'Eric 的資訊台'}>
             <div className="desk-cabinet-top">

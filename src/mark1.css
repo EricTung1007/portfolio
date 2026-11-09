@@ -1,0 +1,42 @@
+
+/* Actual tabletop MARK I intercom, with animated diaphragm and comic speech paper. */
+.desk-workstation .desk-work-surface {align-items:start;}
+.mark1-device {
+ width:min(100%,420px);margin:0 auto;
+ padding:clamp(13px,2vw,25px);border:8px ridge #827967;border-radius:14px;
+ background:linear-gradient(125deg,#e5dcc6,#c1b9a8 58%,#998c78);
+ color:#332f2a;box-shadow:inset 2px 3px #fff9e7,6px 10px 0 #483626,0 20px 25px #0005;
+}
+.mark1-head {display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #59584d;padding-bottom:12px;font:700 11px ui-monospace,monospace;letter-spacing:.08em;}
+.mark1-head i {width:11px;height:11px;border-radius:50%;background:#68917b;box-shadow:0 0 6px #87b79d;}
+.mark1-head i.active {background:#ecce73;box-shadow:0 0 15px #fff3a4;}
+.mark1-speaker {position:relative;width:min(70%,205px);aspect-ratio:1;margin:25px auto 18px;border:9px double #4f5750;border-radius:50%;overflow:hidden;background:#2e4039;box-shadow:inset 0 4px 16px #000a,0 5px 0 #8c8475;}
+.mark1-speaker-grille {position:absolute;inset:0;border-radius:50%;background:repeating-radial-gradient(circle,#242c29 0 2px,#8b9487 3px 4px,#252e2a 5px 6px);}
+.mark1-speaker.speaking .mark1-speaker-grille {animation:mark1-speak .3s ease-in-out infinite alternate;}
+.mark1-voice-bars{position:absolute;left:18%;right:18%;bottom:30%;height:50%;display:flex;align-items:end;justify-content:center;gap:4px;}
+.mark1-voice-bars i{width:8%;height:11%;background:#a4ffb5b0;border-radius:2px;opacity:.24;box-shadow:0 0 4px #a4ffc5;}
+.mark1-speaker.speaking .mark1-voice-bars i{opacity:1;animation:mark1-bars .54s ease-in-out infinite alternate;}
+.mark1-speaker.speaking .mark1-voice-bars i:nth-child(2n){animation-delay:-.2s;}
+.mark1-speaker.speaking .mark1-voice-bars i:nth-child(3n){animation-delay:-.4s;}
+.mark1-controls{display:flex;justify-content:space-evenly;gap:7px;padding:12px 0;}
+.mark1-controls>span{display:flex;align-items:center;flex-direction:column;gap:7px;font:700 9px ui-monospace,monospace;}
+.mark1-controls i{width:12px;height:12px;border-radius:50%;background:#aa4c44;border:3px solid #383a32;box-shadow:0 1px 3px #0007;}
+.mark1-controls span:first-child i{background:#72ab70;}
+.mark1-brand{text-align:center;margin-top:10px;font:700 9px ui-monospace,monospace;letter-spacing:.11em;border-top:1px solid #665e4f;padding-top:10px;}
+.mark1-speech {position:relative;max-width:430px;margin:20px auto;padding:15px 20px;border:2px solid #5d442c;border-radius:20px 20px 20px 5px;background:#f3e9d2;color:#2b2620;box-shadow:5px 5px 0 #2c1e174d;font:15px/1.55 Georgia,serif;}
+.mark1-speech:before {content:'';position:absolute;left:35px;bottom:-17px;width:20px;height:20px;background:#f3e9d2;transform:rotate(45deg);border-right:2px solid #5d442c;border-bottom:2px solid #5d442c;}
+.mark1-speech-label{font:700 10px ui-monospace,monospace;letter-spacing:.1em;color:#8a6444;}
+.mark1-speech p{margin:8px 0 0;white-space:pre-wrap;overflow-wrap:anywhere;}
+.desk-workstation .desk-display {position:sticky;top:93px;}
+[data-theme='dark'] .mark1-speech{background:#ddd0ac;color:#2c231b;}
+[data-theme='dark'] .mark1-speech:before{background:#ddd0ac;}
+@keyframes mark1-speak {from{transform:scale(.98)}to{transform:scale(1.05)}}
+@keyframes mark1-bars {from{height:9%}to{height:80%}}
+@media(max-width:760px){
+ .desk-workstation .desk-display{position:static;display:flex;flex-direction:column;}
+ .desk-workstation .desk-display>.mark1-device {width:min(100%,280px);grid-column:auto;grid-row:auto;}
+ .mark1-speaker{width:130px;margin:12px auto;}
+ .mark1-speech{font-size:13px;margin:14px auto;}
+ .desk-workstation .desk-display .desk-nameplate,.desk-workstation .desk-display .desk-drawer-handle,.desk-workstation .desk-display .desk-desk-caption{grid-column:auto;grid-row:auto;}
+}
+@media(prefers-reduced-motion:reduce){.mark1-speaker.speaking .mark1-speaker-grille,.mark1-speaker.speaking .mark1-voice-bars i{animation:none}}

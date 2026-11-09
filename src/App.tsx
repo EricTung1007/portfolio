@@ -1,15 +1,17 @@
 import { useEffect, useState } from 'react';
 import { ChatPanel } from './components/ChatPanel.js';
-import JawAnimation from './components/JawAnimation.js';
 import { Giscus } from './components/Giscus.js';
 import { knowledge } from './data.js';
 import { getPosts, getPost } from './posts.js';
 import { renderMarkdown } from './markdown.js';
 import { getSystemBrand } from './browser-capability.js';
 import { ArchiveRoom, type ArchiveView } from './archive.js';
-import { InteractiveDesk, BootSequence, TerminalWindow, AchievementPanel, PunchCard, BadgeToast, useVisitor } from './retro.js';
+import { TerminalWindow, AchievementPanel, PunchCard, BadgeToast, useVisitor } from './retro.js';
+import { StudyScene } from './scene.js';
 import './motion.js';
 import './index.css';
+import './terminal-v2.css';
+import './mark1.css';
 
 type View = 'desktop' | 'terminal' | 'achievements' | 'punch' | 'chat' | 'portfolio' | 'weekly' | ArchiveView | `post:${string}`;
 type Language = 'en' | 'zh';
@@ -269,22 +271,21 @@ export default function App() {
 
   const [systemBrand] = useState(getSystemBrand);
   const visitor=useVisitor();
-  const [showBoot,setShowBoot]=useState(()=>sessionStorage.getItem('eric_boot_seen')!=='1');
-  const closeBoot=()=>{sessionStorage.setItem('eric_boot_seen','1');setShowBoot(false);};
   useEffect(()=>{visitor.visit('site');},[]);
   useEffect(()=>{if(view.startsWith('post:'))visitor.read(view.slice(5));},[view]);
   const [deskBusy, setDeskBusy] = useState(false);
+  const [deskReply, setDeskReply] = useState('');
   const [drawerOpen, setDrawerOpen] = useState(false);
   const isChat = view === 'chat';
-  const isDesktop=view==='desktop';
-  const isUtility=view==='terminal'||view==='achievements'||view==='punch';
+  const isDesktop=view==='desktop'||view==='terminal';
+  const isUtility=view==='achievements'||view==='punch';
   const isPost = view.startsWith('post:');
 
   return (
     <>
       <div className="topbar">
         <a className="wordmark" href="#/desktop" onClick={(e) => { e.preventDefault(); setView('desktop'); }} title="OS-inspired name, not an installer">{systemBrand}</a>
-        <div className="topbar-actions"><button className="retro-nav" type="button" onClick={()=>setView('desktop')}>{language==='en'?'DESKTOP':'桌面'}</button>
+        <div className="topbar-actions"><a className="topbar-direct-cv" href={`${import.meta.env.BASE_URL}CV.pdf`} target="_blank" rel="noopener noreferrer">{language==='en'?'CV / RESUME':'履歷 PDF'} ↗</a><button className="retro-nav" type="button" onClick={()=>setView('desktop')}>{language==='en'?'DESKTOP':'桌面'}</button>
           <a className="topbar-weekly" href="#/weekly" onClick={e => { e.preventDefault(); setView('weekly'); }}>{language === 'en' ? 'THE WEEKLY' : '個人週刊'}</a>
           <div className="language-switch" role="group" aria-label="Language">
             <button type="button" className={language === 'en' ? 'selected' : ''} onClick={() => setLanguage('en')} aria-pressed={language === 'en'}>EN</button>
@@ -296,10 +297,11 @@ export default function App() {
         </div>
       </div>
 
-      {showBoot && <BootSequence language={language} onDone={closeBoot} />}
       <BadgeToast name={visitor.newBadge} language={language} onDismiss={visitor.clearBadge} />
-      {isDesktop ? <InteractiveDesk language={language} visitor={visitor} onOpen={target=>setView(target)} /> : isUtility ? (
-        view==='terminal' ? <TerminalWindow language={language} visitor={visitor} navigate={target=>setView(target)} onTheme={t=>{setTheme(t);if(t==='dark')visitor.night();}} onLanguage={setLanguage} onClose={()=>setView('desktop')} /> :
+      {isDesktop ? <StudyScene language={language} visitor={visitor} onOpen={target=>setView(target)}
+        terminal={view==='terminal' ? <TerminalWindow language={language} visitor={visitor}
+          navigate={target=>setView(target)} onTheme={t=>{setTheme(t);if(t==='dark')visitor.night();}}
+          onLanguage={setLanguage} onClose={()=>setView('desktop')} /> : null} /> : isUtility ? (
         view==='achievements' ? <AchievementPanel language={language} visitor={visitor} onClose={()=>setView('desktop')} /> :
         <PunchCard language={language} visitor={visitor} onClose={()=>setView('desktop')} />
       ) : (['cabinet','timeline','experiments','editorial','guestbook'] as string[]).includes(view) ? (
@@ -315,7 +317,21 @@ export default function App() {
             </div>
             <div className="desk-work-surface">
               <div className="desk-display">
-                <JawAnimation running={deskBusy} />
+                <div className="mark1-device" aria-label={language === 'en' ? 'MARK I answering machine' : 'MARK I 答錄機'}>
+                  <div className="mark1-head"><span>MINERVA · MARK I</span><i className={deskBusy ? 'active' : ''}/></div>
+                  <div className={`mark1-speaker ${deskBusy ? 'speaking' : ''}`} aria-hidden="true">
+                    <div className="mark1-speaker-grille" />
+                    <span className="mark1-voice-bars">{[0,1,2,3,4,5,6].map(i=><i key={i}/>)}</span>
+                  </div>
+                  <div className="mark1-controls">
+                    <span>POWER <i/></span><span>AMPLIFIER <i/></span><span>RECORD <i/></span>
+                  </div>
+                  <div className="mark1-brand">THE INFORMATION RECORDER · SERIES 01</div>
+                </div>
+                {(deskReply || deskBusy) && <div className="mark1-speech" role="status">
+                  <span className="mark1-speech-label">{deskBusy ? (language==='en'?'TRANSMITTING…':'傳送中…') : 'MARK I / MESSAGE'}</span>
+                  <p>{deskBusy ? '···' : deskReply.slice(0,190)}{!deskBusy&&deskReply.length>190?'…':''}</p>
+                </div>}
                 <div className="desk-nameplate">{language === 'en' ? 'THE INFORMATION DESK' : '個人資訊台'}</div>
                 <button className="desk-drawer-handle" type="button" aria-expanded={drawerOpen}
                   aria-controls="desk-file-drawer" onClick={() => setDrawerOpen(v => !v)}>
@@ -324,7 +340,7 @@ export default function App() {
                 <span className="desk-desk-caption">{language === 'en' ? 'AUTHENTIC RECORDS · NO INVENTED BIOGRAPHY' : '真實檔案 · 不虛構個人資料'}</span>
               </div>
               <div className="chat-main">
-                <ChatPanel language={language} onGenerationStart={() => setDeskBusy(true)} onGenerationEnd={() => setDeskBusy(false)} />
+                <ChatPanel language={language} onGenerationStart={() => setDeskBusy(true)} onGenerationEnd={() => setDeskBusy(false)} onAnswer={setDeskReply} />
               </div>
             </div>
             {drawerOpen && (

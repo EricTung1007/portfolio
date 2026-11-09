@@ -179,3 +179,39 @@
  .topbar-direct-cv {font-size:9px;}
  .topbar .wordmark {font-size:12px;}
 }
+
+
+/* Fish now have a distinct right-facing head and forked left tail. The tail
+   trails motion rather than appearing ahead of the fish. */
+.study-fish {
+  width:29px;height:14px;
+  background:linear-gradient(90deg,#82b8b3,#d3e5d0);
+  clip-path:polygon(0 22%,18% 50%,0 78%,27% 76%,44% 95%,77% 84%,100% 50%,77% 16%,44% 5%,27% 24%);
+  border-radius:45%;opacity:.83;font-size:0;
+}
+.study-fish i {position:absolute;left:70%;top:39%;width:3px;height:3px;border-radius:50%;background:#123b3b;}
+.fish-two{width:19px;height:10px;opacity:.65;}
+.fish-three{width:14px;height:8px;opacity:.5;}
+@keyframes swim {
+ from{transform:translateX(0)}
+ to{transform:translateX(760px)}
+}
+.study-intro h1 {font-size:clamp(25px,3.65vw,43px);max-width:780px;margin-left:auto;margin-right:auto;}
+.study-punch-saved {background:linear-gradient(145deg,#f1e2b6,#d2b87c);border:3px solid #836841;box-shadow:5px 8px 0 #3025199c,inset 0 0 0 3px #fff1d280;}
+.study-punch-golden {background:linear-gradient(145deg,#ffefa8,#dbb450 55%,#a77c32);border-color:#62481c;box-shadow:0 0 15px #f7cf7166,5px 8px 0 #34271999;}
+.study-punch-saved>span:not(.study-punch-holes),.study-punch-saved small{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.study-card-clear {
+ position:absolute;left:53%;bottom:0;z-index:4;padding:5px 8px;
+ color:#382817;background:#f0ddba;border:1px solid #7c6245;
+ cursor:pointer;font:700 10px ui-monospace,monospace;
+ box-shadow:0 2px 0 #533922;
+}
+.study-card-clear:hover{background:#ffebbb;}
+@media(max-width:800px) {
+ .study-card-clear {position:relative;left:auto;bottom:auto;grid-column:1 / -1;justify-self:center;width:auto;min-height:40px;order:3;}
+ .study-intro h1 {font-size:clamp(26px,5vw,36px);}
+ .study-quicklinks {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));max-width:480px;}
+ .study-quicklinks a,.study-quicklinks button{width:100%;justify-content:center;text-align:center;font-size:11px;}
+ .study-quicklinks a:first-child{grid-column:1;}
+ .study-punch-saved strong{font-size:clamp(9px,2vw,13px);}
+}

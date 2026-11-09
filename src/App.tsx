@@ -6,11 +6,12 @@ import { knowledge } from './data.js';
 import { getPosts, getPost } from './posts.js';
 import { renderMarkdown } from './markdown.js';
 import { getSystemBrand } from './browser-capability.js';
+import { ArchiveRoom, type ArchiveView } from './archive.js';
 import { InteractiveDesk, BootSequence, TerminalWindow, AchievementPanel, PunchCard, BadgeToast, useVisitor } from './retro.js';
 import './motion.js';
 import './index.css';
 
-type View = 'desktop' | 'terminal' | 'achievements' | 'punch' | 'chat' | 'portfolio' | 'weekly' | `post:${string}`;
+type View = 'desktop' | 'terminal' | 'achievements' | 'punch' | 'chat' | 'portfolio' | 'weekly' | ArchiveView | `post:${string}`;
 type Language = 'en' | 'zh';
 
 const LINKS = {
@@ -98,22 +99,28 @@ function WeeklyPage({ setView, language }: { setView: (v: View) => void; languag
   const entries = getPosts(language);
   const [section, setSection] = useState('All');
   const [archiveYear,setArchiveYear]=useState('All');
+  const [page,setPage]=useState(0);
+  const [expandedIssue,setExpandedIssue]=useState(false);
   const years=['All',...new Set(entries.map(p=>p.date.slice(0,4)))];
   const sections = ['All', ...new Set(entries.map(p => p.category))];
   const selected = entries.filter(p => (section === 'All' || p.category===section) && (archiveYear==='All'||p.date.startsWith(archiveYear)));
-  const lead=selected[0];
+  const pageSize=expandedIssue?selected.length||1:3;
+  const totalPages=Math.max(1,Math.ceil(selected.length/pageSize));
+  const currentPage=Math.min(page,totalPages-1);
+  const visible=selected.slice(currentPage*pageSize,(currentPage+1)*pageSize);
+  const lead=visible[0];
   return (
     <main className="weekly-paper">
       <WeeklyMasthead language={language} />
       <nav className="weekly-sections" aria-label={language === 'en' ? 'Newspaper sections' : '報紙欄目'}>
         {sections.map(cat => <button type="button" key={cat} aria-pressed={cat === section} className={cat === section ? 'active' : ''}
-          onClick={() => setSection(cat)}>{cat === 'All' ? (language === 'en' ? 'ALL STORIES' : '全部文章') : cat}</button>)}
+          onClick={() => { setSection(cat); setPage(0); }}>{cat === 'All' ? (language === 'en' ? 'ALL STORIES' : '全部文章') : cat}</button>)}
       </nav>
-      <div className="retro-weekly-index"><span>ARCHIVE / {entries.length} STORIES · {years.length-1} YEARS</span><label>{language === 'en' ? 'EDITION YEAR' : '發行年份'} <select value={archiveYear} onChange={e=>setArchiveYear(e.target.value)}>{years.map(y=><option key={y} value={y}>{y==='All'?(language==='en'?'All years':'所有年份'):y}</option>)}</select></label></div>
+      <div className="retro-weekly-index"><span>ARCHIVE / {entries.length} STORIES · {years.length-1} YEARS</span><label>{language === 'en' ? 'EDITION YEAR' : '發行年份'} <select value={archiveYear} onChange={e=>{setArchiveYear(e.target.value);setPage(0);}}>{years.map(y=><option key={y} value={y}>{y==='All'?(language==='en'?'All years':'所有年份'):y}</option>)}</select></label></div>
       {lead && <div className="retro-weekly-no">{language==='en'?'FRONT PAGE / FEATURED STORY':'頭版焦點'} · {lead.date}</div>}
       {selected.length === 0 ? <p className="weekly-empty">{language === 'en' ? 'No stories in this section yet.' : '這個欄目暫時沒有文章。'}</p> :
         <div className="weekly-grid">
-          {selected.map((post, i) => (
+          {visible.map((post, i) => (
             <article className={`weekly-story ${i === 0 ? 'weekly-lead' : ''}`} key={post.slug}>
               <div className="weekly-story-top"><span>{post.category}</span><time dateTime={post.date}>{post.date}</time></div>
               <a href={`#/writing/${encodeURIComponent(post.slug)}`} onClick={e => { e.preventDefault(); setView(`post:${post.slug}`); }}>
@@ -126,6 +133,12 @@ function WeeklyPage({ setView, language }: { setView: (v: View) => void; languag
             </article>
           ))}
         </div>}
+      <nav className="weekly-pagination" aria-label={language==='en'?'Newspaper pages':'報紙頁面'}>
+        <button type="button" disabled={currentPage===0||expandedIssue} onClick={()=>{setPage(Math.max(0,currentPage-1));window.scrollTo({top:0,behavior:'smooth'});}}>{language==='en'?'← PREVIOUS PAGE':'← 上一頁'}</button>
+        <span>VOL. 001 · {language==='en'?'PAGE':'第'} {currentPage+1} / {totalPages} {language==='zh'?'頁':''}</span>
+        <button type="button" onClick={()=>{setExpandedIssue(v=>!v);setPage(0);}}>{expandedIssue?(language==='en'?'FOLD EDITION':'摺回報紙'):(language==='en'?'UNFOLD ALL':'展開全部')}</button>
+        <button type="button" disabled={currentPage===totalPages-1||expandedIssue} onClick={()=>{setPage(Math.min(totalPages-1,currentPage+1));window.scrollTo({top:0,behavior:'smooth'});}}>{language==='en'?'NEXT PAGE →':'下一頁 →'}</button>
+      </nav>
       <footer className="weekly-colophon">{language === 'en' ? 'Composed and published from Eric’s own editorial desk.' : '由 Eric 的個人編輯室編排發行。'}</footer>
     </main>
   );
@@ -220,6 +233,7 @@ export default function App() {
     if (hash === '#/punch') return 'punch';
     if (hash === '#/desktop') return 'desktop';
     if (hash === '#/weekly') return 'weekly';
+    if (['cabinet','timeline','experiments','editorial','guestbook'].some(x => hash === '#/' + x)) return hash.slice(2) as ArchiveView;
     if (hash.startsWith('#/writing/')) {
       try { return `post:${decodeURIComponent(hash.slice('#/writing/'.length))}`; }
       catch { return 'portfolio'; }
@@ -287,6 +301,10 @@ export default function App() {
         view==='terminal' ? <TerminalWindow language={language} visitor={visitor} navigate={target=>setView(target)} onTheme={t=>{setTheme(t);if(t==='dark')visitor.night();}} onLanguage={setLanguage} onClose={()=>setView('desktop')} /> :
         view==='achievements' ? <AchievementPanel language={language} visitor={visitor} onClose={()=>setView('desktop')} /> :
         <PunchCard language={language} visitor={visitor} onClose={()=>setView('desktop')} />
+      ) : (['cabinet','timeline','experiments','editorial','guestbook'] as string[]).includes(view) ? (
+        <ArchiveRoom view={view as ArchiveView} language={language}
+          openArticle={slug=>setView(`post:${slug}`)}
+          navigate={target=>setView(target)} />
       ) : isChat ? (
         <main className="chat-layout desk-first-layout">
           <section className="desk-cabinet desk-workstation" aria-label={language === 'en' ? 'Eric’s information desk' : 'Eric 的資訊台'}>

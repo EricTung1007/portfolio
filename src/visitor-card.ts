@@ -1,3 +1,4 @@
+import { isDrawerUnlocked } from './secret.js';
 /** One personal card per browser, stored locally until the visitor removes it. */
 export const VISITOR_CARD_STORAGE_KEY = 'eric_table_card_v1';
 export const SITE_URL = 'https://erictung1007.github.io/';
@@ -17,14 +18,14 @@ export function readTableCard(): TableCard | null {
     return {
       alias: value.alias.slice(0,28), role: String(value.role || 'VISITOR').slice(0,24),
       interest: String(value.interest || 'AI').slice(0,24),
-      message: value.message.slice(0,600), golden: value.golden,
+      message: value.message.slice(0,600), golden: value.golden && isDrawerUnlocked(),
       createdAt: String(value.createdAt || ''),
     };
   } catch { return null; }
 }
 export function saveTableCard(card:TableCard): boolean {
   try {
-    localStorage.setItem(VISITOR_CARD_STORAGE_KEY,JSON.stringify(card));
+    localStorage.setItem(VISITOR_CARD_STORAGE_KEY,JSON.stringify({...card,golden:card.golden && isDrawerUnlocked()}));
     window.dispatchEvent(new Event('eric-card-updated'));
     return true;
   } catch { return false; }

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useWebLLM } from '../hooks.js';
 import type { ChatLanguage } from '../chat-engine.js';
 import { answerFromVerifiedProfile, unknownDeskAnswer } from '../desk-answers.js';
+import { inspectBrowserCapability, chooseBrowserModel, type BrowserCapability, type BrowserModelTier } from '../browser-capability.js';
 
 interface MessageItem { role: 'user' | 'assistant'; content: string; }
 
@@ -10,7 +11,7 @@ const COPY = {
     desk: 'INFORMATION DESK', title: 'Speak with the archivist',
     intro: "The desk answers verified facts instantly. Extended local AI is optional for unusual questions.",
     init: 'ENABLE EXTENDED AI (OPTIONAL)', loading: 'Awakening the local model', ready: 'ARCHIVIST ONLINE', idle: 'DORMANT',
-    resume: 'VIEW RESUME', model: 'Optional Phi-4 Mini · Browser WebGPU',
+    resume: 'VIEW RESUME', model: 'Optional SmolLM2 360M · Browser WebGPU',
     note: 'Answers are grounded in the CV text extracted at build time plus maintained profile data. Updating CV.pdf and rebuilding refreshes the reference.',
     placeholder: 'Ask the archivist...', send: 'SEND', retry: 'TRY AGAIN',
     topics: ['Who is Eric?', 'What AI projects has Eric built?', 'What is his experience?', 'What can he build?'],
@@ -21,7 +22,7 @@ const COPY = {
     desk: '個人資訊台', title: '與檔案管理員交談',
     intro: '資訊台會立即回答已確認的履歷內容，延伸本地 AI 為選用功能。',
     init: '啟用延伸 AI（選用）', loading: '正在啟動本地模型', ready: '檔案管理員已上線', idle: '尚未啟動',
-    resume: '查看履歷', model: '可選用 Phi-4 Mini · 瀏覽器 WebGPU',
+    resume: '查看履歷', model: '可選用 SmolLM2 360M · 瀏覽器 WebGPU',
     note: '回答依據建置時從 CV.pdf 擷取的文字及個人資料，更新履歷並重新建置後即可同步。',
     placeholder: '向檔案管理員提問…', send: '送出', retry: '重試',
     topics: ['Eric 是誰？', 'Eric 做過哪些 AI 專案？', 'Eric 有哪些工作經歷？', 'Eric 能開發什麼？'],
@@ -36,6 +37,8 @@ export function ChatPanel({ onGenerationStart, onGenerationEnd, language }: {
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<MessageItem[]>([]);
   const [copied, setCopied] = useState(false);
+  const [tier, setTier] = useState<BrowserModelTier>('small');
+  const [capability, setCapability] = useState<BrowserCapability | null>(null);
   const { status, progress, progressText, error, initialize, generate } = useWebLLM();
   const scrollRef = useRef<HTMLDivElement>(null);
   const busy = status === 'generating';
@@ -43,10 +46,18 @@ export function ChatPanel({ onGenerationStart, onGenerationEnd, language }: {
   const t = COPY[language];
   const latestAnswer = [...messages].reverse().find((m) => m.role === 'assistant' && m.content)?.content ?? '';
   useEffect(() => {
+    void inspectBrowserCapability().then(setCapability);
+  }, []);
+  useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [messages]);
 
-  const handleInit = () => { void initialize('Phi-4-mini-instruct-q4f16_1-MLC'); };
+  const handleInit = () => {
+    if (!capability) return;
+    const modelId = chooseBrowserModel(tier, capability);
+    if (!modelId) return;
+    void initialize(modelId);
+  };
   const handleSend = async (question = input) => {
     const q = question.trim();
     if (!q || busy) return;
@@ -106,10 +117,24 @@ export function ChatPanel({ onGenerationStart, onGenerationEnd, language }: {
             <><p>{progressText || t.loading} {progress ? `${progress}%` : ''}</p>
               <div className="rpg-progress"><span style={{ width: `${progress}%` }} /></div></>
           ) : (
-            <button type="button" className="rpg-primary" onClick={handleInit}>{status === 'error' ? t.retry : t.init}</button>
+            <>
+              <div className="rpg-model-selection">
+                <label htmlFor="desk-model-tier">{language === 'zh' ? '延伸 AI 模型（選用）' : 'Optional AI model'}</label>
+                <select id="desk-model-tier" value={tier} onChange={e => setTier(e.target.value as BrowserModelTier)}>
+                  <option value="small">SmolLM2 360M · {language === 'zh' ? '約 376 MB VRAM' : '~376 MB VRAM'}</option>
+                  <option value="enhanced">SmolLM2 1.7B · {language === 'zh' ? '約 1.77 GB VRAM' : '~1.77 GB VRAM'}</option>
+                </select>
+              </div>
+              <button type="button" className="rpg-primary" onClick={handleInit}
+                disabled={!capability?.gpuAvailable || (tier === 'enhanced' && !capability.supportsF16)}>
+                {status === 'error' ? t.retry : t.init}
+              </button>
+            </>
           )}
           {status === 'error' && <p role="alert">{error}</p>}
-          <small>{t.model} · {language === 'zh' ? '一般問題不必下載模型' : 'No download required for verified answers'}</small>
+          <small>{language === 'zh'
+            ? (!capability ? '正在檢查 WebGPU…' : !capability.gpuAvailable ? '此瀏覽器未提供 WebGPU，仍可使用履歷問答。' : tier === 'enhanced' && !capability.supportsF16 ? '這個裝置缺少大型模型需要的 shader-f16。' : '無法可靠測量可用 VRAM，載入失敗時請選輕量模式。')
+            : (!capability ? 'Checking WebGPU…' : !capability.gpuAvailable ? 'WebGPU unavailable. Verified profile Q&A still works.' : tier === 'enhanced' && !capability.supportsF16 ? 'Enhanced model requires shader-f16.' : 'Available VRAM cannot be reliably measured. Use the small model if loading fails.')}</small>
         </div>
       )}
       <div className="rpg-actions">

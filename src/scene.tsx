@@ -11,6 +11,7 @@ export function StudyScene({language,visitor,onOpen,terminal}:{
   language:SiteLanguage; visitor:VisitorActions; onOpen:(target:DeskAction)=>void;terminal?:ReactNode
 }) {
   const [drawer,setDrawer]=useState(false);
+  const [cvViewed,setCvViewed]=useState(()=>{try{return sessionStorage.getItem('eric_cv_examined')==='1';}catch{return false;}});
   const [tableCard,setTableCard]=useState<TableCard|null>(readTableCard);
   useEffect(()=>{
     const refresh=()=>setTableCard(readTableCard());
@@ -20,6 +21,7 @@ export function StudyScene({language,visitor,onOpen,terminal}:{
     return ()=>{window.removeEventListener('eric-card-updated',refresh);window.removeEventListener('storage',refresh);window.removeEventListener('focus',refresh);};
   },[]);
   const latest=getPosts(language)[0];
+  const markCvViewed=()=>{visitor.visit('cv');setCvViewed(true);try{sessionStorage.setItem('eric_cv_examined','1');}catch{/* optional session */}};
   const act=(target:DeskAction)=>{visitor.visit(target);onOpen(target)};
   return <main className="study-world">
     <div className="study-wall" aria-hidden="true">
@@ -55,13 +57,17 @@ export function StudyScene({language,visitor,onOpen,terminal}:{
             <span className="study-paper-headline">{latest?.title??'Notes from the Workshop'}</span>
             <small>{copy(language,'OPEN THE NEWSPAPER ↗','閱讀報紙 ↗')}</small>
           </button>
-          <a className="study-object study-folder" href={`${import.meta.env.BASE_URL}CV.pdf`} target="_blank" rel="noopener noreferrer" onClick={()=>visitor.visit('cv')} aria-label={copy(language,'Open resume PDF','開啟履歷 PDF')}>
+          <a className="study-object study-folder" href={`${import.meta.env.BASE_URL}CV.pdf`} target="_blank" rel="noopener noreferrer" onClick={markCvViewed} aria-label={copy(language,'Open resume PDF','開啟履歷 PDF')}>
             <span className="study-folder-tab">PERSONNEL FILE · 001</span>
             <span className="study-folder-crest">ET</span>
             <strong>ERIC TUNG</strong>
             <span>CV / RESUME</span>
             <small>{copy(language,'OPEN CV PDF ↗','開啟履歷 PDF ↗')}</small>
           </a>
+          {cvViewed&&<div className="study-cv-clue" aria-label={copy(language,'Handwritten personnel file note','人事檔案手寫備註')}>
+            <small>PERSONNEL FILE · ADDENDUM</small><strong>0451</strong>
+            <span>{copy(language,'BRASS DRAWER ACCESS','黃銅鎖抽屜密碼')}</span>
+          </div>}
           <button type="button" className={`study-object study-punch ${tableCard?'study-punch-saved':''} ${tableCard?.golden?'study-punch-golden':''}`}
             onClick={()=>act('punch')} aria-label={copy(language,'Open visitor punch card','開啟訪客打孔卡')}>
             <span className="study-punch-holes" aria-hidden="true">● ● ● ● ● ● ● ●</span>
@@ -88,7 +94,7 @@ export function StudyScene({language,visitor,onOpen,terminal}:{
                 </div>
               </div>
               <div className="study-terminal-vents"/>
-              <div className="study-terminal-brand"><span>MINERVA / SERIES 0451</span><i/></div>
+              <div className="study-terminal-brand"><span>MINERVA / SERIES 01</span><i/></div>
             </div>
             <div className="study-terminal-keyboard" aria-hidden="true">
               {Array.from({length:27},(_,i)=><i key={i}/>)}
@@ -115,8 +121,7 @@ export function StudyScene({language,visitor,onOpen,terminal}:{
       </div>
     </div>
     <nav className="study-quicklinks" aria-label={copy(language,'Quick access','快速存取')}>
-      <a href={`${import.meta.env.BASE_URL}CV.pdf`} target="_blank" rel="noopener noreferrer">{copy(language,'VIEW CV','查看履歷')} ↗</a>
-      <a href={`${import.meta.env.BASE_URL}CV.pdf`} download>{copy(language,'DOWNLOAD CV','下載履歷')} ↓</a>
+      <a href={`${import.meta.env.BASE_URL}CV.pdf`} target="_blank" rel="noopener noreferrer" onClick={markCvViewed}>{copy(language,'OPEN PERSONNEL FILE','開啟人事履歷')} ↗</a>
       <button type="button" onClick={()=>act('cabinet')}>{copy(language,'PROJECTS','專案')} ↗</button>
       <button type="button" onClick={()=>act('weekly')}>{copy(language,'WRITING','文章')} ↗</button>
       <button type="button" onClick={()=>act('punch')}>{copy(language,'LEAVE MESSAGE','留下訊息')} ↗</button>

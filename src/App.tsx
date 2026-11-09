@@ -213,38 +213,38 @@ export default function App() {
       </div>
 
       {isChat ? (
-        <div className="chat-layout">
-          <aside className="chat-desk" aria-label={language === 'en' ? 'Information desk' : '資訊台'}>
-            <div className="desk-cabinet">
-              <div className="desk-cabinet-top">
-                <span className="desk-cabinet-label">EST. 2026 · ERIC.EXE</span>
-                <span className={`desk-pilot ${deskBusy ? 'working' : ''}`} title={deskBusy ? 'Working' : 'Ready'} aria-label={deskBusy ? 'Working' : 'Ready'} />
-              </div>
-              <JawAnimation running={deskBusy} />
-              <div className="desk-nameplate">{language === 'en' ? 'THE INFORMATION DESK' : '個人資訊台'}</div>
-              <div className="desk-cabinet-controls">
-                <button className="desk-drawer-handle" type="button" aria-expanded={drawerOpen} aria-controls="desk-file-drawer" onClick={() => setDrawerOpen(o => !o)}>
-                  <span aria-hidden="true">▤</span> {language === 'en' ? (drawerOpen ? 'CLOSE FILE DRAWER' : 'OPEN FILE DRAWER') : (drawerOpen ? '收起檔案抽屜' : '打開檔案抽屜')}
-                </button>
-              </div>
-              {drawerOpen && (
-                <div className="desk-file-drawer" id="desk-file-drawer">
-                  <div className="desk-file-title">{language === 'en' ? 'ARCHIVE / 001' : '檔案庫 / 001'}</div>
-                  <a href={`${import.meta.env.BASE_URL}CV.pdf`} target="_blank" rel="noopener noreferrer">{language === 'en' ? '01 · Resume / CV' : '01 · 個人履歷'} ↗</a>
-                  <a href="#/portfolio" onClick={(e) => { e.preventDefault(); setView('portfolio'); requestAnimationFrame(() => document.getElementById('work')?.scrollIntoView({ behavior: 'smooth' })); }}>{language === 'en' ? '02 · Project ledger' : '02 · 專案紀錄'} ↗</a>
-                  <a href="#/portfolio" onClick={(e) => { e.preventDefault(); setView('portfolio'); requestAnimationFrame(() => document.getElementById('writing')?.scrollIntoView({ behavior: 'smooth' })); }}>{language === 'en' ? '03 · Writing archive' : '03 · 文章存檔'} ↗</a>
-                  <button type="button" onClick={() => { void navigator.clipboard?.writeText(knowledge.profile.contact.email); }}>
-                    {language === 'en' ? '04 · Copy contact address' : '04 · 複製聯絡信箱'}
-                  </button>
-                </div>
-              )}
+        <main className="chat-layout desk-first-layout">
+          <section className="desk-cabinet desk-workstation" aria-label={language === 'en' ? 'Eric’s information desk' : 'Eric 的資訊台'}>
+            <div className="desk-cabinet-top">
+              <span className="desk-cabinet-label">EST. 2026 · ERIC.EXE · INFORMATION BUREAU</span>
+              <span className={`desk-pilot ${deskBusy ? 'working' : ''}`} aria-label={deskBusy ? 'Working' : 'Ready'} />
             </div>
-            <p className="desk-privacy-note">{language === 'en' ? 'Local WebGPU inference. Your questions stay in the browser.' : '瀏覽器 WebGPU 本地推論，提問內容不傳送至伺服器。'}</p>
-          </aside>
-          <div className="chat-main">
-            <ChatPanel language={language} onGenerationStart={() => setDeskBusy(true)} onGenerationEnd={() => setDeskBusy(false)} />
-          </div>
-        </div>
+            <div className="desk-work-surface">
+              <div className="desk-display">
+                <JawAnimation running={deskBusy} />
+                <div className="desk-nameplate">{language === 'en' ? 'THE INFORMATION DESK' : '個人資訊台'}</div>
+                <button className="desk-drawer-handle" type="button" aria-expanded={drawerOpen}
+                  aria-controls="desk-file-drawer" onClick={() => setDrawerOpen(v => !v)}>
+                  <span aria-hidden="true">▤</span> {language === 'en' ? (drawerOpen ? 'CLOSE THE DRAWER' : 'OPEN THE DRAWER') : (drawerOpen ? '收起檔案抽屜' : '打開檔案抽屜')}
+                </button>
+                <span className="desk-desk-caption">{language === 'en' ? 'AUTHENTIC RECORDS · NO INVENTED BIOGRAPHY' : '真實檔案 · 不虛構個人資料'}</span>
+              </div>
+              <div className="chat-main">
+                <ChatPanel language={language} onGenerationStart={() => setDeskBusy(true)} onGenerationEnd={() => setDeskBusy(false)} />
+              </div>
+            </div>
+            {drawerOpen && (
+              <div className="desk-file-drawer desk-records" id="desk-file-drawer">
+                <div className="desk-file-title">{language === 'en' ? 'RECORD CABINET / 001' : '檔案櫃 / 001'}</div>
+                <a href={`${import.meta.env.BASE_URL}CV.pdf`} target="_blank" rel="noopener noreferrer">{language === 'en' ? '01 · Curriculum vitae' : '01 · 個人履歷'} ↗</a>
+                <a href="#/portfolio" onClick={e => { e.preventDefault(); setView('portfolio'); requestAnimationFrame(() => document.getElementById('work')?.scrollIntoView({ behavior: 'smooth' })); }}>{language === 'en' ? '02 · Project ledger' : '02 · 專案紀錄'} ↗</a>
+                <a href="#/portfolio" onClick={e => { e.preventDefault(); setView('portfolio'); requestAnimationFrame(() => document.getElementById('writing')?.scrollIntoView({ behavior: 'smooth' })); }}>{language === 'en' ? '03 · Writing archive' : '03 · 文章存檔'} ↗</a>
+                <button type="button" onClick={() => { void navigator.clipboard?.writeText(knowledge.profile.contact.email); }}>{language === 'en' ? '04 · Copy contact card' : '04 · 複製聯絡信箱'}</button>
+              </div>
+            )}
+          </section>
+          <p className="desk-privacy-note">{language === 'en' ? 'Verified questions are answered from published records without loading an AI model. Optional WebGPU processing stays in your browser.' : '已確認的履歷問題直接從公開資料回答，不必載入 AI 模型。可選的 WebGPU 推論留在瀏覽器內。'}</p>
+        </main>
       ) : (
         <>
           <Hero setView={setView} language={language} />

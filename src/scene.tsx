@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { getPosts } from './posts.js';
 import type { SiteLanguage, VisitorActions } from './retro.js';
 import './scene.css';
@@ -7,7 +7,7 @@ type DeskAction = 'terminal'|'chat'|'weekly'|'cabinet'|'punch'|'portfolio'|'gues
 const copy = (language:SiteLanguage,en:string,zh:string)=>language==='zh'?zh:en;
 
 export function StudyScene({language,visitor,onOpen,terminal}:{
-  language:SiteLanguage; visitor:VisitorActions; onOpen:(target:DeskAction)=>void;terminal?:React.ReactNode
+  language:SiteLanguage; visitor:VisitorActions; onOpen:(target:DeskAction)=>void;terminal?:ReactNode
 }) {
   const [drawer,setDrawer]=useState(false);
   const latest=getPosts(language)[0];
@@ -46,13 +46,13 @@ export function StudyScene({language,visitor,onOpen,terminal}:{
             <span className="study-paper-headline">{latest?.title??'Notes from the Workshop'}</span>
             <small>{copy(language,'OPEN THE NEWSPAPER ↗','閱讀報紙 ↗')}</small>
           </button>
-          <button type="button" className="study-object study-folder" onClick={()=>act('portfolio')} aria-label={copy(language,'Open resume folder','打開履歷資料夾')}>
+          <a className="study-object study-folder" href={`${import.meta.env.BASE_URL}CV.pdf`} target="_blank" rel="noopener noreferrer" onClick={()=>visitor.visit('cv')} aria-label={copy(language,'Open resume PDF','開啟履歷 PDF')}>
             <span className="study-folder-tab">PERSONNEL · 001</span>
             <span className="study-folder-crest">ET</span>
             <strong>ERIC TUNG</strong>
             <span>CURRICULUM VITAE</span>
-            <small>{copy(language,'OPEN RESUME ↗','開啟履歷 ↗')}</small>
-          </button>
+            <small>{copy(language,'OPEN RESUME PDF ↗','開啟履歷 PDF ↗')}</small>
+          </a>
           <button type="button" className="study-object study-punch" onClick={()=>act('punch')} aria-label={copy(language,'Leave a punch-card message','留下打孔卡訊息')}>
             <span className="study-punch-holes" aria-hidden="true">● ● ● ● ● ● ● ●</span>
             <strong>VISITOR MESSAGE</strong>

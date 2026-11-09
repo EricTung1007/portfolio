@@ -9,6 +9,7 @@ import './motion.js';
 import './index.css';
 
 type View = 'chat' | 'portfolio' | `post:${string}`;
+type Language = 'en' | 'zh';
 
 const LINKS = {
   github: knowledge.profile.contact.github,
@@ -174,6 +175,8 @@ export default function App() {
     window.addEventListener('hashchange', onHashChange);
     return () => window.removeEventListener('hashchange', onHashChange);
   }, []);
+  const [language, setLanguage] = useState<Language>(() => localStorage.getItem('eric_language') === 'zh' ? 'zh' : 'en');
+  useEffect(() => { localStorage.setItem('eric_language', language); document.documentElement.lang = language === 'zh' ? 'zh-Hant' : 'en'; }, [language]);
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     const saved = localStorage.getItem('eric_theme') as 'light' | 'dark' | null;
     if (saved) return saved;
@@ -200,6 +203,10 @@ export default function App() {
       <div className="topbar">
         <a className="wordmark" href="#/portfolio" onClick={(e) => { e.preventDefault(); setView('portfolio'); }}>eric.exe</a>
         <div className="topbar-actions">
+          <div className="language-switch" role="group" aria-label="Language">
+            <button type="button" className={language === 'en' ? 'selected' : ''} onClick={() => setLanguage('en')} aria-pressed={language === 'en'}>EN</button>
+            <button type="button" className={language === 'zh' ? 'selected' : ''} onClick={() => setLanguage('zh')} aria-pressed={language === 'zh'}>繁中</button>
+          </div>
           <button className="theme-toggle" onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')} aria-label="Toggle theme">
             {theme === 'light' ? '◐' : '◑'}
           </button>
@@ -210,11 +217,11 @@ export default function App() {
         <div className="chat-layout">
           <div className="chat-desk">
             <JawAnimation running={false} />
-            <p>Runs entirely on your GPU. Nothing you type leaves this page.</p>
+            <p>{language === 'en' ? 'Local WebGPU inference. Your questions stay in the browser.' : '透過瀏覽器 WebGPU 本地推論，提問內容不傳送至伺服器。'}</p>
           </div>
           <div className="chat-main">
-            <div className="chat-profile"><img src={`${import.meta.env.BASE_URL}avatar.png`} alt="Illustrated portrait of Eric" /><span>Ask Eric's desk</span></div>
-            <ChatPanel onGenerationStart={() => {}} onGenerationEnd={() => {}} />
+
+            <ChatPanel language={language} onGenerationStart={() => {}} onGenerationEnd={() => {}} />
           </div>
         </div>
       ) : (

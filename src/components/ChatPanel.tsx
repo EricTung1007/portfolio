@@ -1,15 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
 import { useWebLLM } from '../hooks.js';
 import type { ChatLanguage } from '../chat-engine.js';
+import { answerFromVerifiedProfile, unknownDeskAnswer } from '../desk-answers.js';
 
 interface MessageItem { role: 'user' | 'assistant'; content: string; }
 
 const COPY = {
   en: {
     desk: 'INFORMATION DESK', title: 'Speak with the archivist',
-    intro: "Welcome, traveler. Explore Eric's work, research, and experience. Choose a topic or ask a question.",
-    init: 'AWAKEN THE ARCHIVIST', loading: 'Awakening the local model', ready: 'ARCHIVIST ONLINE', idle: 'DORMANT',
-    resume: 'VIEW RESUME', model: 'Qwen2.5-Coder 1.5B · Browser WebGPU',
+    intro: "The desk answers verified facts instantly. Extended local AI is optional for unusual questions.",
+    init: 'ENABLE EXTENDED AI (OPTIONAL)', loading: 'Awakening the local model', ready: 'ARCHIVIST ONLINE', idle: 'DORMANT',
+    resume: 'VIEW RESUME', model: 'Optional Phi-4 Mini · Browser WebGPU',
     note: 'Answers are grounded in the CV text extracted at build time plus maintained profile data. Updating CV.pdf and rebuilding refreshes the reference.',
     placeholder: 'Ask the archivist...', send: 'SEND', retry: 'TRY AGAIN',
     topics: ['Who is Eric?', 'What AI projects has Eric built?', 'What is his experience?', 'What can he build?'],
@@ -18,9 +19,9 @@ const COPY = {
   },
   zh: {
     desk: '個人資訊台', title: '與檔案管理員交談',
-    intro: '歡迎，旅人。你可以探索 Eric 的作品、研究與經歷，選擇主題或直接提問。',
-    init: '喚醒檔案管理員', loading: '正在啟動本地模型', ready: '檔案管理員已上線', idle: '尚未啟動',
-    resume: '查看履歷', model: 'Qwen2.5-Coder 1.5B · 瀏覽器 WebGPU',
+    intro: '資訊台會立即回答已確認的履歷內容，延伸本地 AI 為選用功能。',
+    init: '啟用延伸 AI（選用）', loading: '正在啟動本地模型', ready: '檔案管理員已上線', idle: '尚未啟動',
+    resume: '查看履歷', model: '可選用 Phi-4 Mini · 瀏覽器 WebGPU',
     note: '回答依據建置時從 CV.pdf 擷取的文字及個人資料，更新履歷並重新建置後即可同步。',
     placeholder: '向檔案管理員提問…', send: '送出', retry: '重試',
     topics: ['Eric 是誰？', 'Eric 做過哪些 AI 專案？', 'Eric 有哪些工作經歷？', 'Eric 能開發什麼？'],
@@ -45,28 +46,36 @@ export function ChatPanel({ onGenerationStart, onGenerationEnd, language }: {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [messages]);
 
-  const handleInit = () => { void initialize('Qwen2.5-Coder-1.5B-Instruct-q4f16_1-MLC'); };
+  const handleInit = () => { void initialize('Phi-4-mini-instruct-q4f16_1-MLC'); };
   const handleSend = async (question = input) => {
     const q = question.trim();
-    if (!q || !active || busy) { if (q) setInput(q); return; }
+    if (!q || busy) return;
+    const verified = answerFromVerifiedProfile(q, language);
+    if (verified || !active) {
+      setInput('');
+      setCopied(false);
+      setMessages(items => [...items, { role: 'user', content: q },
+        { role: 'assistant', content: verified ?? unknownDeskAnswer(language) }]);
+      return;
+    }
     setInput('');
     setCopied(false);
-    setMessages((items) => [...items, { role: 'user', content: q }, { role: 'assistant', content: '' }]);
+    setMessages(items => [...items, { role: 'user', content: q }, { role: 'assistant', content: '' }]);
     onGenerationStart();
     try {
-      await generate(q, (token) => {
-        setMessages((items) => {
-          const updated = [...items];
-          const index = updated.length - 1;
-          if (updated[index]?.role === 'assistant') updated[index] = { role: 'assistant', content: updated[index].content + token };
+      await generate(q, token => {
+        setMessages(items => {
+          const updated = [...items], index = updated.length - 1;
+          if (updated[index]?.role === 'assistant')
+            updated[index] = { role: 'assistant', content: updated[index].content + token };
           return updated;
         });
       }, language);
     } catch {
-      setMessages((items) => {
-        const updated = [...items];
-        const index = updated.length - 1;
-        if (updated[index]?.role === 'assistant' && !updated[index].content) updated[index] = { role: 'assistant', content: t.unknown };
+      setMessages(items => {
+        const updated = [...items], index = updated.length - 1;
+        if (updated[index]?.role === 'assistant' && !updated[index].content)
+          updated[index] = { role: 'assistant', content: unknownDeskAnswer(language) };
         return updated;
       });
     } finally { onGenerationEnd(); }
@@ -76,7 +85,7 @@ export function ChatPanel({ onGenerationStart, onGenerationEnd, language }: {
     <section className="rpg-panel" aria-label={t.desk}>
       <div className="rpg-panel-header">
         <span className="rpg-kicker">◈ {t.desk} / ERIC.EXE</span>
-        <span className="rpg-status">{active ? t.ready : t.idle}</span>
+        <span className="rpg-status">{busy ? (language === 'zh' ? '正在查詢' : 'RESEARCHING') : (language === 'zh' ? '資訊台已開放' : 'DESK OPEN')}</span>
       </div>
       <div className="rpg-npc">
         <img src={`${import.meta.env.BASE_URL}avatar.png`} alt="Eric's illustrated portrait" className="rpg-npc-avatar" />
@@ -100,13 +109,13 @@ export function ChatPanel({ onGenerationStart, onGenerationEnd, language }: {
             <button type="button" className="rpg-primary" onClick={handleInit}>{status === 'error' ? t.retry : t.init}</button>
           )}
           {status === 'error' && <p role="alert">{error}</p>}
-          <small>{t.model}</small>
+          <small>{t.model} · {language === 'zh' ? '一般問題不必下載模型' : 'No download required for verified answers'}</small>
         </div>
       )}
       <div className="rpg-actions">
         {t.topics.map((topic, i) => (
           <button className="rpg-choice" type="button" key={topic}
-            onClick={() => { if (active) void handleSend(topic); else setInput(topic); }}
+            onClick={() => { void handleSend(topic); }}
             disabled={busy}>
             <span>{String(i + 1).padStart(2, '0')}</span> {topic}
           </button>
@@ -114,7 +123,7 @@ export function ChatPanel({ onGenerationStart, onGenerationEnd, language }: {
       </div>
       <form className="rpg-input" onSubmit={(e) => { e.preventDefault(); void handleSend(); }}>
         <input value={input} onChange={(e) => setInput(e.target.value)} placeholder={t.placeholder} aria-label={t.placeholder} disabled={busy} />
-        <button type="submit" disabled={!input.trim() || busy || !active}>{t.send}</button>
+        <button type="submit" disabled={!input.trim() || busy}>{t.send}</button>
       </form>
       <div className="rpg-foot">
         <a href={`${import.meta.env.BASE_URL}CV.pdf`} target="_blank" rel="noreferrer">{t.resume} ↗</a>

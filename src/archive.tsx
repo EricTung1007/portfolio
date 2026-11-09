@@ -100,7 +100,7 @@ export function ArchiveRoom({view,language,openArticle,navigate}:Props) {
       <h2>{t(language,'Sign the visitor ledger','留下你的訪客紀錄')}</h2>
       <p>{t(language,'Leave a public note through GitHub Issues. The entry remains on GitHub, where Eric can moderate or close it. GitHub sign-in is required.','透過 GitHub Issues 留下公開訊息，Eric 可以在 GitHub 管理與關閉留言，需登入 GitHub。')}</p>
       <a className="archive-action" href="https://github.com/EricTung1007/portfolio/issues/new?template=guestbook.yml" target="_blank" rel="noopener noreferrer">{t(language,'SIGN THE GUESTBOOK ↗','簽署訪客簿 ↗')}</a>
-      <a className="archive-secondary" href="https://github.com/EricTung1007/portfolio/issues?q=is%3Aissue+label%3Aguestbook" target="_blank" rel="noopener noreferrer">{t(language,'READ THE VISITOR LEDGER ↗','閱讀訪客留言 ↗')}</a>
+      <a className="archive-secondary" href="https://github.com/EricTung1007/portfolio/issues?q=is%3Aissue+%22%5BGuestbook%5D%22" target="_blank" rel="noopener noreferrer">{t(language,'READ THE VISITOR LEDGER ↗','閱讀訪客留言 ↗')}</a>
       <p className="archive-note">{t(language,'No names, emails, or messages are stored locally by this website. Never share sensitive information in a public issue.','此網站不會自行儲存訪客姓名、電子郵件或留言。GitHub Issue 是公開內容，請勿提交敏感資料。')}</p>
     </section>}
     <footer className="archive-room-footer">ERIC.EXE / ARCHIVAL SYSTEM · EST. 2026</footer>

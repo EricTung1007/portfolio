@@ -81,10 +81,8 @@ export class ChatEngine {
   async initialize(onProgress?: (p: number, text: string) => void): Promise<void> {
     this.state = 'downloading';
     const supported = prebuiltAppConfig.model_list.map(m => m.model_id);
-    const actualModel = supported.includes(this.modelId) ? this.modelId :
-      ['Llama-3.2-3B-Instruct-q4f16_1-MLC', 'Llama-3.2-1B-Instruct-q4f16_1-MLC', 'Qwen2.5-Coder-1.5B-Instruct-q4f16_1-MLC']
-        .find(id => supported.includes(id));
-    if (!actualModel) throw new Error('No compatible built-in browser model found.');
+    const actualModel = supported.includes(this.modelId) ? this.modelId : undefined;
+    if (!actualModel) throw new Error('The selected lightweight model is not included in this WebLLM build. No larger model will be downloaded automatically.');
     this.modelId = actualModel;
     this.engine = await CreateMLCEngine(this.modelId, {
       initProgressCallback: (info) => {

@@ -562,3 +562,151 @@ a { color: inherit; }
   .rpg-npc-avatar { width: 68px; height: 68px; }
   .rpg-panel-header { flex-wrap: wrap; }
 }
+
+
+/* Skeuomorphic workstation. Keep the illustration present throughout the chat. */
+.chat-layout {
+  display: grid;
+  grid-template-columns: minmax(250px, 335px) minmax(0, 1fr);
+  align-items: start;
+  gap: clamp(18px, 3vw, 36px);
+  width: min(calc(100% - 36px), 1120px);
+  max-width: 1120px;
+  min-height: calc(100dvh - 80px);
+  margin: 0 auto;
+  padding: 94px 0 44px;
+}
+.chat-desk {
+  position: sticky;
+  top: 78px;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  align-self: start;
+  z-index: 8;
+  text-align: center;
+}
+.desk-cabinet {
+  --wood: #9c6d47;
+  --wood-shadow: #523925;
+  --brass: #c19a51;
+  background: linear-gradient(155deg, #ba8b60, var(--wood) 60%, #7f5436);
+  border: 2px solid var(--wood-shadow);
+  border-radius: 16px;
+  box-shadow: 0 5px 0 var(--wood-shadow), 0 14px 24px rgba(0,0,0,.13), inset 0 1px rgba(255,255,255,.32);
+  padding: 14px 13px 16px;
+}
+.desk-cabinet-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 0 3px 12px; }
+.desk-cabinet-label, .desk-file-title {
+  font: 600 10px/1.3 ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: .11em; color: #2e2018;
+}
+.desk-pilot { width: 10px; height: 10px; border-radius: 50%; flex: none; background: #5f9564; border: 1px solid #345c37; box-shadow: 0 0 7px #78bc78, inset 0 1px rgba(255,255,255,.7); }
+.desk-pilot.working { background: #f0c05e; box-shadow: 0 0 12px #ffe39d, inset 0 1px rgba(255,255,255,.7); }
+.desk-cabinet img { width: 100%; height: auto; max-height: min(42vh, 320px); object-fit: contain; margin: 0 auto; }
+.desk-nameplate {
+  padding: 8px 12px; margin: 10px auto 12px;
+  border: 1px solid #5a431e;
+  border-radius: 4px;
+  background: linear-gradient(120deg, #dbc087, var(--brass), #e3c989);
+  color: #3e2b18; box-shadow: inset 0 1px rgba(255,255,255,.65), 0 2px 3px rgba(35,20,8,.2);
+  font: 700 10px ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: .15em;
+}
+.desk-cabinet-controls { display: flex; }
+.desk-drawer-handle {
+  width: 100%; padding: 10px 8px;
+  color: #f5ead2; background: linear-gradient(180deg, #735034, #583921);
+  border: 1px solid #3d281c; border-radius: 7px;
+  box-shadow: inset 0 1px rgba(255,255,255,.14), 0 3px 0 #362316;
+  cursor: pointer; font: 600 11px ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: .06em;
+}
+.desk-drawer-handle:active { transform: translateY(2px); box-shadow: 0 1px 0 #362316; }
+.desk-drawer-handle span { color: #e8ca81; margin-right: 7px; }
+.desk-file-drawer {
+  margin-top: 14px; text-align: left;
+  background: #ead9b8; color: #362b21;
+  border-radius: 4px 4px 9px 9px; border: 1px solid #694932;
+  padding: 15px 14px;
+  box-shadow: 0 5px 0 #4e3526, inset 0 2px #f9e9c8;
+  animation: drawer-open .2s ease-out;
+}
+.desk-file-title { padding-bottom: 10px; border-bottom: 1px solid #bb9e78; }
+.desk-file-drawer a, .desk-file-drawer button {
+  display: block; width: 100%; padding: 10px 2px;
+  font-size: 12px; font-family: inherit; text-align: left;
+  color: #362b21; text-decoration: none;
+  border: 0; border-bottom: 1px solid #cfb794; background: transparent; cursor: pointer;
+}
+.desk-file-drawer a:hover, .desk-file-drawer button:hover { color: #815333; }
+.desk-privacy-note { margin: 16px auto 0; max-width: 31ch; color: var(--muted); font-size: 12px; line-height: 1.5; }
+@keyframes drawer-open { from { opacity: 0; transform: translateY(-7px); } to { opacity: 1; transform: translateY(0); } }
+.chat-main { width: 100%; min-width: 0; }
+.rpg-panel { min-width: 0; }
+.rpg-npc-avatar, .profile-avatar, .chat-profile img {
+  display: block;
+  aspect-ratio: 1 / 1;
+  height: auto;
+  border-radius: 50%;
+  clip-path: circle(50% at 50% 50%);
+  object-fit: cover;
+  object-position: center;
+  overflow: hidden;
+}
+.profile-avatar { width: 112px; height: 112px; background: var(--surface); border: 2px solid var(--line); padding: 0; }
+.rpg-npc-avatar { width: 84px; height: 84px; flex: 0 0 84px; background: var(--bg); border: 2px solid var(--line); }
+.rpg-panel { border-color: color-mix(in srgb, var(--accent) 35%, var(--line)); }
+.rpg-choice { box-shadow: inset 0 1px rgba(255,255,255,.08), 0 2px 0 var(--line); }
+.rpg-choice:hover, .rpg-choice:focus-visible { transform: translateY(-1px); box-shadow: 0 3px 0 var(--line); }
+@media (max-width: 760px) {
+  .chat-layout {
+    display: flex; flex-direction: column; align-items: stretch;
+    width: min(calc(100% - 24px), 640px); gap: 22px; padding-top: 76px;
+  }
+  .chat-desk {
+    position: sticky; top: 64px; z-index: 12;
+    width: 100%; max-width: none; margin: 0;
+    background: var(--bg); padding: 6px 0 9px;
+    box-shadow: 0 5px 14px var(--bg);
+  }
+  .desk-cabinet {
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(120px, 1.1fr);
+    gap: 4px 12px; align-items: center;
+    padding: 8px 10px; border-radius: 11px;
+  }
+  .desk-cabinet-top { grid-column: 1 / -1; margin: 0 2px 2px; }
+  .desk-cabinet img { max-height: 110px; }
+  .desk-nameplate { margin: 0 0 8px; padding: 7px 6px; font-size: 9px; }
+  .desk-cabinet-controls { grid-column: 2; grid-row: 2; }
+  .desk-drawer-handle { padding: 9px 6px; font-size: 10px; }
+  .desk-file-drawer { grid-column: 1 / -1; margin-top: 5px; }
+  .desk-privacy-note { display: none; }
+  .chat-main { width: 100%; }
+}
+@media (max-width: 380px) {
+  .desk-cabinet img { max-height: 86px; }
+  .desk-nameplate { font-size: 8px; }
+  .rpg-npc-avatar { width: 64px; height: 64px; flex-basis: 64px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .desk-file-drawer { animation: none; }
+  .rpg-choice:hover { transform: none; }
+}
+
+/* Archival rubber stamp: copies the latest answer for a visitor to keep */
+.rpg-stamp-row { display: flex; justify-content: flex-end; padding: 8px 0 0; }
+.rpg-stamp {
+  padding: 7px 10px; border: 2px double #965f4e; border-radius: 3px;
+  background: transparent; color: #965f4e; transform: rotate(-2deg);
+  font: 700 10px/1.2 ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: .12em; cursor: pointer; opacity: .84;
+}
+[data-theme='dark'] .rpg-stamp { color: #d4a18c; border-color: #d4a18c; }
+.rpg-stamp:hover { opacity: 1; }
+.rpg-stamp.impressed { transform: rotate(2deg) scale(.96); background: rgba(150,95,78,.08); }
+@media (max-width: 760px) {
+  .desk-cabinet > div:nth-child(2) { grid-column: 1; grid-row: 2 / span 2; }
+  .desk-nameplate { grid-column: 2; grid-row: 2; }
+  .desk-cabinet-controls { grid-column: 2; grid-row: 3; }
+}

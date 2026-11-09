@@ -162,3 +162,20 @@
 @keyframes study-wave {to{transform:translateX(22px)}}
 @media(prefers-reduced-motion:reduce){.study-caustics,.study-fish{animation:none}.study-object{transition:none}}
 [data-theme='light'] .study-world {background:radial-gradient(ellipse at 72% 19%,#5c9b9c60,transparent 52%),linear-gradient(#435c5e,#273c42);}
+
+/* CV is a genuine clickable document, not a route to the project index. */
+.study-folder {text-decoration:none;}
+@media(max-width:650px){
+ .topbar {padding:14px 12px;gap:6px;}
+ .topbar-actions {gap:5px;}
+ .topbar .retro-nav,.topbar .topbar-weekly {display:none;}
+ .topbar .wordmark {font-size:14px;}
+ .topbar .language-switch button {padding:5px 7px;font-size:11px;}
+ .topbar .theme-toggle {width:31px;height:31px;}
+ .study-object {touch-action:manipulation;}
+ .study-quicklinks a,.study-quicklinks button {min-height:44px;display:inline-flex;align-items:center;}
+}
+@media(max-width:360px){
+ .topbar-direct-cv {font-size:9px;}
+ .topbar .wordmark {font-size:12px;}
+}

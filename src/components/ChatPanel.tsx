@@ -1,15 +1,17 @@
 import { useEffect, useRef, useState } from 'react';
 import { useWebLLM } from '../hooks.js';
 import type { ChatLanguage } from '../chat-engine.js';
+import { answerFromVerifiedProfile, unknownDeskAnswer } from '../desk-answers.js';
+import { inspectBrowserCapability, chooseBrowserModel, getSystemBrand, type BrowserCapability, type BrowserModelTier } from '../browser-capability.js';
 
 interface MessageItem { role: 'user' | 'assistant'; content: string; }
 
 const COPY = {
   en: {
     desk: 'INFORMATION DESK', title: 'Speak with the archivist',
-    intro: "Welcome, traveler. Explore Eric's work, research, and experience. Choose a topic or ask a question.",
-    init: 'AWAKEN THE ARCHIVIST', loading: 'Awakening the local model', ready: 'ARCHIVIST ONLINE', idle: 'DORMANT',
-    resume: 'VIEW RESUME', model: 'Qwen2.5-Coder 1.5B · Browser WebGPU',
+    intro: "The desk answers verified facts instantly. Extended local AI is optional for unusual questions.",
+    init: 'ENABLE EXTENDED AI (OPTIONAL)', loading: 'Awakening the local model', ready: 'ARCHIVIST ONLINE', idle: 'DORMANT',
+    resume: 'VIEW RESUME', model: 'Optional SmolLM2 360M · Browser WebGPU',
     note: 'Answers are grounded in the CV text extracted at build time plus maintained profile data. Updating CV.pdf and rebuilding refreshes the reference.',
     placeholder: 'Ask the archivist...', send: 'SEND', retry: 'TRY AGAIN',
     topics: ['Who is Eric?', 'What AI projects has Eric built?', 'What is his experience?', 'What can he build?'],
@@ -18,9 +20,9 @@ const COPY = {
   },
   zh: {
     desk: '個人資訊台', title: '與檔案管理員交談',
-    intro: '歡迎，旅人。你可以探索 Eric 的作品、研究與經歷，選擇主題或直接提問。',
-    init: '喚醒檔案管理員', loading: '正在啟動本地模型', ready: '檔案管理員已上線', idle: '尚未啟動',
-    resume: '查看履歷', model: 'Qwen2.5-Coder 1.5B · 瀏覽器 WebGPU',
+    intro: '資訊台會立即回答已確認的履歷內容，延伸本地 AI 為選用功能。',
+    init: '啟用延伸 AI（選用）', loading: '正在啟動本地模型', ready: '檔案管理員已上線', idle: '尚未啟動',
+    resume: '查看履歷', model: '可選用 SmolLM2 360M · 瀏覽器 WebGPU',
     note: '回答依據建置時從 CV.pdf 擷取的文字及個人資料，更新履歷並重新建置後即可同步。',
     placeholder: '向檔案管理員提問…', send: '送出', retry: '重試',
     topics: ['Eric 是誰？', 'Eric 做過哪些 AI 專案？', 'Eric 有哪些工作經歷？', 'Eric 能開發什麼？'],
@@ -35,6 +37,8 @@ export function ChatPanel({ onGenerationStart, onGenerationEnd, language }: {
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<MessageItem[]>([]);
   const [copied, setCopied] = useState(false);
+  const [tier, setTier] = useState<BrowserModelTier>('small');
+  const [capability, setCapability] = useState<BrowserCapability | null>(null);
   const { status, progress, progressText, error, initialize, generate } = useWebLLM();
   const scrollRef = useRef<HTMLDivElement>(null);
   const busy = status === 'generating';
@@ -42,31 +46,47 @@ export function ChatPanel({ onGenerationStart, onGenerationEnd, language }: {
   const t = COPY[language];
   const latestAnswer = [...messages].reverse().find((m) => m.role === 'assistant' && m.content)?.content ?? '';
   useEffect(() => {
+    void inspectBrowserCapability().then(setCapability);
+  }, []);
+  useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [messages]);
 
-  const handleInit = () => { void initialize('Qwen2.5-Coder-1.5B-Instruct-q4f16_1-MLC'); };
+  const handleInit = () => {
+    if (!capability) return;
+    const modelId = chooseBrowserModel(tier, capability);
+    if (!modelId) return;
+    void initialize(modelId);
+  };
   const handleSend = async (question = input) => {
     const q = question.trim();
-    if (!q || !active || busy) { if (q) setInput(q); return; }
+    if (!q || busy) return;
+    const verified = answerFromVerifiedProfile(q, language);
+    if (verified || !active) {
+      setInput('');
+      setCopied(false);
+      setMessages(items => [...items, { role: 'user', content: q },
+        { role: 'assistant', content: verified ?? unknownDeskAnswer(language) }]);
+      return;
+    }
     setInput('');
     setCopied(false);
-    setMessages((items) => [...items, { role: 'user', content: q }, { role: 'assistant', content: '' }]);
+    setMessages(items => [...items, { role: 'user', content: q }, { role: 'assistant', content: '' }]);
     onGenerationStart();
     try {
-      await generate(q, (token) => {
-        setMessages((items) => {
-          const updated = [...items];
-          const index = updated.length - 1;
-          if (updated[index]?.role === 'assistant') updated[index] = { role: 'assistant', content: updated[index].content + token };
+      await generate(q, token => {
+        setMessages(items => {
+          const updated = [...items], index = updated.length - 1;
+          if (updated[index]?.role === 'assistant')
+            updated[index] = { role: 'assistant', content: updated[index].content + token };
           return updated;
         });
       }, language);
     } catch {
-      setMessages((items) => {
-        const updated = [...items];
-        const index = updated.length - 1;
-        if (updated[index]?.role === 'assistant' && !updated[index].content) updated[index] = { role: 'assistant', content: t.unknown };
+      setMessages(items => {
+        const updated = [...items], index = updated.length - 1;
+        if (updated[index]?.role === 'assistant' && !updated[index].content)
+          updated[index] = { role: 'assistant', content: unknownDeskAnswer(language) };
         return updated;
       });
     } finally { onGenerationEnd(); }
@@ -75,8 +95,8 @@ export function ChatPanel({ onGenerationStart, onGenerationEnd, language }: {
   return (
     <section className="rpg-panel" aria-label={t.desk}>
       <div className="rpg-panel-header">
-        <span className="rpg-kicker">◈ {t.desk} / ERIC.EXE</span>
-        <span className="rpg-status">{active ? t.ready : t.idle}</span>
+        <span className="rpg-kicker">◈ {t.desk} / {getSystemBrand().toUpperCase()}</span>
+        <span className="rpg-status">{busy ? (language === 'zh' ? '正在查詢' : 'RESEARCHING') : (language === 'zh' ? '資訊台已開放' : 'DESK OPEN')}</span>
       </div>
       <div className="rpg-npc">
         <img src={`${import.meta.env.BASE_URL}avatar.png`} alt="Eric's illustrated portrait" className="rpg-npc-avatar" />
@@ -97,16 +117,30 @@ export function ChatPanel({ onGenerationStart, onGenerationEnd, language }: {
             <><p>{progressText || t.loading} {progress ? `${progress}%` : ''}</p>
               <div className="rpg-progress"><span style={{ width: `${progress}%` }} /></div></>
           ) : (
-            <button type="button" className="rpg-primary" onClick={handleInit}>{status === 'error' ? t.retry : t.init}</button>
+            <>
+              <div className="rpg-model-selection">
+                <label htmlFor="desk-model-tier">{language === 'zh' ? '延伸 AI 模型（選用）' : 'Optional AI model'}</label>
+                <select id="desk-model-tier" value={tier} onChange={e => setTier(e.target.value as BrowserModelTier)}>
+                  <option value="small">SmolLM2 360M · {language === 'zh' ? '約 376 MB VRAM' : '~376 MB VRAM'}</option>
+                  <option value="enhanced">SmolLM2 1.7B · {language === 'zh' ? '約 1.77 GB VRAM' : '~1.77 GB VRAM'}</option>
+                </select>
+              </div>
+              <button type="button" className="rpg-primary" onClick={handleInit}
+                disabled={!capability?.gpuAvailable || (tier === 'enhanced' && !capability.supportsF16)}>
+                {status === 'error' ? t.retry : t.init}
+              </button>
+            </>
           )}
           {status === 'error' && <p role="alert">{error}</p>}
-          <small>{t.model}</small>
+          <small>{language === 'zh'
+            ? (!capability ? '正在檢查 WebGPU…' : !capability.gpuAvailable ? '此瀏覽器未提供 WebGPU，仍可使用履歷問答。' : tier === 'enhanced' && !capability.supportsF16 ? '這個裝置缺少大型模型需要的 shader-f16。' : '無法可靠測量可用 VRAM，載入失敗時請選輕量模式。')
+            : (!capability ? 'Checking WebGPU…' : !capability.gpuAvailable ? 'WebGPU unavailable. Verified profile Q&A still works.' : tier === 'enhanced' && !capability.supportsF16 ? 'Enhanced model requires shader-f16.' : 'Available VRAM cannot be reliably measured. Use the small model if loading fails.')}</small>
         </div>
       )}
       <div className="rpg-actions">
         {t.topics.map((topic, i) => (
           <button className="rpg-choice" type="button" key={topic}
-            onClick={() => { if (active) void handleSend(topic); else setInput(topic); }}
+            onClick={() => { void handleSend(topic); }}
             disabled={busy}>
             <span>{String(i + 1).padStart(2, '0')}</span> {topic}
           </button>
@@ -114,7 +148,7 @@ export function ChatPanel({ onGenerationStart, onGenerationEnd, language }: {
       </div>
       <form className="rpg-input" onSubmit={(e) => { e.preventDefault(); void handleSend(); }}>
         <input value={input} onChange={(e) => setInput(e.target.value)} placeholder={t.placeholder} aria-label={t.placeholder} disabled={busy} />
-        <button type="submit" disabled={!input.trim() || busy || !active}>{t.send}</button>
+        <button type="submit" disabled={!input.trim() || busy}>{t.send}</button>
       </form>
       <div className="rpg-foot">
         <a href={`${import.meta.env.BASE_URL}CV.pdf`} target="_blank" rel="noreferrer">{t.resume} ↗</a>

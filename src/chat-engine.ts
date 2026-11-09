@@ -1,4 +1,4 @@
-import { CreateMLCEngine, MLCEngine } from '@mlc-ai/web-llm';
+import { CreateMLCEngine, MLCEngine, prebuiltAppConfig } from '@mlc-ai/web-llm';
 import { knowledge } from './data.js';
 import { resumeText } from './resume.generated.js';
 
@@ -8,16 +8,18 @@ type AppState = 'not-initialized' | 'downloading' | 'loading' | 'ready' | 'gener
 
 /* Ground the generic model in Eric's actual data — without this the model
    answers like a generic coder, not like Eric. */
-function buildSystemPrompt(language: ChatLanguage): string {
+function buildSystemPrompt(language: ChatLanguage, question: string): string {
   const k = knowledge;
   const lines: string[] = [
     "You are the AI information desk of Eric Tung (eric.exe). You are NOT Eric himself. Explain information about Eric using third-person language, never pretend to be Eric.",
-    "Answer ONLY from the facts below. Be concise, warm, and direct. If a question goes beyond these facts, say you don't have that information.",
+    "Use only grounded evidence given below. Do not invent relatives, family, credentials, institutions, or personal details. Say 'Not verified in the published record' when unsure.",
+    language === 'zh' ? 'Respond exclusively in Traditional Chinese, even if evidence is English.' : 'Respond exclusively in English.',
     "",
     "CURRENT RESUME (canonical PDF for readers):",
     "https://github.com/EricTung1007/portfolio/raw/refs/heads/main/public/CV.pdf",
     resumeText ? "CV text extracted from the checked-in PDF at build time follows." : "No extractable resume text available in this build; do not claim to have read the PDF.",
-    resumeText.slice(0, 24000),
+    // Keep the relevant CV snippets within a small browser-model context budget.
+    ...selectResumeEvidence(question),
     "",
     "PROFILE:",
     `${k.profile.name} — ${k.profile.tagline}`,
@@ -60,6 +62,15 @@ function buildSystemPrompt(language: ChatLanguage): string {
   return lines.join('\n');
 }
 
+function selectResumeEvidence(question: string): string[] {
+  const terms = question.toLowerCase().split(/[^a-z0-9\u4e00-\u9fff]+/).filter(t => t.length > 2);
+  const lines = resumeText.split(/\n/).map(x => x.trim()).filter(Boolean);
+  const ranked = lines.map((line, index) => ({
+    line, index, score: terms.reduce((score, term) => score + (line.toLowerCase().includes(term) ? 1 : 0), 0),
+  })).sort((a,b) => b.score-a.score || a.index-b.index);
+  return ranked.slice(0, 13).sort((a,b) => a.index-b.index).map(v => v.line.slice(0,180));
+}
+
 export class ChatEngine {
   private engine: MLCEngine | null = null;
   private state: AppState = 'not-initialized';
@@ -69,6 +80,10 @@ export class ChatEngine {
 
   async initialize(onProgress?: (p: number, text: string) => void): Promise<void> {
     this.state = 'downloading';
+    const supported = prebuiltAppConfig.model_list.map(m => m.model_id);
+    const actualModel = supported.includes(this.modelId) ? this.modelId : undefined;
+    if (!actualModel) throw new Error('The selected lightweight model is not included in this WebLLM build. No larger model will be downloaded automatically.');
+    this.modelId = actualModel;
     this.engine = await CreateMLCEngine(this.modelId, {
       initProgressCallback: (info) => {
         if (this.cancelled) return;
@@ -94,10 +109,13 @@ export class ChatEngine {
     const stream = await this.engine.chat.completions.create({
       model: this.modelId,
       messages: [
-        { role: 'system', content: buildSystemPrompt(language) },
+        { role: 'system', content: buildSystemPrompt(language, question) },
         { role: 'user', content: question },
       ],
       stream: true,
+      temperature: 0.1,
+      top_p: 0.75,
+      max_tokens: 240,
     });
 
     for await (const chunk of stream) {

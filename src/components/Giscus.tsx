@@ -1,17 +1,24 @@
 import { useEffect, useRef } from 'react';
 
+/** Giscus requires GitHub Discussions enabled on the repository and a valid
+ * discussion category. Set these public IDs in .env before deployment. */
 const REPO = 'EricTung1007/portfolio';
-const REPO_ID = 'R_kgDOFqJg'; // TODO: replace with real repo_id after first giscus render
+const REPO_ID = 'R_kgDOVlg8wA';
+const CATEGORY_ID = import.meta.env.VITE_GISCUS_CATEGORY_ID as string | undefined;
+const CATEGORY = import.meta.env.VITE_GISCUS_CATEGORY || 'Comments';
 
 interface GiscusProps {
-  mapping: string; // e.g. "pathname"
+  mapping: 'specific' | 'pathname';
+  term?: string;
   theme: 'light' | 'dark';
 }
 
-export function Giscus({ mapping, theme }: GiscusProps) {
+export function Giscus({ mapping, term, theme }: GiscusProps) {
   const ref = useRef<HTMLDivElement>(null);
+  const enabled = Boolean(CATEGORY_ID && (! (mapping === 'specific') || term));
 
   useEffect(() => {
+    if (!enabled) return;
     const el = ref.current;
     if (!el) return;
     el.innerHTML = '';
@@ -19,20 +26,25 @@ export function Giscus({ mapping, theme }: GiscusProps) {
     script.src = 'https://giscus.app/client.js';
     script.async = true;
     script.crossOrigin = 'anonymous';
-    script.setAttribute('data-repo', REPO);
-    script.setAttribute('data-repo-id', REPO_ID);
-    script.setAttribute('data-category', 'Comments');
-    script.setAttribute('data-category-id', 'DIC_kwDOFqJg4c4'); // TODO: replace with real category id
-    script.setAttribute('data-mapping', mapping);
-    script.setAttribute('data-strict', '1');
-    script.setAttribute('data-reactions-enabled', '1');
-    script.setAttribute('data-emit-metadata', '0');
-    script.setAttribute('data-input-position', 'top');
-    script.setAttribute('data-theme', theme === 'dark' ? 'dark_dimmed' : 'light');
-    script.setAttribute('data-lang', 'en');
+    const attrs: Record<string, string> = {
+      'data-repo': REPO,
+      'data-repo-id': REPO_ID,
+      'data-category': CATEGORY,
+      'data-category-id': CATEGORY_ID!,
+      'data-mapping': mapping,
+      'data-strict': '1',
+      'data-reactions-enabled': '1',
+      'data-emit-metadata': '0',
+      'data-input-position': 'top',
+      'data-theme': theme === 'dark' ? 'dark_dimmed' : 'light',
+      'data-lang': 'en',
+    };
+    if (mapping === 'specific' && term) attrs['data-term'] = term;
+    Object.entries(attrs).forEach(([key, value]) => script.setAttribute(key, value));
     el.appendChild(script);
     return () => { el.innerHTML = ''; };
-  }, [mapping, theme]);
+  }, [enabled, mapping, term, theme]);
 
+  if (!enabled) return <p className="comments-unavailable">Comments are temporarily unavailable.</p>;
   return <div ref={ref} />;
 }

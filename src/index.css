@@ -513,3 +513,52 @@ a { color: inherit; }
   .chat-main { width: 100%; }
   .profile-avatar { width: 88px; height: 88px; }
 }
+
+
+/* RPG-inspired desk: typography and framed choices rather than a full-screen game */
+.language-switch { display: inline-flex; padding: 3px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); }
+.language-switch button { border: 0; background: transparent; color: var(--muted); padding: 5px 10px; border-radius: 999px; font: inherit; font-size: 12px; cursor: pointer; }
+.language-switch button.selected { background: var(--ink); color: var(--bg); }
+.rpg-panel { position: relative; border: 1px solid var(--line); border-radius: 15px; background: var(--surface); padding: clamp(18px, 4vw, 32px); box-shadow: 0 8px 35px rgba(0,0,0,.06); }
+.rpg-panel::before { content: ''; position: absolute; pointer-events: none; inset: 6px; border: 1px solid var(--line); border-radius: 10px; opacity: .65; }
+.rpg-panel-header, .rpg-npc, .rpg-actions, .rpg-input, .rpg-foot { position: relative; }
+.rpg-panel-header { display: flex; justify-content: space-between; gap: 12px; align-items: center; border-bottom: 1px solid var(--line); padding-bottom: 16px; }
+.rpg-kicker, .rpg-status, .rpg-npc-label, .rpg-speaker { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 11px; letter-spacing: .1em; }
+.rpg-kicker { color: var(--accent); }
+.rpg-status { color: var(--muted); text-align: right; }
+.rpg-npc { display: flex; align-items: center; gap: 18px; padding: 24px 0; }
+.rpg-npc-avatar { flex: 0 0 auto; width: 84px; height: 84px; object-fit: contain; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); }
+.rpg-npc-label { color: var(--accent); margin-bottom: 5px; }
+.rpg-npc h2 { font-size: clamp(21px, 4vw, 28px); line-height: 1.2; font-weight: 500; margin: 0 0 8px; }
+.rpg-npc p { color: var(--muted); font-size: 14px; line-height: 1.6; }
+.rpg-conversation { max-height: 380px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+.rpg-message { border-left: 2px solid var(--line); padding: 6px 14px; }
+.rpg-message.assistant { border-color: var(--accent); }
+.rpg-message.user { margin-left: 24px; }
+.rpg-speaker { display: block; color: var(--accent); margin-bottom: 4px; }
+.rpg-message.user .rpg-speaker { color: var(--muted); }
+.rpg-message p { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.6; font-size: 15px; }
+.rpg-init { text-align: center; padding: 12px 0 22px; }
+.rpg-init p { font-size: 14px; color: var(--muted); padding: 8px 0; }
+.rpg-init small { display: block; color: var(--muted); margin-top: 12px; }
+.rpg-primary, .rpg-input button { background: var(--ink); border: 1px solid var(--ink); color: var(--bg); padding: 10px 18px; border-radius: 7px; font: inherit; font-size: 13px; font-weight: 500; cursor: pointer; }
+.rpg-primary:hover, .rpg-input button:hover:enabled { background: var(--accent); border-color: var(--accent); }
+.rpg-progress { height: 5px; background: var(--line); overflow: hidden; border-radius: 10px; }
+.rpg-progress span { display: block; height: 100%; background: var(--accent); transition: width .2s; }
+.rpg-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-top: 20px; }
+.rpg-choice { text-align: left; border: 1px solid var(--line); border-radius: 7px; padding: 13px; background: var(--bg); color: var(--ink); cursor: pointer; font: inherit; font-size: 13px; line-height: 1.45; transition: border-color .15s; }
+.rpg-choice span { color: var(--accent); font-family: monospace; margin-right: 8px; }
+.rpg-choice:hover { border-color: var(--accent); }
+.rpg-choice:disabled { opacity: .5; cursor: default; }
+.rpg-input { display: flex; gap: 8px; margin-top: 16px; }
+.rpg-input input { flex: 1; min-width: 0; border: 1px solid var(--line); border-radius: 7px; padding: 12px; font: inherit; font-size: 14px; background: var(--bg); color: var(--ink); }
+.rpg-input button:disabled { opacity: .45; cursor: not-allowed; }
+.rpg-foot { display: flex; flex-direction: column; gap: 8px; margin-top: 18px; border-top: 1px solid var(--line); padding-top: 16px; }
+.rpg-foot a { color: var(--accent); font-weight: 500; font-size: 12px; letter-spacing: .08em; }
+.rpg-foot span { color: var(--muted); font-size: 12px; line-height: 1.6; }
+@media (max-width: 520px) {
+  .rpg-actions { grid-template-columns: 1fr; }
+  .rpg-npc { align-items: flex-start; gap: 12px; }
+  .rpg-npc-avatar { width: 68px; height: 68px; }
+  .rpg-panel-header { flex-wrap: wrap; }
+}

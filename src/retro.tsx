@@ -132,6 +132,11 @@ export function TerminalWindow({language,visitor,navigate,onTheme,onLanguage,onC
     const timer=window.setInterval(()=>setBootStep(x=>Math.min(x+1,5)),260);
     return ()=>window.clearInterval(timer);
   },[booting]);
+  useEffect(()=>{
+    if(!booting || bootStep<5)return;
+    const timer=window.setTimeout(finishBoot,560);
+    return ()=>window.clearTimeout(timer);
+  },[booting,bootStep]);
   useEffect(()=>{outputRef.current?.scrollTo({top:outputRef.current.scrollHeight,behavior:'smooth'});},[history]);
   const run=(raw:string)=>{
     const cmd=raw.trim().toLowerCase().replace(/\s+/g,' ').replace(/[?？。！!]+$/g,'');

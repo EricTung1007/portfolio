@@ -1,0 +1,44 @@
+name: "Visitor Guestbook / 訪客簽到"
+description: "Leave a note in the public EricTung information desk visitor book."
+title: "[Guestbook] "
+labels: ["guestbook"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for visiting Eric's information desk. This issue is public.
+        Please don't submit private contact details, passwords, or sensitive information.
+        歡迎留下訪客紀錄。這是公開的 GitHub Issue，請勿填寫私人或敏感資料。
+  - type: input
+    id: visitor
+    attributes:
+      label: "Visitor alias / 訪客暱稱"
+      placeholder: "A reader"
+    validations:
+      required: true
+  - type: dropdown
+    id: discovery
+    attributes:
+      label: "What brought you here? / 你是如何來到這裡的？"
+      options:
+        - "Minerva's Den"
+        - "Engineering & AI"
+        - "EricTung's Weekly"
+        - "Research & publications"
+        - "Just exploring"
+    validations:
+      required: true
+  - type: textarea
+    id: note
+    attributes:
+      label: "Your note / 訪客留言"
+      placeholder: "A note for the archive..."
+    validations:
+      required: true
+  - type: checkboxes
+    id: public
+    attributes:
+      label: "Public entry / 公開留言"
+      options:
+        - label: "I understand this will be publicly visible on GitHub. / 我理解此留言將公開顯示在 GitHub。"
+          required: true

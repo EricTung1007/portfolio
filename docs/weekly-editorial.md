@@ -31,3 +31,7 @@ Translations live in `content/posts/zh/<same-slug>.md` and only become public if
 
 References: https://sveltiacms.app/en/docs/start and https://sveltiacms.app/en/docs/backends/github
 \n\n## Scheduled releases\n\nSet `publish_on` (YYYY-MM-DD, UTC) in the editorial backstage, uncheck draft, and save. The publication build hides future-dated articles until the release date. The GitHub Pages deploy workflow runs daily at 00:10 UTC to publish eligible content, though GitHub scheduled jobs may run late; the release time is not guaranteed. Do not enter confidential information in scheduled drafts because the repository is public and the Markdown source remains visible on GitHub before publication. Leave `draft: true` to hide a post indefinitely from the live site.\n
+
+## Editorial stamps and evidence
+
+Available article stamps: FIELD NOTES, EXPERIMENTAL, VERIFIED and REVISED. The VERIFIED display is automatically downgraded to FIELD NOTES if there is no public HTTP(S) URL in the `sources` list. This checks only whether a reference link exists. **It does not validate the truth of the linked material or certify that a claim has been independently verified.** Editors must review the underlying evidence before using VERIFIED. Each source URL is shown in the article.

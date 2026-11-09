@@ -24,7 +24,7 @@ collections:
       - { name: date, label: "Publication date", widget: datetime, type: date, format: "yyyy-MM-dd" }
       - { name: category, label: "Section", widget: select, options: ["Technology", "Research", "Minerva's Den", "Journal", "Ideas", "Life", "Elsewhere"], default: "Technology" }
       - { name: tags, label: "Tags", widget: list, required: false }
-      - { name: draft, label: "Keep as draft (not published)", widget: boolean, default: true, required: false }
+      - { name: publish_on, label: "Scheduled release date (UTC, optional) / 預約公開日", widget: datetime, type: date, format: "yyyy-MM-dd", required: false }\n      - { name: draft, label: "Keep as draft (not published)", widget: boolean, default: true, required: false }
       - { name: body, label: "Article", widget: richtext }
   - name: weekly_zh
     label: "週刊 · 繁體中文"
@@ -41,5 +41,5 @@ collections:
       - { name: date, label: "日期（與英文原稿一致）", widget: datetime, type: date, format: "yyyy-MM-dd" }
       - { name: category, label: "欄目", widget: select, options: ["Technology", "Research", "Minerva's Den", "Journal", "Ideas", "Life", "Elsewhere"], default: "Technology" }
       - { name: tags, label: "標籤", widget: list, required: false }
-      - { name: draft, label: "暫存草稿（不公開）", widget: boolean, default: true, required: false }
+      - { name: publish_on, label: "Scheduled release date (UTC, optional) / 預約公開日", widget: datetime, type: date, format: "yyyy-MM-dd", required: false }\n      - { name: draft, label: "暫存草稿（不公開）", widget: boolean, default: true, required: false }
       - { name: body, label: "繁體中文內文", widget: richtext }

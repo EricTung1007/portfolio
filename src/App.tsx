@@ -5,6 +5,7 @@ import { Giscus } from './components/Giscus.js';
 import { knowledge } from './data.js';
 import { posts, getPost } from './posts.js';
 import { renderMarkdown } from './markdown.js';
+import { getSystemBrand } from './browser-capability.js';
 import './motion.js';
 import './index.css';
 
@@ -192,6 +193,7 @@ export default function App() {
     window.scrollTo({ top: 0 });
   };
 
+  const [systemBrand] = useState(getSystemBrand);
   const [deskBusy, setDeskBusy] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const isChat = view === 'chat';
@@ -200,7 +202,7 @@ export default function App() {
   return (
     <>
       <div className="topbar">
-        <a className="wordmark" href="#/portfolio" onClick={(e) => { e.preventDefault(); setView('portfolio'); }}>eric.exe</a>
+        <a className="wordmark" href="#/portfolio" onClick={(e) => { e.preventDefault(); setView('portfolio'); }} title="OS-inspired name, not a downloadable application">{systemBrand}</a>
         <div className="topbar-actions">
           <div className="language-switch" role="group" aria-label="Language">
             <button type="button" className={language === 'en' ? 'selected' : ''} onClick={() => setLanguage('en')} aria-pressed={language === 'en'}>EN</button>
@@ -216,7 +218,7 @@ export default function App() {
         <main className="chat-layout desk-first-layout">
           <section className="desk-cabinet desk-workstation" aria-label={language === 'en' ? 'Eric’s information desk' : 'Eric 的資訊台'}>
             <div className="desk-cabinet-top">
-              <span className="desk-cabinet-label">EST. 2026 · ERIC.EXE · INFORMATION BUREAU</span>
+              <span className="desk-cabinet-label">EST. 2026 · {systemBrand.toUpperCase()} · INFORMATION BUREAU</span>
               <span className={`desk-pilot ${deskBusy ? 'working' : ''}`} aria-label={deskBusy ? 'Working' : 'Ready'} />
             </div>
             <div className="desk-work-surface">

@@ -14,6 +14,7 @@ const COPY = {
     placeholder: 'Ask the archivist...', send: 'SEND', retry: 'TRY AGAIN',
     topics: ['Who is Eric?', 'What AI projects has Eric built?', 'What is his experience?', 'What can he build?'],
     unknown: 'No published evidence is available for that detail.',
+    copy: 'STAMP & COPY', copied: 'COPIED TO CLIPBOARD',
   },
   zh: {
     desk: '個人資訊台', title: '與檔案管理員交談',
@@ -24,6 +25,7 @@ const COPY = {
     placeholder: '向檔案管理員提問…', send: '送出', retry: '重試',
     topics: ['Eric 是誰？', 'Eric 做過哪些 AI 專案？', 'Eric 有哪些工作經歷？', 'Eric 能開發什麼？'],
     unknown: '公開資料中沒有這項資訊。',
+    copy: '蓋章並複製', copied: '已複製至剪貼簿',
   },
 } as const;
 
@@ -32,11 +34,13 @@ export function ChatPanel({ onGenerationStart, onGenerationEnd, language }: {
 }) {
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<MessageItem[]>([]);
+  const [copied, setCopied] = useState(false);
   const { status, progress, progressText, error, initialize, generate } = useWebLLM();
   const scrollRef = useRef<HTMLDivElement>(null);
   const busy = status === 'generating';
   const active = status === 'ready' || busy;
   const t = COPY[language];
+  const latestAnswer = [...messages].reverse().find((m) => m.role === 'assistant' && m.content)?.content ?? '';
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [messages]);
@@ -46,6 +50,7 @@ export function ChatPanel({ onGenerationStart, onGenerationEnd, language }: {
     const q = question.trim();
     if (!q || !active || busy) { if (q) setInput(q); return; }
     setInput('');
+    setCopied(false);
     setMessages((items) => [...items, { role: 'user', content: q }, { role: 'assistant', content: '' }]);
     onGenerationStart();
     try {
@@ -85,6 +90,7 @@ export function ChatPanel({ onGenerationStart, onGenerationEnd, language }: {
           </div>
         ))}
       </div>
+      {latestAnswer && <div className="rpg-stamp-row"><button type="button" className={`rpg-stamp ${copied ? 'impressed' : ''}`} onClick={() => { if (navigator.clipboard?.writeText) void navigator.clipboard.writeText(latestAnswer).then(() => setCopied(true)).catch(() => setCopied(false)); }} aria-label={t.copy}>{copied ? t.copied : t.copy}</button></div>}
       {!active && (
         <div className="rpg-init">
           {status === 'downloading' ? (

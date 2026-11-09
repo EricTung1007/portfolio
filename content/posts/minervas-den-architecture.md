@@ -1,6 +1,7 @@
 ---
 title: "Minerva's Den: Building a Local AI Research System"
 date: "2026-11-09"
+category: "Minerva's Den"
 tags: [Minerva's Den, Local AI, Architecture]
 ---
 

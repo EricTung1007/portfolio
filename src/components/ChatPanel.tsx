@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useWebLLM } from '../hooks.js';
 import type { ChatLanguage } from '../chat-engine.js';
 import { answerFromVerifiedProfile, unknownDeskAnswer } from '../desk-answers.js';
-import { inspectBrowserCapability, chooseBrowserModel, type BrowserCapability, type BrowserModelTier } from '../browser-capability.js';
+import { inspectBrowserCapability, chooseBrowserModel, getSystemBrand, type BrowserCapability, type BrowserModelTier } from '../browser-capability.js';
 
 interface MessageItem { role: 'user' | 'assistant'; content: string; }
 
@@ -95,7 +95,7 @@ export function ChatPanel({ onGenerationStart, onGenerationEnd, language }: {
   return (
     <section className="rpg-panel" aria-label={t.desk}>
       <div className="rpg-panel-header">
-        <span className="rpg-kicker">◈ {t.desk} / ERIC.EXE</span>
+        <span className="rpg-kicker">◈ {t.desk} / {getSystemBrand().toUpperCase()}</span>
         <span className="rpg-status">{busy ? (language === 'zh' ? '正在查詢' : 'RESEARCHING') : (language === 'zh' ? '資訊台已開放' : 'DESK OPEN')}</span>
       </div>
       <div className="rpg-npc">

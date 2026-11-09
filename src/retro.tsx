@@ -27,7 +27,7 @@ const definedAchievements = [
 export function useVisitor() {
   const [data,setData] = useState<VisitorData>(() => {
     try { const saved = JSON.parse(localStorage.getItem(KEY) || '{}');
-      return { ...EMPTY, visited: Array.isArray(saved.visited) ? saved.visited : [], posts: Array.isArray(saved.posts) ? saved.posts : [], commands: Array.isArray(saved.commands) ? saved.commands : [], achievements: Array.isArray(saved.achievements) ? saved.achievements : [], punched: saved.punched === true };
+      return { ...EMPTY, visited: Array.isArray(saved.visited) ? saved.visited : [], posts: Array.isArray(saved.posts) ? saved.posts : [], commands: Array.isArray(saved.commands) ? saved.commands : [], achievements: Array.isArray(saved.achievements) ? saved.achievements.filter((a:unknown)=>a!=='golden-card'||isDrawerUnlocked()) : [], punched: saved.punched === true };
     } catch { return EMPTY; }
   });
   const [newBadge,setNewBadge] = useState('');
@@ -50,8 +50,8 @@ export function useVisitor() {
       ...(next.posts.includes('local-inference-32gb') ? ['benchmarker'] : []),
       ...(next.punched ? ['stamped-in'] : []),
       ...(next.commands.includes('would you kindly') ? ['kindly-request'] : []),
-      ...(next.commands.includes('0451') ? ['golden-card'] : []),
-      ...next.achievements,
+      ...(isDrawerUnlocked() ? ['golden-card'] : []),
+      ...next.achievements.filter(id=>id!=='golden-card'||isDrawerUnlocked()),
     ]);
     const out={...next,achievements:unlocked};
     try{localStorage.setItem(KEY,JSON.stringify(out));}catch{/* private storage */}

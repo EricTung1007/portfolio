@@ -33,21 +33,16 @@ export function clearTableCard(): void {
   try { localStorage.removeItem(VISITOR_CARD_STORAGE_KEY); } catch { /* storage disabled */ }
   window.dispatchEvent(new Event('eric-card-updated'));
 }
+/** Prefills the existing GitHub Issue Form using its exact field IDs.
+ * The visitor must log in, review the public submission and explicitly submit.
+ * No message is sent from this static website without that final action. */
 export function guestbookUrl(card: Pick<TableCard,'alias'|'message'|'interest'>): string {
-  const title = '[Guestbook] ' + (card.alias.trim() || 'Visitor').slice(0,28);
-  const body = [
-    '## Visitor message / 訪客留言',
-    '',
-    '**Alias / 暱稱:** ' + (card.alias.trim() || 'Visitor').slice(0,28),
-    '**Interest / 興趣:** ' + card.interest.slice(0,24),
-    '',
-    '**Message / 留言:**',
-    '',
-    card.message.trim().slice(0,600),
-    '',
-    '_Submitted by a visitor through EricTung’s desk. Public GitHub issue._',
-  ].join('\n');
-  const params = new URLSearchParams({title,body});
+  const params = new URLSearchParams({
+    template: 'guestbook.yml',
+    title: '[Guestbook] ' + (card.alias.trim() || 'Visitor').slice(0,28),
+    visitor: (card.alias.trim() || 'Visitor').slice(0,28),
+    note: card.message.trim().slice(0,600),
+  });
   return 'https://github.com/EricTung1007/portfolio/issues/new?' + params.toString();
 }
 /** A tested, fixed QR matrix, including a 4-module quiet zone, encoding SITE_URL.

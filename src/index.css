@@ -942,3 +942,97 @@ a { color: inherit; }
   .weekly-paper { margin: 0; padding: 15mm; border: 0; box-shadow: none; width: 100%; background: #fff; }
   .weekly-story { break-inside: avoid; }
 }
+
+
+/* Full-surface night palette. All paper, brass, wood and retro windows now respond
+   to the site theme rather than retaining hard-coded light backgrounds. */
+[data-theme='dark'] {
+  color-scheme: dark;
+  --paper: #252722;
+  --paper-ink: #efe1c6;
+  --paper-muted: #b6ac96;
+  --paper-rule: rgba(232,213,177,.45);
+  --paper-link: #dfb87d;
+  --paper-bg: #252722;
+  --wood: #403328;
+  --wood-shadow: #191612;
+  --brass: #a6864c;
+}
+[data-theme='dark'] .weekly-paper {
+  --paper: #252722; --paper-ink: #efe1c6; --paper-muted: #b6ac96;
+  --paper-rule: rgba(232,213,177,.45); --paper-link: #dfb87d;
+  color: var(--paper-ink);
+  background: repeating-linear-gradient(0deg,transparent 0 4px,rgba(255,245,218,.012) 4px 5px),#252722;
+  border-color:#6c604b;
+  box-shadow: 2px 3px 0 #332f28, 5px 6px 0 #22221d, 0 18px 32px #0006;
+}
+[data-theme='dark'] .weekly-teaser,
+[data-theme='dark'] .weekly-story,
+[data-theme='dark'] .weekly-story-top { border-color:var(--line); }
+[data-theme='dark'] .weekly-article-body code,
+[data-theme='dark'] .weekly-article-body pre { background:#131a17; color:#d7e9d6; }
+[data-theme='dark'] .retro-desktop {
+  background:#262924; color:#eadcc2; border-color:#7d6a4d;
+  box-shadow:0 18px 60px #0007,inset 0 0 0 9px #30352f;
+}
+[data-theme='dark'] .retro-desk-header,
+[data-theme='dark'] .retro-desk-footer {border-color:#695f4d;}
+[data-theme='dark'] .retro-desk-surface:before {border-color:#5a5242;background:repeating-linear-gradient(25deg,transparent 0 45px,#e3cc9c0c 46px 47px);}
+[data-theme='dark'] .retro-object {
+  background:#303c37; color:#f0e6cc; border-color:#777058;
+  box-shadow:4px 5px 0 #141a17;
+}
+[data-theme='dark'] .retro-object:hover,
+[data-theme='dark'] .retro-object:focus-visible {box-shadow:5px 10px 0 #141a17;outline-color:#c3a67d;}
+[data-theme='dark'] .retro-object small {color:#cfbea0;}
+[data-theme='dark'] .retro-object-icon {color:#b2cb9b;}
+[data-theme='dark'] .retro-ledger,
+[data-theme='dark'] .retro-card-machine {background:#242923; color:#e8dcc5; border-color:#aa9677;box-shadow:8px 9px 0 #0006;}
+[data-theme='dark'] .retro-badge {background:#303c35;color:#e6dcc5;border-color:#786f5a;}
+[data-theme='dark'] .retro-badge.locked {opacity:.62;}
+[data-theme='dark'] .retro-card-fields input,
+[data-theme='dark'] .retro-card-fields select {background:#18221e;color:#eee0c8;border-color:#77745f;}
+[data-theme='dark'] .retro-card-preview {background:#18201c;}
+[data-theme='dark'] .retro-window {background:#07150e;color:#c5efce;}
+[data-theme='dark'] .desk-workstation {
+  background:linear-gradient(135deg,#5d4b39 0%,#423729 40%,#2b261f 100%);
+  border-color:#9d7956;
+  box-shadow:inset 0 2px 1px #8c7152,inset 0 -3px 0 #211b16,0 8px 0 #241c17,0 22px 45px #0007;
+}
+[data-theme='dark'] .desk-workstation .desk-cabinet-top {border-color:#988061;}
+[data-theme='dark'] .desk-cabinet-label,
+[data-theme='dark'] .desk-desk-caption {color:#e5d0ad;}
+[data-theme='dark'] .desk-display {background:linear-gradient(140deg,#393c35,#252e2a);border-color:#88765e;}
+[data-theme='dark'] .desk-workstation .rpg-panel {background:#292c29;color:#f3e9d6;border-color:#907b5b;box-shadow:4px 5px 0 #151c18,inset 0 0 0 5px #ffffff0a;}
+[data-theme='dark'] .desk-workstation .rpg-panel::before {border-color:#a7956950;}
+[data-theme='dark'] .desk-workstation .rpg-npc h2,
+[data-theme='dark'] .desk-workstation .rpg-message p {color:#f3ead9;}
+[data-theme='dark'] .desk-workstation .rpg-kicker,
+[data-theme='dark'] .desk-workstation .rpg-npc-label,
+[data-theme='dark'] .desk-workstation .rpg-speaker,
+[data-theme='dark'] .desk-workstation .rpg-foot a {color:#dfbd86;}
+[data-theme='dark'] .desk-workstation .rpg-status,
+[data-theme='dark'] .desk-workstation .rpg-npc p,
+[data-theme='dark'] .desk-workstation .rpg-foot span,
+[data-theme='dark'] .desk-workstation .rpg-init small {color:#c2b49d;}
+[data-theme='dark'] .desk-workstation .rpg-conversation {background:#1d2421;border-color:#766951;box-shadow:inset 0 1px 4px #0005;}
+[data-theme='dark'] .desk-workstation .rpg-message {border-color:#a99b79;}
+[data-theme='dark'] .desk-workstation .rpg-choice {background:#303a34;color:#f3e6cc;border-color:#86775d;box-shadow:0 2px 0 #141d18;}
+[data-theme='dark'] .desk-workstation .rpg-choice span {color:#d7b780;}
+[data-theme='dark'] .desk-workstation .rpg-input input,
+[data-theme='dark'] .rpg-model-selection select {background:#18231e;color:#f1e3c9;border-color:#9b886a;}
+[data-theme='dark'] .desk-workstation .rpg-input button,
+[data-theme='dark'] .desk-workstation .rpg-primary {background:#ad875a;color:#181b18;border-color:#ad875a;}
+[data-theme='dark'] .desk-workstation .rpg-foot {border-color:#81745d;}
+[data-theme='dark'] .desk-workstation .desk-file-drawer {background:#29352f;color:#ecdfc6;border-color:#a68c65;box-shadow:0 5px 0 #17201a;}
+[data-theme='dark'] .desk-workstation .desk-file-title,
+[data-theme='dark'] .desk-workstation .desk-file-drawer a,
+[data-theme='dark'] .desk-workstation .desk-file-drawer button {color:#f2e5cd;border-color:#756954;}
+[data-theme='dark'] .desk-workstation .desk-nameplate {color:#281e14;}
+[data-theme='dark'] .desk-workstation .desk-drawer-handle {background:linear-gradient(#6e5945,#4c4032);color:#f3e3c5;border-color:#b59b72;}
+[data-theme='dark'] .rpg-model-selection label {color:#e4d4b6;}
+[data-theme='dark'] .weekly-back,
+[data-theme='dark'] .weekly-article .giscus-wrap {border-color:var(--paper-ink);}
+[data-theme='dark'] .retro-weekly-index select {background:#1a211d;color:#f0e4cb;border-color:#9c8b70;}
+[data-theme='dark'] .topbar {background:linear-gradient(180deg,#141312ef,#141312d5);backdrop-filter:blur(8px);}
+[data-theme='light'] .topbar {background:linear-gradient(180deg,#dedad3ed,#dedad3c9);backdrop-filter:blur(8px);}

@@ -8,7 +8,7 @@ type Props = { view:ArchiveView; language:Lang; openArticle:(slug:string)=>void;
 const t=(language:Lang,en:string,zh:string)=>language==='zh'?zh:en;
 
 const experiment = [{
-  label:'Local inference / Qwen-class model',
+  label:'Local 32 GB inference run',
   date:'2026-11-05',
   source:'Single local benchmark shared in the development notes',
   profile:'Mac mini M4 / 32 GB unified memory',

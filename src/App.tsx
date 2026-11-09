@@ -3,13 +3,13 @@ import { ChatPanel } from './components/ChatPanel.js';
 import JawAnimation from './components/JawAnimation.js';
 import { Giscus } from './components/Giscus.js';
 import { knowledge } from './data.js';
-import { posts, getPost } from './posts.js';
+import { getPosts, getPost } from './posts.js';
 import { renderMarkdown } from './markdown.js';
 import { getSystemBrand } from './browser-capability.js';
 import './motion.js';
 import './index.css';
 
-type View = 'chat' | 'portfolio' | `post:${string}`;
+type View = 'chat' | 'portfolio' | 'weekly' | `post:${string}`;
 type Language = 'en' | 'zh';
 
 const LINKS = {
@@ -62,39 +62,87 @@ function Hero({ setView, language }: { setView: (v: View) => void; language: Lan
   );
 }
 
-function BlogList({ setView, language }: { setView: (v: View) => void; language: Language }) {
+function WeeklyMasthead({ language }: { language: Language }) {
   return (
-    <section className="section" id="writing">
-      <h2>{language === 'en' ? 'Writing' : '文章與開發紀錄'}</h2>
-      <ul className="post-list">
-        {posts.map((p) => (
-          <li key={p.slug}>
-            <a className="post-link" href={`#/writing/${encodeURIComponent(p.slug)}`} onClick={(e) => { e.preventDefault(); setView(`post:${p.slug}`); }}>
-              <div className="post-title">{p.title}</div>
-              <div className="post-meta">{p.date}{p.tags.length ? ` · ${p.tags.join(" · ")}` : ""}</div>
-              <div className="post-excerpt">{p.excerpt}</div>
-            </a>
-          </li>
-        ))}
-      </ul>
+    <header className="weekly-masthead">
+      <div className="weekly-ornament">✦ &nbsp; INDEPENDENT NOTES & OBSERVATIONS &nbsp; ✦</div>
+      <h1>EricTung's <em>Weekly</em></h1>
+      <div className="weekly-rule" aria-hidden="true"><span>EST. 2026</span><span>{language === 'en' ? 'IDEAS · TECHNOLOGY · LIFE' : '思想 · 科技 · 生活'}</span><span>VOL. 001</span></div>
+      <p>{language === 'en'
+        ? 'A small newspaper of ideas, experiments, field notes and everything worth writing down.'
+        : '一份記錄想法、實驗、研究筆記，以及日常值得留下之事的小報。'}</p>
+    </header>
+  );
+}
+
+function BlogList({ setView, language }: { setView: (v: View) => void; language: Language }) {
+  const featured = getPosts(language)[0];
+  return (
+    <section className="section weekly-teaser" id="writing">
+      <div className="weekly-teaser-kicker">{language === 'en' ? 'FROM THE EDITORIAL DESK' : '編輯室來信'}</div>
+      <h2>EricTung's Weekly</h2>
+      <p>{language === 'en' ? 'Ideas, research, experiments, and notes from beyond the code.' : '程式以外，關於研究、實驗、生活與想法的記錄。'}</p>
+      {featured && <a className="weekly-teaser-feature" href={`#/writing/${encodeURIComponent(featured.slug)}`} onClick={e => { e.preventDefault(); setView(`post:${featured.slug}`); }}>
+        <span>{language === 'en' ? 'LATEST EDITION' : '最新刊載'} · {featured.date}</span>
+        <strong>{featured.title}</strong>
+      </a>}
+      <a className="weekly-read-more" href="#/weekly" onClick={e => { e.preventDefault(); setView('weekly'); }}>
+        {language === 'en' ? 'OPEN THE NEWSPAPER →' : '展開週刊 →'}
+      </a>
     </section>
   );
 }
 
-function BlogPost({ slug, theme, setView, language }: { slug: string; theme: string; setView: (v: View) => void; language: Language }) {
-  const post = getPost(slug);
-  if (!post) return <section className="section"><h2>{language === 'en' ? 'Not found' : '找不到文章'}</h2></section>;
+function WeeklyPage({ setView, language }: { setView: (v: View) => void; language: Language }) {
+  const entries = getPosts(language);
+  const [section, setSection] = useState('All');
+  const sections = ['All', ...new Set(entries.map(p => p.category))];
+  const selected = section === 'All' ? entries : entries.filter(p => p.category === section);
   return (
-    <article className="section">
-      <a className="back-link" href="#/portfolio" onClick={(e) => { e.preventDefault(); setView('portfolio'); }}>{language === 'en' ? '← All writing' : '← 返回文章列表'}</a>
-      <h2>{post.title}</h2>
-      <div className="post-date">{post.date}{post.tags.length ? ` · ${post.tags.join(" · ")}` : ""}</div>
-      <div className="post-body" dangerouslySetInnerHTML={{ __html: renderMarkdown(post.body) }} />
-      <div className="giscus-wrap">
-        <h3>{language === 'en' ? 'Comments' : '留言'}</h3>
-        <Giscus mapping="specific" term={`writing/${slug}`} theme={theme as 'light' | 'dark'} language={language} />
-      </div>
-    </article>
+    <main className="weekly-paper">
+      <WeeklyMasthead language={language} />
+      <nav className="weekly-sections" aria-label={language === 'en' ? 'Newspaper sections' : '報紙欄目'}>
+        {sections.map(cat => <button type="button" key={cat} aria-pressed={cat === section} className={cat === section ? 'active' : ''}
+          onClick={() => setSection(cat)}>{cat === 'All' ? (language === 'en' ? 'ALL STORIES' : '全部文章') : cat}</button>)}
+      </nav>
+      {selected.length === 0 ? <p className="weekly-empty">{language === 'en' ? 'No stories in this section yet.' : '這個欄目暫時沒有文章。'}</p> :
+        <div className="weekly-grid">
+          {selected.map((post, i) => (
+            <article className={`weekly-story ${i === 0 ? 'weekly-lead' : ''}`} key={post.slug}>
+              <div className="weekly-story-top"><span>{post.category}</span><time dateTime={post.date}>{post.date}</time></div>
+              <a href={`#/writing/${encodeURIComponent(post.slug)}`} onClick={e => { e.preventDefault(); setView(`post:${post.slug}`); }}>
+                <h2>{post.title}</h2>
+                <p>{post.excerpt}</p>
+                <span className="weekly-story-read">{language === 'en' ? 'CONTINUE READING →' : '繼續閱讀 →'}</span>
+              </a>
+              <div className="weekly-story-tags">{post.tags.join(' · ')}</div>
+              {language === 'zh' && !post.translated && <div className="weekly-original-note">EN ORIGINAL · {language === 'zh' ? '尚無繁中譯稿' : ''}</div>}
+            </article>
+          ))}
+        </div>}
+      <footer className="weekly-colophon">{language === 'en' ? 'Composed and published from Eric’s own editorial desk.' : '由 Eric 的個人編輯室編排發行。'}</footer>
+    </main>
+  );
+}
+
+function BlogPost({ slug, theme, setView, language }: { slug: string; theme: string; setView: (v: View) => void; language: Language }) {
+  const post = getPost(slug, language);
+  if (!post) return <main className="weekly-paper"><WeeklyMasthead language={language} /><p className="weekly-empty">{language === 'en' ? 'Article not found.' : '找不到文章。'}</p></main>;
+  return (
+    <main className="weekly-paper weekly-reading">
+      <WeeklyMasthead language={language} />
+      <article className="weekly-article">
+        <a className="weekly-back" href="#/weekly" onClick={e => { e.preventDefault(); setView('weekly'); }}>{language === 'en' ? '← BACK TO THE EDITION' : '← 返回週刊'}</a>
+        <div className="weekly-article-category">{post.category} / {post.date}</div>
+        <h2>{post.title}</h2>
+        {language === 'zh' && !post.translated && <p className="weekly-original-note">此文目前只有英文版本，以下顯示英文原文。</p>}
+        <div className="weekly-article-deck">{post.tags.join(' · ')}</div>
+        <div className="post-body weekly-article-body" dangerouslySetInnerHTML={{ __html: renderMarkdown(post.body) }} />
+        <div className="giscus-wrap"><h3>{language === 'en' ? 'Letters to the editor' : '讀者來信'}</h3>
+          <Giscus mapping="specific" term={`writing/${slug}`} theme={theme as 'light' | 'dark'} language={language} />
+        </div>
+      </article>
+    </main>
   );
 }
 
@@ -161,6 +209,7 @@ export default function App() {
   const viewFromHash = (): View => {
     const hash = window.location.hash;
     if (hash === '#/chat') return 'chat';
+    if (hash === '#/weekly') return 'weekly';
     if (hash.startsWith('#/writing/')) {
       try { return `post:${decodeURIComponent(hash.slice('#/writing/'.length))}`; }
       catch { return 'portfolio'; }
@@ -202,8 +251,9 @@ export default function App() {
   return (
     <>
       <div className="topbar">
-        <a className="wordmark" href="#/portfolio" onClick={(e) => { e.preventDefault(); setView('portfolio'); }} title="OS-inspired name, not a downloadable application">{systemBrand}</a>
+        <a className="wordmark" href="#/portfolio" onClick={(e) => { e.preventDefault(); setView('portfolio'); }} title="OS-inspired name, not an installer">{systemBrand}</a>
         <div className="topbar-actions">
+          <a className="topbar-weekly" href="#/weekly" onClick={e => { e.preventDefault(); setView('weekly'); }}>{language === 'en' ? 'THE WEEKLY' : '個人週刊'}</a>
           <div className="language-switch" role="group" aria-label="Language">
             <button type="button" className={language === 'en' ? 'selected' : ''} onClick={() => setLanguage('en')} aria-pressed={language === 'en'}>EN</button>
             <button type="button" className={language === 'zh' ? 'selected' : ''} onClick={() => setLanguage('zh')} aria-pressed={language === 'zh'}>繁中</button>
@@ -240,7 +290,7 @@ export default function App() {
                 <div className="desk-file-title">{language === 'en' ? 'RECORD CABINET / 001' : '檔案櫃 / 001'}</div>
                 <a href={`${import.meta.env.BASE_URL}CV.pdf`} target="_blank" rel="noopener noreferrer">{language === 'en' ? '01 · Curriculum vitae' : '01 · 個人履歷'} ↗</a>
                 <a href="#/portfolio" onClick={e => { e.preventDefault(); setView('portfolio'); requestAnimationFrame(() => document.getElementById('work')?.scrollIntoView({ behavior: 'smooth' })); }}>{language === 'en' ? '02 · Project ledger' : '02 · 專案紀錄'} ↗</a>
-                <a href="#/portfolio" onClick={e => { e.preventDefault(); setView('portfolio'); requestAnimationFrame(() => document.getElementById('writing')?.scrollIntoView({ behavior: 'smooth' })); }}>{language === 'en' ? '03 · Writing archive' : '03 · 文章存檔'} ↗</a>
+                <a href="#/weekly" onClick={e => { e.preventDefault(); setView('weekly'); }}>{language === 'en' ? '03 · Weekly newspaper' : '03 · 個人週刊'} ↗</a>
                 <button type="button" onClick={() => { void navigator.clipboard?.writeText(knowledge.profile.contact.email); }}>{language === 'en' ? '04 · Copy contact card' : '04 · 複製聯絡信箱'}</button>
               </div>
             )}
@@ -249,9 +299,11 @@ export default function App() {
         </main>
       ) : (
         <>
-          <Hero setView={setView} language={language} />
+          {view === 'portfolio' && <Hero setView={setView} language={language} />}
           {isPost ? (
             <BlogPost slug={view.slice(5)} theme={theme} setView={setView} language={language} />
+          ) : view === 'weekly' ? (
+            <WeeklyPage setView={setView} language={language} />
           ) : (
             <Portfolio theme={theme} setView={setView} language={language} />
           )}

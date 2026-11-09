@@ -1,5 +1,6 @@
 import { CreateMLCEngine, MLCEngine } from '@mlc-ai/web-llm';
 import { knowledge } from './data.js';
+import { resumeText } from './resume.generated.js';
 
 export type ChatLanguage = 'en' | 'zh';
 
@@ -15,7 +16,8 @@ function buildSystemPrompt(language: ChatLanguage): string {
     "",
     "CURRENT RESUME (canonical PDF for readers):",
     "https://github.com/EricTung1007/portfolio/raw/refs/heads/main/public/CV.pdf",
-    "The PDF is linked but has NOT been ingested into the model. Do not claim to have read it.",
+    resumeText ? "CV text extracted from the checked-in PDF at build time follows." : "No extractable resume text available in this build; do not claim to have read the PDF.",
+    resumeText.slice(0, 24000),
     "",
     "PROFILE:",
     `${k.profile.name} — ${k.profile.tagline}`,
@@ -63,10 +65,7 @@ export class ChatEngine {
   private state: AppState = 'not-initialized';
   private cancelled = false;
 
-
-  constructor(private modelId: string) {
-
-  }
+  constructor(private modelId: string) {}
 
   async initialize(onProgress?: (p: number, text: string) => void): Promise<void> {
     this.state = 'downloading';

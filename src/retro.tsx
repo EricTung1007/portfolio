@@ -27,6 +27,12 @@ export function useVisitor() {
     } catch { return EMPTY; }
   });
   const [newBadge,setNewBadge] = useState('');
+  const previousBadges=useRef<string[]>(data.achievements);
+  useEffect(()=>{
+    const gained=data.achievements.find(id=>!previousBadges.current.includes(id));
+    previousBadges.current=data.achievements;
+    if(gained)setNewBadge(gained);
+  },[data.achievements]);
   const update = (mutate: (old: VisitorData)=>VisitorData) => setData(old => {
     const next=mutate(old);
     const unlocked = unique([
@@ -42,8 +48,6 @@ export function useVisitor() {
       ...(next.commands.includes('would you kindly') ? ['kindly-request'] : []),
       ...next.achievements,
     ]);
-    const added=unlocked.find(x=>!old.achievements.includes(x));
-    if(added) setNewBadge(added);
     const out={...next,achievements:unlocked};
     try{localStorage.setItem(KEY,JSON.stringify(out));}catch{/* private storage */}
     return out;

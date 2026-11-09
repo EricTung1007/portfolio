@@ -88,7 +88,9 @@ export function getPosts(language: PublicationLanguage = 'en'): Post[] {
   return timeline.map(en => {
     const zh = language === 'zh' ? chinese.get(en.slug) : undefined;
     const selected = zh ?? en;
-    return { ...selected, translated: Boolean(zh) };
+    // The English article defines the stable publication section and date.
+    // Translations only replace reader-facing text, not taxonomy.
+    return { ...selected, category: en.category, date: en.date, tags: en.tags, translated: Boolean(zh) };
   });
 }
 

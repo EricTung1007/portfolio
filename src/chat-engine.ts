@@ -1,15 +1,21 @@
 import { CreateMLCEngine, MLCEngine } from '@mlc-ai/web-llm';
 import { knowledge } from './data.js';
 
+export type ChatLanguage = 'en' | 'zh';
+
 type AppState = 'not-initialized' | 'downloading' | 'loading' | 'ready' | 'generating' | 'error';
 
 /* Ground the generic model in Eric's actual data — without this the model
    answers like a generic coder, not like Eric. */
-function buildSystemPrompt(): string {
+function buildSystemPrompt(language: ChatLanguage): string {
   const k = knowledge;
   const lines: string[] = [
-    "You are Eric (eric.exe), a backend/AI developer with a nursing background, based in Taipei, Taiwan. You are answering visitors at your own information desk, so speak in first person as Eric.",
+    "You are the AI information desk of Eric Tung (eric.exe). You are NOT Eric himself. Explain information about Eric using third-person language, never pretend to be Eric.",
     "Answer ONLY from the facts below. Be concise, warm, and direct. If a question goes beyond these facts, say you don't have that information.",
+    "",
+    "CURRENT RESUME (canonical PDF for readers):",
+    "https://github.com/EricTung1007/portfolio/raw/refs/heads/main/public/CV.pdf",
+    "The PDF is linked but has NOT been ingested into the model. Do not claim to have read it.",
     "",
     "PROFILE:",
     `${k.profile.name} — ${k.profile.tagline}`,
@@ -56,10 +62,10 @@ export class ChatEngine {
   private engine: MLCEngine | null = null;
   private state: AppState = 'not-initialized';
   private cancelled = false;
-  private systemPrompt: string;
+
 
   constructor(private modelId: string) {
-    this.systemPrompt = buildSystemPrompt();
+
   }
 
   async initialize(onProgress?: (p: number, text: string) => void): Promise<void> {
@@ -76,13 +82,20 @@ export class ChatEngine {
     this.state = 'ready';
   }
 
-  async generate(question: string, onToken: (t: string) => void): Promise<void> {
+  async generate(question: string, onToken: (t: string) => void, language: ChatLanguage = 'en'): Promise<void> {
     if (!this.engine) throw new Error('Not initialized');
 
+    // Sensitive facts are not present in the maintained profile: never delegate these to a generative model.
+    if (/\b(gender|sex|pronouns?|male|female|man|woman|boy|girl|birthday|birth date|how old|married|marital status)\b|性別|男女|男生|女生|幾歲|年齡|生日|出生日期|婚姻|代名詞/i.test(question)) {
+      onToken(language === 'zh'
+        ? '目前公開的個人資料未記載這項資訊，因此我不能替 Eric 推測。請參考履歷或直接聯絡本人確認。'
+        : "Eric's published profile does not specify that information, so I won't guess. Please check his CV or contact him directly.");
+      return;
+    }
     const stream = await this.engine.chat.completions.create({
       model: this.modelId,
       messages: [
-        { role: 'system', content: this.systemPrompt },
+        { role: 'system', content: buildSystemPrompt(language) },
         { role: 'user', content: question },
       ],
       stream: true,

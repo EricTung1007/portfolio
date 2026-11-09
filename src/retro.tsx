@@ -19,6 +19,7 @@ const definedAchievements = [
   ['benchmarker','Benchmarker','效能測試員','Read the local inference experiment'],
   ['stamped-in','Stamped In','正式登錄','Generate a visitor punch card'],
   ['kindly-request','Would You Kindly','請問你願意嗎','Discover the hidden directive'],
+  ['golden-card','The Golden Card','金色打孔卡','Discover the 0451 special card'],
 ] as const;
 export function useVisitor() {
   const [data,setData] = useState<VisitorData>(() => {
@@ -46,6 +47,7 @@ export function useVisitor() {
       ...(next.posts.includes('local-inference-32gb') ? ['benchmarker'] : []),
       ...(next.punched ? ['stamped-in'] : []),
       ...(next.commands.includes('would you kindly') ? ['kindly-request'] : []),
+      ...(next.commands.includes('0451') ? ['golden-card'] : []),
       ...next.achievements,
     ]);
     const out={...next,achievements:unlocked};
@@ -242,39 +244,47 @@ export function AchievementPanel({language,visitor,onClose}:{language:SiteLangua
   </section>;
 }
 const ROWS=['12','11','0','1','2','3','4','5','6','7','8','9'];
-const cardBits=(visitor:VisitorData,alias:string,role:string,interest:string)=>{
-  const payload=JSON.stringify({alias,role,interest,visited:visitor.visited.slice().sort(),posts:visitor.posts.slice().sort(),achievements:visitor.achievements.slice().sort()});
+const cardBits=(visitor:VisitorData,alias:string,role:string,interest:string,message='')=>{
+  const payload=JSON.stringify({alias,role,interest,message,visited:visitor.visited.slice().sort(),posts:visitor.posts.slice().sort(),achievements:visitor.achievements.slice().sort()});
   const bytes=new TextEncoder().encode(payload);
   let h=2166136261;for(const b of bytes){h^=b;h=Math.imul(h,16777619);}
   return Array.from({length:40},(_,i)=>{let x=(h^(Math.imul(i+1,2654435761)))>>>0;x^=x>>>16;x=Math.imul(x,2246822507);return (x>>>0)%ROWS.length;});
 };
-export function punchSvg(visitor:VisitorData,alias:string,role:string,interest:string) {
+export function punchSvg(visitor:VisitorData,alias:string,role:string,interest:string,message='',golden=false) {
  const encode=(s:string)=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
- const positions=cardBits(visitor,alias,role,interest);
+ const positions=cardBits(visitor,alias,role,interest,message);
  const holes=positions.map((row,col)=>`<rect x="${119+col*23}" y="${148+row*22}" width="12" height="14" rx="2" fill="#f8f4e8" stroke="#aa9a7d" stroke-width="0.6"/>`).join('');
  const grid=ROWS.map((r,i)=>`<text x="41" y="${158+i*22}" font-size="12" font-family="monospace" fill="#604f3a">${r}</text><line x1="100" x2="1050" y1="${160+i*22}" y2="${160+i*22}" stroke="#c6b799" stroke-width=".7"/>`).join('');
  const cols=Array.from({length:40},(_,i)=>`<text x="${124+i*23}" y="132" text-anchor="middle" font-size="9" fill="#6d604c" font-family="monospace">${String(i+1).padStart(2,'0')}</text>`).join('');
- return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 490" width="1100" height="490"><rect width="1100" height="490" fill="#efe0bf"/><rect x="14" y="14" width="1072" height="462" rx="8" fill="none" stroke="#6b573d" stroke-width="2"/><text x="40" y="62" font-size="30" font-weight="bold" font-family="Georgia,serif" fill="#473522">MINERVA'S DEN / VISITOR PUNCH CARD</text><text x="42" y="88" font-size="14" font-family="monospace" fill="#604f3a">ERIC.EXE · PERSONAL WORKSTATION · 12 ROWS / 40 COLUMNS</text><text x="42" y="112" font-size="13" font-family="monospace" fill="#604f3a">ALIAS: ${encode(alias.slice(0,28))}  /  CLASS: ${encode(role)}  /  INTEREST: ${encode(interest)}</text>${grid}${cols}${holes}<line x1="40" x2="1060" y1="426" y2="426" stroke="#887358"/><text x="42" y="453" font-size="13" font-family="monospace" fill="#604f3a">ACHIEVEMENTS ${String(visitor.achievements.length).padStart(2,'0')}  ·  ARTICLES ${String(visitor.posts.length).padStart(2,'0')}  ·  PERSONAL LOCAL RECORD</text><text x="1044" y="453" text-anchor="end" font-size="13" font-family="monospace" fill="#604f3a">NOT A REAL ACCESS CREDENTIAL</text></svg>`;
+ const fill=golden?'#d3a44e':'#efe0bf';
+ const edge=golden?'#74541e':'#6b573d';
+ const subtitle=golden?'GOLDEN VISITOR CARD · ACCESS CODE 0451':'VISITOR MESSAGE / PUNCH CARD';
+ const messageLine=encode(message.replace(/\\s+/g,' ').slice(0,84));
+ return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 520" width="1100" height="520"><rect width="1100" height="520" fill="${fill}"/><rect x="14" y="14" width="1072" height="492" rx="8" fill="none" stroke="${edge}" stroke-width="4"/><text x="40" y="62" font-size="30" font-weight="bold" font-family="Georgia,serif" fill="#473522">MINERVA'S DEN / ${subtitle}</text><text x="42" y="88" font-size="14" font-family="monospace" fill="#604f3a">ERIC.EXE · PERSONAL WORKSTATION · 12 ROWS / 40 COLUMNS</text><text x="42" y="112" font-size="13" font-family="monospace" fill="#604f3a">ALIAS: ${encode(alias.slice(0,28))} / CLASS: ${encode(role)} / INTEREST: ${encode(interest)}</text>${grid}${cols}${holes}<line x1="40" x2="1060" y1="421" y2="421" stroke="#887358"/><text x="42" y="449" font-size="16" font-family="Georgia,serif" fill="#45311d">MESSAGE: ${messageLine}</text><line x1="40" x2="1060" y1="467" y2="467" stroke="#887358"/><text x="42" y="492" font-size="12" font-family="monospace" fill="#604f3a">ARCHIVE VISIT ${String(visitor.achievements.length).padStart(2,'0')} STAMPS · ${String(visitor.posts.length).padStart(2,'0')} ARTICLES · LOCAL KEEPSAKE</text><text x="1044" y="492" text-anchor="end" font-size="12" font-family="monospace" fill="#604f3a">NOT AN ACCESS CREDENTIAL</text></svg>`;
 }
 export function PunchCard({language,visitor,onClose}:{language:SiteLanguage;visitor:VisitorActions;onClose:()=>void}) {
   const [alias,setAlias]=useState('VISITOR');
   const [role,setRole]=useState('RESEARCHER');
   const [interest,setInterest]=useState('AI');
-  const svg=punchSvg(visitor.data,alias,role,interest);
+  const [message,setMessage]=useState('');
+  const [golden]=useState(()=>localStorage.getItem('eric_0451_unlocked')==='1');
+  const svg=punchSvg(visitor.data,alias,role,interest,message,golden);
   const download=()=>{
     visitor.punch();
     const blob=new Blob([svg],{type:'image/svg+xml;charset=utf-8'});
     const url=URL.createObjectURL(blob);
-    const a=document.createElement('a');a.href=url;a.download='minervas-den-visitor-card.svg';document.body.appendChild(a);a.click();a.remove();window.setTimeout(()=>URL.revokeObjectURL(url),1000);
+    const a=document.createElement('a');a.href=url;a.download=golden?'minervas-den-golden-0451-card.svg':'eric-visitor-message-card.svg';document.body.appendChild(a);a.click();a.remove();window.setTimeout(()=>URL.revokeObjectURL(url),1000);
   };
   return <section className="retro-card-machine"><div className="retro-panel-head"><span>MINERVA CARD PUNCH / UNIT 12</span><button onClick={onClose}>×</button></div>
     <h2>{labels(language,'Punch your visitor card','製作你的訪客打孔卡')}</h2><p>{labels(language,'A 12-row collectible encoded from your local visit. Not an identity or access credential.','依照你本機的探索紀錄製作 12 列紀念打孔卡，並非身分或通行證。')}</p>
+    {golden && <div className="punch-golden-banner">✦ FILE 0451 UNLOCKED · GOLDEN MESSAGE CARD ✦</div>}
     <div className="retro-card-fields"><label>{labels(language,'Alias','暱稱')}<input maxLength={28} value={alias} onChange={e=>setAlias(e.target.value.replace(/[<>]/g,''))}/></label>
       <label>{labels(language,'Visitor class','訪客類別')}<select value={role} onChange={e=>setRole(e.target.value)}><option>VISITOR</option><option>RESEARCHER</option><option>OPERATOR</option><option>ARCHIVIST</option></select></label>
       <label>{labels(language,'Interest','興趣')}<select value={interest} onChange={e=>setInterest(e.target.value)}><option>AI</option><option>AGENTS</option><option>DESIGN</option><option>RESEARCH</option><option>SYSTEMS</option></select></label></div>
+    <label className="retro-message-label">{labels(language,'Message for Eric (up to 84 characters printed on the card)','留給 Eric 的訊息（卡面最多顯示 84 字）')}<textarea maxLength={600} rows={3} value={message} onChange={e=>setMessage(e.target.value)} placeholder={labels(language,'Eric was away, so I left this note...','Eric 不在，所以我留下這張紙條…')}/></label>
     <div className="retro-card-preview" role="img" aria-label="Personal 12-row punch card" dangerouslySetInnerHTML={{__html:svg}}/>
-    <div className="retro-card-actions"><button onClick={download}>{labels(language,'PUNCH & SAVE SVG','打孔並儲存 SVG')}</button><button onClick={()=>window.print()}>{labels(language,'PRINT CARD','列印卡片')}</button></div>
-    <small>{labels(language,'Holes use a deterministic thematic encoding, not historical Hollerith text encoding.','孔位使用固定的主題編碼，而非傳統 Hollerith 文字編碼。')}</small>
+    <div className="retro-card-actions"><button onClick={download}>{labels(language,'PUNCH & SAVE SVG','打孔並儲存 SVG')}</button><button onClick={()=>window.print()}>{labels(language,'PRINT CARD','列印卡片')}</button><button onClick={()=>{void navigator.clipboard?.writeText(message);window.open('https://github.com/EricTung1007/portfolio/issues/new?template=guestbook.yml','_blank','noopener,noreferrer');}} disabled={!message.trim()}>{labels(language,'COPY NOTE & OPEN GUESTBOOK','複製訊息並開啟留言簿')}</button></div>
+    <small>{labels(language,'The downloaded keepsake stays local. For a public entry, use the GitHub guestbook button and paste the copied note. The punched holes are thematic, not historic Hollerith encoding.','下載的打孔卡只留在本機。若要公開留言，請開啟 GitHub 訪客簿並貼上複製的訊息。打孔位置是主題編碼，非歷史 Hollerith 編碼。')}</small>
   </section>;
 }
 export function BadgeToast({name,language,onDismiss}:{name:string;language:SiteLanguage;onDismiss:()=>void}) {

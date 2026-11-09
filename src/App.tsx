@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { ChatPanel } from './components/ChatPanel.js';
-import JawAnimation from './components/JawAnimation.js';
 import { Giscus } from './components/Giscus.js';
 import { knowledge } from './data.js';
 import { getPosts, getPost } from './posts.js';
@@ -274,6 +273,7 @@ export default function App() {
   useEffect(()=>{visitor.visit('site');},[]);
   useEffect(()=>{if(view.startsWith('post:'))visitor.read(view.slice(5));},[view]);
   const [deskBusy, setDeskBusy] = useState(false);
+  const [deskReply, setDeskReply] = useState('');
   const [drawerOpen, setDrawerOpen] = useState(false);
   const isChat = view === 'chat';
   const isDesktop=view==='desktop'||view==='terminal';
@@ -316,7 +316,21 @@ export default function App() {
             </div>
             <div className="desk-work-surface">
               <div className="desk-display">
-                <JawAnimation running={deskBusy} />
+                <div className="mark1-device" aria-label={language === 'en' ? 'MARK I answering machine' : 'MARK I 答錄機'}>
+                  <div className="mark1-head"><span>MINERVA · MARK I</span><i className={deskBusy ? 'active' : ''}/></div>
+                  <div className={`mark1-speaker ${deskBusy ? 'speaking' : ''}`} aria-hidden="true">
+                    <div className="mark1-speaker-grille" />
+                    <span className="mark1-voice-bars">{[0,1,2,3,4,5,6].map(i=><i key={i}/>)}</span>
+                  </div>
+                  <div className="mark1-controls">
+                    <span>POWER <i/></span><span>AMPLIFIER <i/></span><span>RECORD <i/></span>
+                  </div>
+                  <div className="mark1-brand">THE INFORMATION RECORDER · SERIES 01</div>
+                </div>
+                {(deskReply || deskBusy) && <div className="mark1-speech" role="status">
+                  <span className="mark1-speech-label">{deskBusy ? (language==='en'?'TRANSMITTING…':'傳送中…') : 'MARK I / MESSAGE'}</span>
+                  <p>{deskBusy ? '···' : deskReply.slice(0,190)}{!deskBusy&&deskReply.length>190?'…':''}</p>
+                </div>}
                 <div className="desk-nameplate">{language === 'en' ? 'THE INFORMATION DESK' : '個人資訊台'}</div>
                 <button className="desk-drawer-handle" type="button" aria-expanded={drawerOpen}
                   aria-controls="desk-file-drawer" onClick={() => setDrawerOpen(v => !v)}>
@@ -325,7 +339,7 @@ export default function App() {
                 <span className="desk-desk-caption">{language === 'en' ? 'AUTHENTIC RECORDS · NO INVENTED BIOGRAPHY' : '真實檔案 · 不虛構個人資料'}</span>
               </div>
               <div className="chat-main">
-                <ChatPanel language={language} onGenerationStart={() => setDeskBusy(true)} onGenerationEnd={() => setDeskBusy(false)} />
+                <ChatPanel language={language} onGenerationStart={() => setDeskBusy(true)} onGenerationEnd={() => setDeskBusy(false)} onAnswer={setDeskReply} />
               </div>
             </div>
             {drawerOpen && (

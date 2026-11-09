@@ -7,7 +7,8 @@ import { getPosts, getPost } from './posts.js';
 import { renderMarkdown } from './markdown.js';
 import { getSystemBrand } from './browser-capability.js';
 import { ArchiveRoom, type ArchiveView } from './archive.js';
-import { InteractiveDesk, BootSequence, TerminalWindow, AchievementPanel, PunchCard, BadgeToast, useVisitor } from './retro.js';
+import { TerminalWindow, AchievementPanel, PunchCard, BadgeToast, useVisitor } from './retro.js';
+import { StudyScene } from './scene.js';
 import './motion.js';
 import './index.css';
 
@@ -269,22 +270,20 @@ export default function App() {
 
   const [systemBrand] = useState(getSystemBrand);
   const visitor=useVisitor();
-  const [showBoot,setShowBoot]=useState(()=>sessionStorage.getItem('eric_boot_seen')!=='1');
-  const closeBoot=()=>{sessionStorage.setItem('eric_boot_seen','1');setShowBoot(false);};
   useEffect(()=>{visitor.visit('site');},[]);
   useEffect(()=>{if(view.startsWith('post:'))visitor.read(view.slice(5));},[view]);
   const [deskBusy, setDeskBusy] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const isChat = view === 'chat';
-  const isDesktop=view==='desktop';
-  const isUtility=view==='terminal'||view==='achievements'||view==='punch';
+  const isDesktop=view==='desktop'||view==='terminal';
+  const isUtility=view==='achievements'||view==='punch';
   const isPost = view.startsWith('post:');
 
   return (
     <>
       <div className="topbar">
         <a className="wordmark" href="#/desktop" onClick={(e) => { e.preventDefault(); setView('desktop'); }} title="OS-inspired name, not an installer">{systemBrand}</a>
-        <div className="topbar-actions"><button className="retro-nav" type="button" onClick={()=>setView('desktop')}>{language==='en'?'DESKTOP':'桌面'}</button>
+        <div className="topbar-actions"><a className="topbar-direct-cv" href={`${import.meta.env.BASE_URL}CV.pdf`} target="_blank" rel="noopener noreferrer">{language==='en'?'CV / RESUME':'履歷 PDF'} ↗</a><button className="retro-nav" type="button" onClick={()=>setView('desktop')}>{language==='en'?'DESKTOP':'桌面'}</button>
           <a className="topbar-weekly" href="#/weekly" onClick={e => { e.preventDefault(); setView('weekly'); }}>{language === 'en' ? 'THE WEEKLY' : '個人週刊'}</a>
           <div className="language-switch" role="group" aria-label="Language">
             <button type="button" className={language === 'en' ? 'selected' : ''} onClick={() => setLanguage('en')} aria-pressed={language === 'en'}>EN</button>
@@ -296,10 +295,11 @@ export default function App() {
         </div>
       </div>
 
-      {showBoot && <BootSequence language={language} onDone={closeBoot} />}
       <BadgeToast name={visitor.newBadge} language={language} onDismiss={visitor.clearBadge} />
-      {isDesktop ? <InteractiveDesk language={language} visitor={visitor} onOpen={target=>setView(target)} /> : isUtility ? (
-        view==='terminal' ? <TerminalWindow language={language} visitor={visitor} navigate={target=>setView(target)} onTheme={t=>{setTheme(t);if(t==='dark')visitor.night();}} onLanguage={setLanguage} onClose={()=>setView('desktop')} /> :
+      {isDesktop ? <StudyScene language={language} visitor={visitor} onOpen={target=>setView(target)}
+        terminal={view==='terminal' ? <TerminalWindow language={language} visitor={visitor}
+          navigate={target=>setView(target)} onTheme={t=>{setTheme(t);if(t==='dark')visitor.night();}}
+          onLanguage={setLanguage} onClose={()=>setView('desktop')} /> : null} /> : isUtility ? (
         view==='achievements' ? <AchievementPanel language={language} visitor={visitor} onClose={()=>setView('desktop')} /> :
         <PunchCard language={language} visitor={visitor} onClose={()=>setView('desktop')} />
       ) : (['cabinet','timeline','experiments','editorial','guestbook'] as string[]).includes(view) ? (

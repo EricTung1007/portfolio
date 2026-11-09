@@ -3,7 +3,7 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
-  workflow_dispatch:
+  workflow_dispatch:\n  schedule:\n    - cron: '10 0 * * *' # Daily 00:10 UTC; enables scheduled article releases
 
 permissions:
   contents: read

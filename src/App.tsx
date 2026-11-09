@@ -11,6 +11,7 @@ import { TerminalWindow, AchievementPanel, PunchCard, BadgeToast, useVisitor } f
 import { StudyScene } from './scene.js';
 import './motion.js';
 import './index.css';
+import './terminal-v2.css';
 
 type View = 'desktop' | 'terminal' | 'achievements' | 'punch' | 'chat' | 'portfolio' | 'weekly' | ArchiveView | `post:${string}`;
 type Language = 'en' | 'zh';

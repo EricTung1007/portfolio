@@ -18,6 +18,7 @@ const definedAchievements = [
   ['systems-thinker','Systems Thinker','系統思考者','Read a Minerva\'s Den article'],
   ['benchmarker','Benchmarker','效能測試員','Read the local inference experiment'],
   ['stamped-in','Stamped In','正式登錄','Generate a visitor punch card'],
+  ['kindly-request','Would You Kindly','請問你願意嗎','Discover the hidden directive'],
 ] as const;
 export function useVisitor() {
   const [data,setData] = useState<VisitorData>(() => {
@@ -34,10 +35,11 @@ export function useVisitor() {
       ...(next.posts.length >= 3 ? ['archive-diver'] : []),
       ...(next.commands.length ? ['command-line'] : []),
       ...(next.commands.length >= 5 ? ['operator'] : []),
-      ...(next.commands.some(c=>['xyzzy','bioshock','sudo hire-eric','make coffee'].includes(c)) ? ['easter-hunter'] : []),
+      ...(next.commands.some(c=>['xyzzy','bioshock','sudo hire-eric','make coffee','would you kindly'].includes(c)) ? ['easter-hunter'] : []),
       ...(next.posts.some(s=>getPosts().find(p=>p.slug===s)?.category==="Minerva's Den") ? ['systems-thinker'] : []),
       ...(next.posts.includes('local-inference-32gb') ? ['benchmarker'] : []),
       ...(next.punched ? ['stamped-in'] : []),
+      ...(next.commands.includes('would you kindly') ? ['kindly-request'] : []),
       ...next.achievements,
     ]);
     const added=unlocked.find(x=>!old.achievements.includes(x));
@@ -70,7 +72,7 @@ export function BootSequence({onDone,language}:{onDone:()=>void;language:SiteLan
   </div>;
 }
 
-type DeskTarget='chat'|'portfolio'|'weekly'|'terminal'|'achievements'|'punch';
+type DeskTarget='chat'|'portfolio'|'weekly'|'terminal'|'achievements'|'punch'|'cabinet'|'timeline'|'experiments'|'editorial'|'guestbook';
 export function InteractiveDesk({language,onOpen,visitor}:{language:SiteLanguage;onOpen:(target:DeskTarget)=>void;visitor:VisitorActions}) {
   const items:{id:DeskTarget;icon:string;en:string;zh:string;detail:string}[]=[
     {id:'chat',icon:'▣',en:'INFORMATION DESK',zh:'資訊台',detail:'ASK ERIC'},
@@ -79,6 +81,11 @@ export function InteractiveDesk({language,onOpen,visitor}:{language:SiteLanguage
     {id:'portfolio',icon:'▥',en:'FILE CABINET',zh:'檔案櫃',detail:'PROJECTS / CV'},
     {id:'achievements',icon:'✦',en:'STAMPS',zh:'成就簿',detail:'VISITOR LEDGER'},
     {id:'punch',icon:'▦',en:'CARD PUNCH',zh:'打孔卡機',detail:'12-ROW CARD'},
+    {id:'cabinet',icon:'▤',en:'ARCHIVE CABINET',zh:'實體檔案櫃',detail:'FILES / DRAWERS'},
+    {id:'timeline',icon:'◷',en:'CHRONICLE',zh:'專案年表',detail:'PROJECT HISTORY'},
+    {id:'experiments',icon:'▦',en:'EXPERIMENT LEDGER',zh:'實驗紀錄簿',detail:'VERIFIED METRICS'},
+    {id:'editorial',icon:'✎',en:'EDITORIAL DESK',zh:'編輯工作台',detail:'WRITE / REVISE'},
+    {id:'guestbook',icon:'✉',en:'GUESTBOOK',zh:'訪客簽到簿',detail:'SIGNED ENTRIES'},
   ];
   return <section className="retro-desktop" aria-label="Interactive workstation desktop">
     <div className="retro-desk-header"><span>ERIC.EXE / PERSONAL WORKSTATION</span><span>MINERVA NODE 001 · 32GB</span></div>
@@ -92,17 +99,23 @@ type TerminalProps={language:SiteLanguage;visitor:VisitorActions;navigate:(targe
 export function TerminalWindow({language,visitor,navigate,onTheme,onLanguage,onClose}:TerminalProps) {
   const [entry,setEntry]=useState('');
   const [history,setHistory]=useState<{input:string;output:string}[]>([{input:'',output:'ERIC.EXE TERMINAL v1.0\nType help for available commands.'}]);
+  const [secret,setSecret]=useState(false);
   const inputRef=useRef<HTMLInputElement>(null);
   const outputRef=useRef<HTMLDivElement>(null);
   useEffect(()=>{outputRef.current?.scrollTo({top:outputRef.current.scrollHeight,behavior:'smooth'});},[history]);
   const run=(raw:string)=>{
-    const cmd=raw.trim().toLowerCase().replace(/\s+/g,' ');
+    const cmd=raw.trim().toLowerCase().replace(/\s+/g,' ').replace(/[?？。！!]+$/g,'');
     setEntry(''); if(!cmd)return;
     visitor.command(cmd);
-    const text=labels(language,'Commands: help, whoami, ls, projects, weekly, resume, contact, achievements, punchcard, open minerva, open desk, theme dark/light, lang en/zh, clear','指令：help、whoami、ls、projects、weekly、resume、contact、achievements、punchcard、open minerva、open desk、theme dark/light、lang en/zh、clear');
+    const text=labels(language,'Commands: help, whoami, ls, projects, weekly, cabinet, timeline, experiments, editorial, guestbook, resume, contact, achievements, punchcard, open minerva, open desk, theme dark/light, lang en/zh, clear','指令：help、whoami、ls、projects、weekly、cabinet、timeline、experiments、editorial、guestbook、resume、contact、achievements、punchcard、open minerva、open desk、theme dark/light、lang en/zh、clear');
     const actions:Record<string,()=>string>={
       help:()=>text,whoami:()=> 'Eric Tung / Software · AI · Research',
-      ls:()=> 'portfolio/  weekly/  minervas-den/  achievements/  punchcard/',
+      ls:()=> 'portfolio/  weekly/  minervas-den/  cabinet/  timeline/  experiments/  editorial/  guestbook/  achievements/  punchcard/',
+      cabinet:()=>{navigate('cabinet');return 'Opening filing cabinet...'},
+      timeline:()=>{navigate('timeline');return 'Opening project chronicle...'},
+      experiments:()=>{navigate('experiments');return 'Opening benchmark ledger...'},
+      editorial:()=>{navigate('editorial');return 'Opening editorial desk...'},
+      guestbook:()=>{navigate('guestbook');return 'Opening guestbook...'},
       projects:()=>{navigate('portfolio');return 'Opening project ledger...'},
       resume:()=>{navigate('portfolio');return 'Opening portfolio...'},
       weekly:()=>{navigate('weekly');return 'Opening newspaper...'},
@@ -118,6 +131,8 @@ export function TerminalWindow({language,visitor,navigate,onTheme,onLanguage,onC
       'lang zh':()=>{onLanguage('zh');return '語言已切換為繁體中文。'},
       xyzzy:()=> 'Nothing happens. Or does it?',
       bioshock:()=> 'Welcome to Rapture. Would you kindly explore the archives?',
+      'would you kindly':()=>{setSecret(true);return labels(language,'CODE PHRASE RECOGNIZED. Directive overridden. You are free to choose. Classified drawer 0451 is now available below.','已識別隱藏口令。指令已解除，你仍保有選擇權。機密抽屜 0451 已在下方開啟。');},
+      'open 0451':()=>{navigate('cabinet');return 'Opening drawer 0451...'},
       'sudo hire-eric':()=> 'Permission granted. Please contact Eric.',
       'make coffee':()=> 'Error 418: I am a teapot.',
     };
@@ -127,6 +142,7 @@ export function TerminalWindow({language,visitor,navigate,onTheme,onLanguage,onC
   return <section className="retro-window" aria-label="ERIC.EXE terminal"><div className="retro-window-bar"><strong>▣ ERIC.EXE TERMINAL</strong><button onClick={onClose} aria-label="Close terminal">×</button></div>
     <div className="retro-terminal-output" ref={outputRef} role="log" aria-live="polite">{history.map((h,i)=><div key={i}>{h.input&&<p><span>eric@minerva:~ %</span> {h.input}</p>}<pre>{h.output}</pre></div>)}</div>
     <form className="retro-terminal-prompt" onSubmit={e=>{e.preventDefault();run(entry);}}><label htmlFor="retro-input">eric@minerva:~ %</label><input id="retro-input" ref={inputRef} value={entry} onChange={e=>setEntry(e.target.value)} autoComplete="off" spellCheck={false} aria-label="Terminal command"/><button type="submit">↵</button></form>
+    {secret && <div className="retro-secret" role="status"><strong>FILE 0451 · CLASSIFIED</strong><p>{labels(language,'The most important command is one you choose yourself.','最重要的指令，是你自己決定要執行的指令。')}</p><button type="button" onClick={()=>navigate('cabinet')}>{labels(language,'OPEN SECRET ARCHIVES →','開啟秘密檔案 →')}</button></div>}
     <p className="retro-terminal-note">{labels(language,'Safe simulated commands; no shell access.','安全的模擬命令，不提供真實 Shell 權限。')}</p>
   </section>;
 }

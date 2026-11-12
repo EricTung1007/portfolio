@@ -47,6 +47,7 @@ export function useWebLLM() {
     } catch (e: unknown) {
       setStatus('error');
       setErrMsg(e instanceof Error ? e.message : String(e));
+      throw e;
     }
   };
 

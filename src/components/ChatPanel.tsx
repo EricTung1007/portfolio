@@ -12,7 +12,7 @@ const COPY = {
     desk: 'INFORMATION DESK', title: 'Speak with the archivist',
     intro: "The desk answers verified facts instantly. Extended local AI is optional for unusual questions.",
     init: 'ENABLE EXTENDED AI (OPTIONAL)', loading: 'Awakening the local model', ready: 'ARCHIVIST ONLINE', idle: 'DORMANT',
-    resume: 'VIEW RESUME', model: 'Optional SmolLM2 360M · Browser WebGPU',
+    resume: 'VIEW RESUME', model: 'Optional Qwen3.5 0.8B · Browser WebGPU',
     note: 'Answers are grounded in the CV text extracted at build time plus maintained profile data. Updating CV.pdf and rebuilding refreshes the reference.',
     placeholder: 'Ask the archivist...', send: 'SEND', retry: 'TRY AGAIN',
     topics: ['Background', 'Engineering', 'Research', 'Contact'],
@@ -24,7 +24,7 @@ const COPY = {
     desk: '個人資訊台', title: '與檔案管理員交談',
     intro: '資訊台會立即回答已確認的履歷內容，延伸本地 AI 為選用功能。',
     init: '啟用延伸 AI（選用）', loading: '正在啟動本地模型', ready: '檔案管理員已上線', idle: '尚未啟動',
-    resume: '查看履歷', model: '可選用 SmolLM2 360M · 瀏覽器 WebGPU',
+    resume: '查看履歷', model: '可選用 Qwen3.5 0.8B · 瀏覽器 WebGPU',
     note: '回答依據建置時從 CV.pdf 擷取的文字及個人資料，更新履歷並重新建置後即可同步。',
     placeholder: '向檔案管理員提問…', send: '送出', retry: '重試',
     topics: ['個人背景', '工程專案', '研究成果', '聯絡方式'],
@@ -92,12 +92,15 @@ export function ChatPanel({ onGenerationStart, onGenerationEnd, onAnswer, langua
       }, language);
       if (complete) onAnswer?.(complete);
     } catch {
+      // Do not leave an empty or partial, misleading response after a runtime error.
+      const fallback = unknownDeskAnswer(language);
       setMessages(items => {
         const updated = [...items], index = updated.length - 1;
-        if (updated[index]?.role === 'assistant' && !updated[index].content)
-          updated[index] = { role: 'assistant', content: unknownDeskAnswer(language) };
+        if (updated[index]?.role === 'assistant')
+          updated[index] = { role: 'assistant', content: fallback };
         return updated;
       });
+      onAnswer?.(fallback);
     } finally { onGenerationEnd(); }
   };
 
@@ -131,20 +134,21 @@ export function ChatPanel({ onGenerationStart, onGenerationEnd, onAnswer, langua
               <div className="rpg-model-selection">
                 <label htmlFor="desk-model-tier">{language === 'zh' ? '延伸 AI 模型（選用）' : 'Optional AI model'}</label>
                 <select id="desk-model-tier" value={tier} onChange={e => setTier(e.target.value as BrowserModelTier)}>
-                  <option value="small">SmolLM2 360M · {language === 'zh' ? '約 376 MB VRAM' : '~376 MB VRAM'}</option>
-                  <option value="enhanced">SmolLM2 1.7B · {language === 'zh' ? '約 1.77 GB VRAM' : '~1.77 GB VRAM'}</option>
+                  <option value="small">Qwen3.5 0.8B · {language === 'zh' ? '建議 · 約 1.63 GB VRAM' : 'recommended · ~1.63 GB VRAM'}</option>
+                  <option value="lite">SmolLM2 360M · {language === 'zh' ? '舊版輕量 · 約 376 MB' : 'legacy lite · ~376 MB'}</option>
+                  <option value="enhanced">Qwen3.5 2B · {language === 'zh' ? '進階 · 約 2.25 GB VRAM' : 'enhanced · ~2.25 GB VRAM'}</option>
                 </select>
               </div>
               <button type="button" className="rpg-primary" onClick={handleInit}
-                disabled={!capability?.gpuAvailable || (tier === 'enhanced' && !capability.supportsF16)}>
+                disabled={!capability?.gpuAvailable}>
                 {status === 'error' ? t.retry : t.init}
               </button>
             </>
           )}
           {status === 'error' && <p role="alert">{error}</p>}
           <small>{language === 'zh'
-            ? (!capability ? '正在檢查 WebGPU…' : !capability.gpuAvailable ? '此瀏覽器未提供 WebGPU，仍可使用履歷問答。' : tier === 'enhanced' && !capability.supportsF16 ? '這個裝置缺少大型模型需要的 shader-f16。' : '無法可靠測量可用 VRAM，載入失敗時請選輕量模式。')
-            : (!capability ? 'Checking WebGPU…' : !capability.gpuAvailable ? 'WebGPU unavailable. Verified profile Q&A still works.' : tier === 'enhanced' && !capability.supportsF16 ? 'Enhanced model requires shader-f16.' : 'Available VRAM cannot be reliably measured. Use the small model if loading fails.')}</small>
+            ? (!capability ? '正在檢查 WebGPU…' : !capability.gpuAvailable ? '此瀏覽器未提供 WebGPU，仍可使用履歷問答。' : '無法測量實際可用 VRAM。模型需手動載入；一般履歷問答不需模型。')
+            : (!capability ? 'Checking WebGPU…' : !capability.gpuAvailable ? 'WebGPU unavailable. Verified profile Q&A still works.' : 'VRAM cannot be measured reliably. AI loading is opt-in; verified profile answers work without it.')}</small>
         </div>
       )}
       {topicBranch !== null && <button type="button" className="rpg-branch-back" onClick={()=>setTopicBranch(null)}>{language==='en'?'← BACK TO TOPICS':'← 返回主題'}</button>}

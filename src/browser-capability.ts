@@ -1,6 +1,6 @@
 /** Presentation-only OS badge and conservative WebGPU capability check. */
 export type PlatformFlavor = 'windows' | 'macos' | 'ios' | 'android' | 'linux' | 'other';
-export type BrowserModelTier = 'small' | 'enhanced';
+export type BrowserModelTier = 'lite' | 'small' | 'enhanced';
 export interface BrowserCapability {
   gpuAvailable: boolean;
   supportsF16: boolean;
@@ -43,24 +43,32 @@ export async function inspectBrowserCapability(): Promise<BrowserCapability> {
   }
 }
 
+/** WebLLM 0.2.86 prebuilt AppConfig; VRAM is estimated at a 4K context.
+ * Loading is always opt-in. Larger options are never selected automatically.
+ */
 export const BROWSER_MODELS = {
-  small: {
+  lite: {
     f16: 'SmolLM2-360M-Instruct-q4f16_1-MLC',
     f32: 'SmolLM2-360M-Instruct-q4f32_1-MLC',
     approxVramMB: 376,
-    label: 'SmolLM2 360M',
+    label: 'SmolLM2 360M · legacy lightweight',
+  },
+  small: {
+    f16: 'Qwen3.5-0.8B-q4f16_1-MLC',
+    f32: 'Qwen3.5-0.8B-q4f32_1-MLC',
+    approxVramMB: 1629,
+    label: 'Qwen3.5 0.8B · recommended',
   },
   enhanced: {
-    f16: 'SmolLM2-1.7B-Instruct-q4f16_1-MLC',
-    f32: 'SmolLM2-1.7B-Instruct-q4f32_1-MLC',
-    approxVramMB: 1774,
-    label: 'SmolLM2 1.7B',
+    f16: 'Qwen3.5-2B-q4f16_1-MLC',
+    f32: 'Qwen3.5-2B-q4f32_1-MLC',
+    approxVramMB: 2245,
+    label: 'Qwen3.5 2B · enhanced',
   },
 } as const;
 
-/** A user-selected larger model is never silently downloaded. */
+/** No silent upgrade or fallback. F16 is preferred; F32 works without shader-f16. */
 export function chooseBrowserModel(tier: BrowserModelTier, capability: BrowserCapability): string | null {
   if (!capability.gpuAvailable) return null;
-  if (tier === 'enhanced' && !capability.supportsF16) return null;
-  return capability.supportsF16 ? BROWSER_MODELS[tier].f16 : BROWSER_MODELS.small.f32;
+  return capability.supportsF16 ? BROWSER_MODELS[tier].f16 : BROWSER_MODELS[tier].f32;
 }

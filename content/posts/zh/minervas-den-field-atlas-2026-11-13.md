@@ -1,322 +1,250 @@
 ---
-title: "Minerva’s Den 研究圖鑑：尚未刊登的工具、模型與構想"
+title: "AI Agent 是系統，不只是模型：本地 AI 技術與開源工具圖鑑"
 date: "2026-11-13"
 category: "Minerva's Den"
-tags: ["Research Notes", "Agents", "Local AI", "Repository Spotlight", "Field Atlas"]
+tags: ["Local AI", "Agent Systems", "Open Source", "Research Notes", "Engineering"]
 ---
 
-這是 **一篇完整的綜合研究特刊**，從 Minerva’s Den 專案先前未充分刊登的討論、連結與技術想法整理而成。它不要求某個 Repo 已被安裝，或技術已完成實驗。相反，每個線索都是獨立題材，保留技術機制、限制、原始來源，以及與 Mac mini M4、32GB 統一記憶體之間的關係。
+2026 年 AI Agent 最值得研究的事情，已經不只是「模型會呼叫工具」。一個看似簡單的模型加工具迴圈，正快速演變成完整軟體生態：Coding Terminal、跨裝置 Companion、Agent 管理平面、桌面操作工具、記憶系統，以及新型本地推論引擎。
 
-網站已經有十二篇英文文章，涵蓋系統架構、開發紀錄、模型預算、Hermes 遷移、Agentic RAG、Coding Agent 分工、重啟事件、Ouroboros、瀏覽器本地推論等基礎。本期不整篇重寫它們，而是補錄尚未充分涉及的工具、工程限制與討論。
+這些產品名稱背後，其實藏著幾個很值得回答的工程問題。Coding Agent 和通用 Agent 到底有多大差別？增加一層 Orchestration 能改善工作，還是只會增加開銷？32GB 的小電腦能不能跑出有用的本地研究助理，又不被自己的協調系統吃光資源？新冒出的開源專案，哪些提供真正有價值的技術機制，哪些只是一個好看的 Demo？
 
-**證據規則：**本文查閱了部分 Repo 的官方文件，但轉貼的 Benchmark 或 Reddit 主張不會自動被視為本機實驗。部分原始貼文與截圖只能透過討論摘要或短網址追溯。本期記錄的是目前可取得的素材，並不宣稱已完整匯出每一段歷史對話。
+這份技術圖鑑以小型、Local-first 工作站的角度整理值得研究的工具與構想。文章依**技術問題**編排，不按連結出現的時間排列。每個主題都盡量形成可操作的結論，因為知道 Repo 是什麼，只完成了一半；知道什麼時候值得採用，才真正有幫助。
 
-## 本期內容
+## Agent 的能力不只來自模型
 
-Agent Harness 與監督、Pi／Cindy／DSH／Paperclip、排程／Skills／Gateway、Qwen 與 32GB 模型邊界、DSpine／MTP／量化／Heretic、Evals、SAG2／Memorilla／Agentic RAG、電腦與手機自動化、網站 UX／0451／打孔卡，以及自主性、故障恢復與下一階段測試。
+### Coding Agent 本質上是擅長軟體工程的通用 Agent
 
----
+Coding Agent 和通用 AI 助手究竟差在哪裡？答案可能比產品名稱暗示的還少。兩者基本上都在執行相同的迴圈：蒐集上下文、請模型決定下一步、呼叫工具、觀察結果，然後繼續。這個迴圈並沒有規定只能寫程式。真正造成差異的是包在模型外面的**執行環境與完成標準**。
 
-## Agent Harness、委派與營運
+Coding Agent 預設擁有 Repository、工作目錄、Diff、測試工具，以及明確的成功定義：修改必須能建置、通過測試。通用 Agent 則從瀏覽器、檔案、訊息、排程與各種 Connector 出發。它也能寫程式；Coding Agent 加上 Browser 和 API Tool，也能執行一般任務。**這是工具組與產品定位的差異，不是兩種完全不同的 AI 智力。**
 
-### 01. Coding Agent Harness 全面比較
+同一模型放進不同 Harness，表現可能截然不同。上下文如何整理、命令如何執行、出錯時如何重試、Patch 如何產生、成果如何驗證，都會影響任務完成率。因此，公平比較應固定模型，改變 Harness，觀察哪個環境能以較少錯誤、較短時間與較少人工干預完成同一任務。
 
-研究範圍包含 Codex CLI/App、Claude Code、OpenCode、Pi Coding Agent、Aider、Cline、Roo Code、Goose、OpenHands、Gemini 等。核心要求是**比較 Harness 本身**，而非各工具預設使用的 LLM。即使透過相容 API 或 Proxy 接同一模型，工具呼叫、上下文壓縮、權限、Patch、沙盒、擴充與執行紀錄仍會不同。
+各類工具可以依預設用途理解：
 
-正確的對照要固定模型、測試題、Repo、工具權限和評分標準，紀錄完成率、測試、耗時、峰值記憶體、Token、工具錯誤、人工修正與重啟恢復。輕量 CLI 可能省資源，但不代表自主完成率更高；大型工作空間可能較安全，但有額外成本。本站尚未完成整套相同模型的實測排行。
+| 類型 | 代表工具 | 主要價值 |
+| --- | --- | --- |
+| 終端導向 Coding | [Pi Coding Agent](https://github.com/badlogic/pi-mono)、[Aider](https://github.com/Aider-AI/aider)、[OpenCode](https://github.com/anomalyco/opencode) | 直接操作 Repo，介面相對精簡 |
+| 整合式 Coding | [Codex](https://github.com/openai/codex)、[Claude Code](https://github.com/anthropics/claude-code)、[Cline](https://github.com/cline/cline)、[Roo Code](https://github.com/RooVetGit/Roo-Code) | 程式碼修改、審查、權限與開發流程 |
+| 通用 Agent 環境 | [OpenClaw](https://github.com/openclaw/openclaw)、[Goose](https://github.com/block/goose)、[OpenHands](https://github.com/All-Hands-AI/OpenHands) | 跨應用工具、自動化及更廣泛的任務 |
+| 協調與治理層 | [Paperclip](https://github.com/paperclipai/paperclip)、[DSH Superagent](https://github.com/deepseek-ai/dsh-superagent-prototype) | 分派、追蹤、管控 Agent 的工作 |
 
-來源與原始討論連結: [1](https://github.com/awesome-opencode/awesome-opencode)
+這些分類會互相重疊，但判斷原則很清楚：**挑 Harness 要看工具如何執行與驗收工作，而不是看它預設搭載哪個排行榜冠軍模型。** 在記憶體有限的機器上，以精簡 Coding Runtime 搭配通用協調層，通常比一個包辦所有任務的巨大 Agent 更容易維護。
 
-### 02. Hermes、OpenClaw 與消失的子代理時間線
+### DSH 與 Paperclip 解決自主工作流程的不同半邊
 
-Hermes 的真正痛點不是已證明委派失敗，而是主代理說子任務正在執行時，無法清楚看到 Worker 的當前動作。主要操作入口是 Telegram，GUI 也未滿足完整可觀察性的需求。因此開始研究 OpenClaw 與 OpenCode，主因是操作體驗，不是已用同一模型證明哪個較快。
+假設要求 Agent 修復一個失敗的 Build。模型可能知道怎麼改，但可靠系統還得知道誰授權工作、修改該放在哪裡、中途崩潰怎麼恢復、何時才值得通知人。兩個開源專案分別處理了不同層次的問題。
 
-系統應保存持久 Task ID、Parent 關係、時間、目前工具、錯誤、完成證據與成果。**已請求、已委派、已啟動、已完成、已驗證**必須分開。主代理回答「完成」不等於真的成功。網站已刊登 Harness 遷移和 11 月 8 日事件文章；這裡新增的是每個子代理都必須可追蹤的監控需求。
+[DeepSeek 的 DSH Superagent 原型](https://github.com/deepseek-ai/dsh-superagent-prototype) 以單一 GitHub Repo 為核心，把授權請求建立成 Work Item，分配獨立的 Agent Session 和工作目錄，完成後將成果送回原本的對話，例如 Pull Request。它的設計重點是盡量減少不必要的人工打斷，只在需要決策或成果已可使用時回報。真正值得學習的不是一段 CEO Prompt，而是把工作當成**有身分、可持續追蹤的任務**，而非轉瞬即逝的聊天回合。
 
-來源與原始討論連結: [1](https://erictung1007.github.io/portfolio/#/writing/hermes-to-openclaw) · [2](https://erictung1007.github.io/portfolio/#/writing/incident-november-8)
+[Paperclip](https://github.com/paperclipai/paperclip) 則位於更上一層。它以 Node.js Server 與 React UI 管理目標、Agent、匯報階層、預算、Heartbeat、Task Hierarchy、審核與執行歷史。實際工作由外部 Adapter 連接 Coding Agent、Shell 或其他 Runtime 執行。當多個 Agent 需要協同與預算治理時，Paperclip 更像一個營運控制平面。
 
-### 03. Cindy、Alma 與 DS Bot：便利性和控制能力
+兩者的分界很重要。Paperclip 雖能管理外部 Agent，卻不會自動讀懂任何不相關子程序；Worker 必須透過 Adapter 或整合提供真實狀態。DSH 則示範了 Work Item 架構，但公開程式是以特定 GitHub 流程為主的研究原型。
 
-分享的遷移心得把 DS Bot 定位為偏工作場景的工具，Alma 是功能很強卻有 UX 問題的工具箱，Cindy 則偏向較完整的個人 Agent 體驗。討論聚焦多角色、記憶隔離、手機介面、子代理可視性及真正開源的範圍。
+我的選型結論是：**先借鑑 DSH 的可追蹤工作流程；當多代理治理真的成為瓶頸，再導入 Paperclip。** 若只是想看幾個 Worker 正在做什麼，接上真實 Tool Event 的唯讀時間線，會比建立一間完整的 AI 公司更合理。
 
-Cindy 公開客戶端 Repo 提到 Pi、Codex、Claude Code 整合、桌面與手機版本、排程、多代理及本機免登入模式，也區分需要伺服器服務的能力。**客戶端開源不等於整個後端都可自架。** 評估應確認離線功能、帳號需求、不同角色的記憶隔離、背景工作可見性與雲端依賴。對廠商信任邊界保持審慎是合理偏好，但不是惡意證據。
+### Cindy、Pi 與跨裝置 Agent Companion 的新方向
 
-來源與原始討論連結: [1](https://github.com/makecindy/cindy)
+只存在 Terminal 裡的 Agent 可能很有能力，卻不一定適合每天使用。[Cindy](https://github.com/makecindy/cindy) 從跨裝置產品的角度處理這件事。其公開客戶端涵蓋桌面與手機，整合 Claude Code、Codex 和 Pi，並提供不同 Companion、記憶、Skills、Routines 與遠端電腦操作。官方 README 也區分了連回使用者電腦的功能，以及需要雲端同步服務的 Companion 功能。
 
-### 04. Pi Coding Agent、Pi Bot 與 iOS Companion
+這反映 Agent 產品的一個新層次：**同一個 Coding Harness，只要接上適當 Connector、身分、持久化與手機 UX，就能以通用助理的方式提供服務。** 替換底層引擎不會神奇地保留所有隱藏 Session State，但可以讓人維持相對一致的操作體驗。
 
-你曾問 Pi Bot 與 Pi Coding Agent 是否同一套工具、維護者是否相同，以及有沒有官方 iOS App。終端 Coding Agent、建立在其上的 Bot、手機客戶端，不會因為都叫 Pi 就成為同一產品，必須確認作者和實際程式。
+[Pi Coding Agent](https://github.com/badlogic/pi-mono) 則位於另一端：精簡、可擴充、以終端為主。其 Agent Loop 與 Session 介面可讓外部工具建立 Wrapper、Bot 或遠端介面。社群推出的 Pi 手機客戶端或 Bot 即使使用相同引擎，也不一定是原維護者的官方產品。真正需要區分的是「在手機執行 Agent」和「從手機查看電腦上的 Agent」。後者往往用具認證的輕量 Companion 就能做好，不需要再執行一套本地模型。
 
-Pi 生態有非官方的手機 Companion，也有人研究 iPhone 本機執行。前者通常由 Mac 上的小型服務讀取 Session 並透過 RPC 互動。對 Minerva’s Den，真正需求是**在 iOS 查看與控制 Mac 上正在工作的 Session**，不一定需要手機再執行一套 Coding Agent。具認證、預設唯讀、可檢視日誌的 Viewer 更符合當前需求。
+Cindy、Alma、DS Bot 的比較，真正值得帶走的不是誰的功能清單最長。好的 Companion 必須讓桌面與手機之間的動作、狀態、權限和歷史都容易理解。
 
-來源與原始討論連結: [1](https://www.reddit.com/r/PiCodingAgent/s/fTRepTV23F) · [2](https://github.com/badlogic/pi-mono) · [3](https://github.com/MRL-00/pi-mobile) · [4](https://github.com/dannote/pi-ios)
+對 Local-first 系統，我更傾向**透明、精簡的 Runtime 加上好的遠端介面**，而不是單純因為某個大型 Agent Framework 有 iOS App 就全部遷移。
 
-### 05. DSH Superagent 與可追蹤的工作單
+## 讓 Agent 看得見、動得了
 
-DeepSeek 的 DSH Superagent 是研究原型，不是已成熟的自主企業系統。它接收獲授權的 Repo 工作，建立 Work Item，在獨立 Session 與目錄執行，再把結果回報原對話，可能是一個 PR。官方也提醒研究論文中的部分高階構想未必已在公開原型實作。
+### Mantis：不要讓 Agent 每次都重新閱讀整張網頁
 
-值得借鑑的是**請求 → 任務日誌 → 受限執行 → 測試證據 → 交付成果**。Supervisor 必須負責審核、重試、冪等性、Worktree 隔離與升級決策。只靠 Prompt 寫「自主工作」無法取代這些機制。32GB 機器上的 Worker 並行數，也應由記憶體預算決定，而不是組織圖。
+瀏覽器自動化有個昂貴習慣：Agent 點完一個按鈕，常常又收到整頁大量文字，但其中大多數內容上一回合已看過。[Perzian 的 Mantis](https://github.com/perzianhq/mantis) 正是針對這個浪費設計的。它把瀏覽器內容轉成精簡的編號文字，讓 Agent 依 Reference 操作元素，點擊後只回傳變化，而非每次都塞入整頁。工具同時提供 MCP Server 與 CLI 介面。
 
-來源與原始討論連結: [1](https://github.com/deepseek-ai/dsh-superagent-prototype)
+這不只是把網頁轉成文字。穩定的 Element Reference 讓 Agent 可以指定「點擊第 3 個控制元件」，增量回應則告訴它點擊後變了什麼。於是模型不必每次重新理解導航列、Cookie Banner 和完全沒有變動的內容。Mantis 官方的長任務測試，在其中一組模型配置下，對照 Playwright Accessibility Tree，報告的輸入 Token 中位數是 **244k 對 345k**，耗時中位數是 **42 秒對 66 秒**。這是專案在特定測試集上的結果，不是所有任務都會得到相同加速。
 
-### 06. Paperclip 是管理層，不是自動讀取其他子代理的 Viewer
+對持續閱讀文件、跟連結、交叉查證的 Research Agent 而言，減少重複觀察非常有吸引力。缺點也很明確：需要視覺排版、圖片或自訂 Canvas 的任務，純文字可能無法呈現全部資訊；動態頁面變更時，也必須安全更新 Element ID。
 
-Paperclip 官方功能包含目標、組織圖、Task Thread、Heartbeat、預算、審核、排程與執行歷史。你問過能否**只用它當 Viewer**，看見已在其他 Harness 執行的子代理。這取決於事件整合：Paperclip 需要任務事件或 Agent Adapter，不能僅憑 Hermes 或 OpenCode 有子程序就讀懂它的狀態。
+**最重要的概念是增量觀察。** Agent 需要知道「和上一個狀態相比改變了什麼」，而不是不斷收到整個世界的副本。這個思路同樣適用於 Log、Git Diff 和桌面操作工具。
 
-代價是更完整的管理層，外加服務、儲存與設定成本。若原需求只是觀看子代理目前使用的工具、最新輸出與結果，簡單的事件串流 Viewer 可能更省資源。正式採用前必須確認啟動、進度、取消、失敗、恢復與完成事件都能對應真實執行。
+### agent-desktop：讓桌面 Accessibility Tree 成為操作 API
 
-來源與原始討論連結: [1](https://github.com/paperclipai/paperclip)
+[Vercel Labs 的 agent-desktop](https://github.com/vercel-labs/agent-desktop) 處理的是相鄰的問題，只是操作範圍從網頁延伸到作業系統桌面。它不是每一步都讓 Vision Model 看截圖猜像素，而是讀取 App 的 Accessibility Tree，把按鈕、輸入框等元素表示成 JSON，並提供可操作的 Reference。Agent 能先觀察、點擊指定 Reference、讀取新狀態，再決定下一步。它本身是 CLI 與 C Library，**沒有內建模型**。
 
-### 07. Agent Office、Swarm 與真實委派證據
+官方安裝方式是 `npm install -g agent-desktop`；`agent-desktop status` 用來檢查平台狀態，`agent-desktop permissions --guide` 則協助設定 macOS Accessibility 權限。macOS、Windows、Linux 都有各自的 Adapter。核心價值是讓原生 App 已經具備的語義結構，直接成為 Agent 可使用的工具，而不必從畫面外觀重新猜測。
 
-Agent Office 與 Swarm Site 讓多代理看起來更容易理解，但你反覆強調並不需要和每個子代理聊天，而是要**像看主代理一樣看它工作**，甚至能從 Telegram 觀察。虛構的辦公室角色走動，不能當成執行證據。
+Mantis 與 agent-desktop 不是互相取代，而是互補。前者針對瀏覽器及網頁狀態差異，後者使用 OS Accessibility 介面接觸桌面 App。兩者都仰賴介面有清楚且穩定的控制元件語義。
 
-系統應保存 Parent Task、Worker ID、目前動作、Tool Event、Diff 或 Artifact、時間與錯誤狀態，再由網頁或 Telegram 呈現相同的執行紀錄。先做到真實事件流，再考慮遊戲式展示。
+Accessibility 權限很強，必須限制。能點擊按鈕，也代表可能執行破壞性操作；Snapshot 甚至可能包含私人視窗文字。因此 Harness 應限制可操作程式、每次操作後驗證結果，並避免隨意將桌面日誌傳送到外部服務。
 
-來源與原始討論連結: [1](https://califa.github.io/swarm-site/)
+對 Mac 本地工作站而言，**結構化桌面控制值得優先於全截圖式自動化嘗試**，尤其是一般表單、設定與重複 UI 操作。當 Accessibility Tree 不足時，再退回視覺方法。
 
-### 08. 專業 Agent、CEO 彙報與上下文預算
+### 手機作為操作端點：Poki、Henge 與 Umless
 
-你希望將 Planning、Implementation、Design、獨立 Review 和 QA 分工，由 Manager 統籌。但也問過兩位 Overseer 向 CEO 回報時，若總上下文超過模型容量怎麼辦。正確解法是**結構化交接**，不是把所有逐字稿無限制拼接。Worker 應回報修改檔案、決策、測試、障礙、完整日誌索引與有界摘要。
+手機端工具其實代表三條非常不同的路線。[Poki](https://github.com/JosssphZhou/poki) 讓 AI Agent 透過本地整合與 MCP 類型工作流程操作真正的 iPhone。它是**操作手機的工具**，不是單純顯示 Mac Agent 狀態的 Dashboard。官方安裝涉及裝置授權和手機端設定，因此非常適合用來研究 iOS UI 自動化。例如在真機開啟網站、點擊控制元件，再檢查結果是否正確。
 
-小型本地模型使用多代理不一定比較好，因為每次交接都增加 Prompt、等待與誤解風險。應在相同任務、測試與記憶體限制下，比較單一 Coding Agent 和角色協作。原有專文已談分工，這裡補上有界摘要與彙報規格。
+[Henge](https://github.com/Leviidev/Henge) 選擇另一個方向：直接在 iOS／iPadOS 上模擬 macOS。它自行實作 ARM64 JIT、記憶體管理模擬，並透過 Metal 重播圖形命令。官方 README 報告在 iPhone 17 Pro 上約 15 秒抵達 macOS 鎖定畫面，但安裝需要大型 macOS 映像檔、JIT 條件，而且 Guest Memory 有上限。這證明的是**技術可行性**，不是手機已能取代 M4 桌面電腦。對重型本地 LLM，遠端連線到真正的 Mac 仍比較合理。
 
-來源與原始討論連結: [1](https://erictung1007.github.io/portfolio/#/writing/specialized-coding-agents)
+[Umless](https://github.com/jatinbishla/umless) 則把語音當成輸入設備。它在本地轉錄語音，清理停頓、口頭禪和改口，再把整理後的文字輸入游標。對寫作很有用，但如果拿來對 Agent 下命令，句子被整理時也可能改變操作意圖。重要行動應先顯示整理後的命令，讓人確認。
 
-### 09. 三項 Cron Job 與 OpenCode 執行連續性
+[Ghostty](https://github.com/ghostty-org/ghostty) 以及多 Session 的 Agent Terminal 解決的是另一面：如何清楚顯示執行狀態。快速 Terminal 並不是 Agent 的大腦；切成很多 Pane 也不代表子代理真的有進度。真實 Run ID、Tool Log 與中斷後可重連的 Session，比視窗動畫更重要。
 
-遷移計畫明確只保留 Hermes 的三個任務：Feza 求職、Eric 求職、Minerva’s Den 技術偵察，其餘重複排程不搬。你要求 OpenCode 自己執行，也詢問是否存在原生 /schedule。當時討論的方案是 macOS launchd 呼叫 Headless OpenCode，但現存紀錄不能證明三個工作都完成遷移。
+所以選擇其實很清楚：**要查看 Mac 工作狀態，用 Remote Companion；真的要控制 iPhone，用 Poki；想研究模擬系統，用 Henge；想提高人類輸入效率，用本地語音。** 這四種能力不能混為一談。
 
-排程與實際執行是兩個問題。可靠系統需有 Job ID、最後嘗試與成功時間、Exit Status、成果與重試政策。原生排程功能要依已安裝版本確認，不能猜測。並行模型任務則要使用記憶體限制與互斥 Lock。
+## 32GB 裡真正裝得下什麼？
 
-### 10. Anthropic Skills、Superpowers、Karpathy 與 Awesome OpenCode
+### 模型大小是資源預算，不是下載數字
 
-研究的 Skill 生態包含 Anthropic 式 Skills、obra Superpowers、Karpathy autoresearch、Awesome OpenCode Agents 和 Awesome OpenCode 目錄。Skill 是工作程序與參考內容封裝；另一個 Worker Agent 則有自己的執行狀態與權限，兩者不同。Superpowers 重點是規劃、除錯、Review 與完成前驗證，不是直接讓模型變聰明。
+小型電腦讓「推薦模型」這件事有不同意義。Mac mini M4 的 32GB 統一記憶體，不只供模型使用；macOS、KV Cache、Agent Runtime、檢索服務和其他 App 都會競爭同一資源。高度量化的 27B Checkpoint 可能比原始精度的權重小很多，但**能載入權重，不等於能完成有用工作**。
 
-你曾要求大量推薦下載，也明確排除 Tavily。一次安裝所有熱門 Skills 可能造成小模型上下文負擔與維護成本。更好的方式是有版本、按任務載入並量測錯誤率、Token 和修正輪數。Karpathy 的自動實驗流程，應與 Ouroboros 模型修改構想區分。
+至少要分開四個層次：**Weights** 儲存參數；**KV 或循環狀態**與架構及上下文有關；**Runtime Buffer、Activation** 額外使用記憶體；**並行請求**又可能複製部分成本。量化可以縮小權重，卻不一定同比例縮小其他開銷。GGUF 與 MLX 也不是互相通用的 Backend；TurboQuant 類 Cache 最佳化若 Runtime 沒有實作，也不會憑空生效。
 
-來源與原始討論連結: [1](https://github.com/obra/superpowers) · [2](https://github.com/awesome-opencode/awesome-opencode) · [3](https://github.com/karpathy/autoresearch)
+過去一筆 Python Coding 工作負載，輸入 4,096 Token、生成 128 Token，記錄約 **64 Prompt tokens/s、11.1 Generation tokens/s、64 秒首 Token 延遲、19.4GB 峰值記憶體**。這組數字真正值得注意的是延遲：如果 Agent 每一步都重新提交長上下文，多回合工作會比表面上的生成速度慢得多。
 
-### 11. FreeLLMAPI 與共享雲端備援
+Qwen3.8-27B Turbo、Flash-Next、新一代小型模型，以及 LFM3 等不同架構都值得追蹤。但下載檔案大小和理論 256K Context，都沒有回答「整套 Agent 到底能否正常完成工作」。系統需要留出其他服務的記憶體、足夠的 Prompt 處理速度，以及穩定的工具格式。
 
-你研究過 FreeLLMAPI v0.16.20 的免費與付費差別。它是可自架的 OpenAI 相容 Provider Gateway，提供速率限制、Fallback、模型路由與 Coding Agent 整合工具，**不是**本地基礎模型。單一 Gateway Key 不會讓所有上游服務變成免費、無限或離線。
+**最值得優化的指標是每分鐘、每 GB 記憶體完成多少已驗證任務。** 按這個標準，更小的模型搭配好的 Retrieval 與精簡 Harness，可能比把記憶體塞滿的大模型更有用。
 
-對 Minerva’s Den，它可作為本地模型處理不了的任務之雲端備援。真正要測的是 Fallback 是否讓完成率提升到足以抵銷憑證、服務維護、供應商限制與額外延遲。付費和模型清單應以目前版本為準。
+### DSpine：先打草稿，真的比直接等待更划算嗎？
 
-來源與原始討論連結: [1](https://github.com/tashfeenahmed/freellmapi/releases/tag/v0.16.20) · [2](https://github.com/tashfeenahmed/freellmapi)
+一般自回歸解碼是逐 Token 生成。Speculative Decoding 嘗試減少這個序列成本：由較小或專門設計的 **Drafter** 先預測一段 Token，再由 Target Model 以較平行的方式驗證。當足夠多的 Draft 被接受，就可能加快輸出，同時保留 Target Model 所決定的結果分布。
 
+[騰訊的 DSpine](https://github.com/tencent/dspine) 特別之處，在於多個位置平行 Draft，並沿網路深度傳遞預測特徵，以保留因果依賴。專案文件列出 Qwen 類 Target，還提供自己的 `dspine_mlx` Apple Silicon 實作與可選的 SGLang-MLX 整合。這至少讓 Mac 使用者有實際測試路徑，而不只能看 CUDA 展示。
 
-## 本地模型、加速與評估
+然而，**Drafter 本身也要付成本**。它需要運算、可能有自己的 Cache，還要吃額外記憶體。Prompt 越長，接受率可能改變；如果大多數 Draft 被拒絕，預期加速就可能消失。因此與 DFlash2、MTP Head、Lightning 類方法比較時，應看接受長度、總耗時、記憶體與 Backend 相容性，而不只看某個漂亮設定下的 tokens/s。
 
-### 12. Qwen3.8 27B Turbo、權重大小與實際記憶體
+對 M4 真正的問題是：DSpine 的 MLX 路徑，能否在不擠掉其他服務的前提下，改善 Agent 整體工作速度？它有自己的 MLX 實作，**不代表能直接套進 oMLX**。
 
-轉貼消息宣稱 Qwen3.8-27B Turbo 檔案約 11.67GB、256K 上下文和寬鬆存取，但這些是**待核對的宣傳主張**，不是 Mac mini 實測。模型檔案大小只是 Runtime 佔用的一部分；Cache、Activations、Buffer、OS、工作長度與並行任務都會競爭 32GB 統一記憶體。
+**DSpine 值得列入測試，而不是直接成為預設配置。** 若能證明它在可接受峰值記憶體下提升端到端任務吞吐，才有正式採用的理由。
 
-「能載入」不等於「能穩定執行自主工作」。應量測 Prefill 延遲、持續生成、Tool Schema、記憶體壓力出現前的上下文與完成任務耗時。網站早前一筆 4,096 輸入、128 輸出測試記錄 64.0 Prompt tokens/s、11.1 生成 tokens/s、峰值 19.4GB，但只適用那次配置，不能推到所有 Qwen 版本或 256K 上下文。
+### 量化與移除拒答，是兩種不同的品質問題
 
-來源與原始討論連結: [1](https://erictung1007.github.io/portfolio/#/writing/local-inference-32gb)
+模型改造常把兩件不相干的事混在一起：一是壓縮 Checkpoint 節省記憶體，二是修改模型降低拒答傾向。這兩種改造需要不同評估。
 
-### 13. oMLX、TurboQuant、MLX 與 GGUF 是不同層次
+[Unsloth 的 Dynamic Quantization](https://huggingface.co/unsloth) 研究如何對不同權重分配不同精度，而非全部一視同仁。效益應在**相同記憶體預算**下、相同 Backend 和 Coding／Retrieval 任務中比較。宣傳中 Terminal Bench 改善多少百分比，不會自動成為 oMLX 的實測收益，尤其當發布的是 GGUF 而非 MLX 格式。
 
-Minerva’s Den 的核心規格是 oMLX 搭配 TurboQuant，也比較過 MLX 與 GGUF 權重。這些不是可互換的名稱：模型架構、序列化權重、量化方式、Cache 表示與推論後端都有不同的相容性要求。較小的模型檔案仍可能造成很高的運行記憶體與首 Token 延遲。
+Heretic 與 *Abliteration* 類改造，則試圖改變和拒答相關的行為。模型可能變得更願意回答，卻同時降低推理、結構化 Tool Call 或遵守限制的可靠性。[ZeroZero 是基於 Qwen3-8B 的社群修改版本](https://huggingface.co/LastMachine/Qwen3-8B-ZeroZero-Heretic)，因有人宣稱它在複雜 Tool Use 表現極好而受到注意。這值得測試，但不能證明「解除護欄必然讓模型變聰明」。宣稱把 DeepSeek 和 Qwen 混成極小模型的消息也一樣，必須先查 Model Card 與訓練來源。
 
-評估矩陣應記錄 Checkpoint、量化、Runtime 版本、Attention／Cache 路徑、實測上下文、速度、記憶體及 Tool Call 正確性。真正要優化的是**每 GB、每分鐘的任務成功率**，而非比下載大小。若任務卡住或無法輸出合法工具格式，理論最大上下文沒有實用價值。
+因此應有**三份獨立成績單**：真實 Coding／檢索任務的能力、記憶體與延遲、在特定 Prompt 下的回應和拒答行為。一份成績不能代表另外兩項。Checkpoint ID、Backend 版本與測試案例，比「Turbo」「Uncensored」這些名稱重要得多。
 
-### 14. DSpine、DFlash2、MTP 與 Draft 成本
+我認為最穩健的原則是：**保留原版模型作為比較基準**。如果候選模型雖然省記憶體、拒答變少，卻破壞工作必需的 Tool Calling，它就不是進步。
 
-DSpine Repo 描述平行 Speculative Draft，並提供 MLX／Apple Silicon 支援與 Qwen3.8-27B 相關路徑，因而比僅限 CUDA 的方案更貼近這台機器。但**DSpine 自身 MLX 套件支援，不代表 oMLX 可直接相容**。Draft 的接受結果必須足以抵銷 Draft 與驗證成本，才會加速。
+### 微型模型暴露了 Benchmark 容易忽略的失敗
 
-你曾比較 DFlash 和 Lightning／MTP 類方法，關心 Draft 自己的 KV 或狀態 Cache 是否吃掉過多記憶體。這取決於架構、接受長度、驗證 Batch、Prompt 與 Runtime。官方最高倍數不能直接套到 M4。
+個人網站的 AI 助手，很適合用來理解為何模型分數不等於產品品質。瀏覽器小模型可能嚴重重複輸出、讀錯檢索證據，或對 CV 問題自信地編出不存在的內容。訪客看到的是失敗，不會因為模型數學 Benchmark 很高就覺得它比較好。
 
-應在相同輸入輸出下比較普通 Decoding 與推測解碼的端到端耗時和峰值記憶體，包含 Cache 成長與失敗情況。
+對需要回答個人事實的助手，有一個直接且可靠的架構：先檢索已驗證資料；若資料直接回答問題，就以 Deterministic 方式顯示答案。只有需要解釋與整理時才使用可選的生成。若輸出開始無意義重複或破壞預期格式，就停止生成，改用可信來源。這比要求一個微型 LFM3 或 Qwen 從權重自行重建個人履歷可靠得多。
 
-來源與原始討論連結: [1](https://github.com/tencent/dspine)
+同樣道理也適用於自主 Agent。模型 Benchmark 還應補上真實任務測試：Tool Schema 是否合法、引用是否正確、長 Context Prefill 耗時、是否陷入重複行動、Crash 後能否恢復，以及程式碼是否通過測試。每次替換 Harness 或量化方式，都要用**同一組任務**再測。
 
-### 15. Unsloth Dynamic V3.1 與 Benchmark 百分比
+對網頁助手而言，**正確與合理處理失敗，比文字生成流暢更重要**。對 Coding Agent，對應的標準就是已驗證的 Patch，而非流暢描述「應該已經完成的工作」。
 
-一則消息宣稱 Qwen3.8-Flash-Next 的 Unsloth Dynamic GGUF，在 Terminal Bench 等程式代理測試提高超過 15%。這類百分比必須有精確 Baseline、量化、硬體、資料集與評分方法才能解讀。不同工作負載對量化位元配置的反應也可能不同。
+## 超越向量資料庫的知識系統
 
-GGUF 的成績不能直接搬到 MLX／oMLX。對照應固定 Checkpoint、量化類型、上下文、工具 Parser、權限和測試集。在原始方法尚未完整核查前，這是研究線索，不是 Minerva’s Den 已得到的加速或準確率。
+### SAG2 讓字詞檢索重新受到重視，但沒有殺死 RAG
 
-來源與原始討論連結: [1](https://huggingface.co/unsloth)
+向量搜尋幾乎成為 RAG 的代名詞，但這其實是分類錯誤。Retrieval-Augmented Generation 的意思是讓回答取得外部證據，並沒有規定證據一定要來自 Vector Database。
 
-### 16. Heretic、Abliteration 與修改拒答行為的代價
+[SAG Wiki 採用的 SAG2](https://sag-wiki.zleap.com/en/docs/sag2) 就提供了具體替代方案。建立索引時保留原始文字，用 SQLite FTS5 建立全文索引，不必先生成 Embedding；查詢時由 BM25 找字詞候選段落，再透過 JEV Evidence Judgment 判斷哪些內容有助回答，並從有效段落提取線索，跨文件繼續搜尋。真正值得關注的是**由證據驅動的多跳檢索**，而不是「RAG 已死」這種口號。
 
-你多次要求找五個以上 Qwen 27B 的 Heretic／Abliterated 候選，直接對照原版，目標是減少不必要拒答，同時不能「切掉」推理、Coding 與 Tool Calling。這是實證需求，不是追求「無審查」宣傳標籤。
+這種架構適合含有精確代碼、專有術語、文件互相引用的知識庫。Lexical Search 建索引成本較低、容易除錯，也能回傳原始文字。弱點則是 Vocabulary Mismatch：文件明明講同一件事，卻沒有使用提問中的關鍵字。Judge 與 Requery 可以改善，但語義檢索仍可能互補。
 
-修改拒答相關行為，也可能改變校準或指令遵循。應用精確 Checkpoint、相同 Backend 和上下文，測良性請求、Coding、Tool Schema、多步計畫與幻覺，並公開退步案例，而不只統計拒答率。網站既有模型自由文章已談原則，欠缺的是可重現的同負載比較。
+部署時也要分清每個步驟在哪裡執行。本機建立全文索引，不等於後續 Evidence Judgment 必然完全離線；如果判斷階段需要 Service Call，資料路徑就不同。
 
-來源與原始討論連結: [1](https://erictung1007.github.io/portfolio/#/writing/models-quantization-freedom)
+**合理結論不是 BM25 和 Vector Search 必須決一死戰。** 精確證據先用透明的字詞檢索，缺少跨文件連結時重新查詢，遇到詞彙落差再加上語義搜尋。這比把 Embedding 視為整個 RAG 系統更有彈性。
 
-### 17. ZeroZero、Heretic2 與誇張的混血模型傳聞
+### Memorilla 壓縮知識，卻不能取代可查證的證據
 
-Reddit 貼文描述以 Heretic2 修改 Qwen3-8B 得到的 ZeroZero，在 32GB Mac 與自製 Harness 的複雜 Tool Call 表現驚人。另一篇流傳消息則宣稱有極小型 DeepSeek/Qwen「混血」模型，並有驚人拒答統計。兩者都應視為值得追查的假設，**不是已獨立重現的事實**。
+如果助手讀過幾百份文件，回答時卻只需要**16 個學習式 Memory Token**，會怎樣？[Stanford 的 Memorilla 研究](https://github.com/snap-stanford/memorilla) 就在探索這件事。新文件先由 Encoder 轉成可重用表示；受訓練的 Memory Module 再根據問題與資料庫，生成固定數量、與問題相關的 Memory Token，交給凍結的語言模型。
 
-表現可能來自權重、Prompt、Tool Parser、Harness 重試或測試集挑選。「混血」名稱無法證明權重來源、訓練方法或保留完整能力。要先查 Model Card、Base Model、修改方式與獨立評估，再做本地對照，不能只因拒答率下降就賦予真實工具權限。
+研究者公開的數據相當有意思：在 512 份文件的設定下，官方網站報告相較長 Context Baseline，耗時約 **0.74 秒對 19.9 秒**，測試使用單張 H100；在 FactKG 上報告 **84.33% 對 80.43%** 的準確率。這些能說明研究方向的潛力，但它們是論文指定環境的結果，不是 Apple Silicon 實測。
 
-來源與原始討論連結: [1](https://huggingface.co/LastMachine/Qwen3-8B-ZeroZero-Heretic) · [2](https://www.reddit.com/r/LocalLLM/s/wWaEATHZ9Y)
+Memorilla 和一般 RAG 保留的是不同資訊。RAG 可以直接指出某個日期、名稱或引句來自哪一段原文；壓縮的 Latent Memory 則可能把很多弱相關資訊連結起來，卻遺失精確細節。Memorilla 也需要針對目標模型訓練記憶模組，不能隨便塞進任何本地 Checkpoint。
 
-### 18. 小模型、LFM3 與嚴重重複輸出故障
+對個人研究工作站，我認為最有價值的組合是：**壓縮記憶負責長期連續性，來源檢索負責正式查證。** Research Agent 可以記得兩篇論文曾互相矛盾，但真正發表文章時，仍應重新打開原始論文，引用能核對的段落。兩種技術不是對手。
 
-網站瀏覽器本地助手曾有嚴重重複生成問題，輸出看似自信卻無法回答。後來研究新的微型 Qwen、縮短檢索上下文、Non-thinking 取樣和串流重複保護。Mac mini 的 oMLX 工作與網站 WebGPU 聊天室是兩種不同部署。
+### 從問答到真正的自主研究工作台
 
-你問過 LFM3 1.7B 與大得多的 Qwen 表現差距；對網站而言應測 CV 事實回答、Grounding、結構化工具格式、重複率、首 Token 延遲與裝置支援。已知答案存在可信資料時，直接檢索比依賴不穩定生成更好。Fallback 絕不能虛構履歷。
+搜尋按鈕只能回答人已經想到要問的問題。真正的 Research Agent 還應判斷：**接下來什麼問題值得問？** 所以 Agentic RAG 的核心不只是把一次搜尋變成五次，而是建立會依證據調整方向的迴圈。
 
-來源與原始討論連結: [1](https://github.com/EricTung1007/portfolio)
+從研究主張或工程決策出發，拆成可檢驗的子問題，搜尋原始碼、官方文件與論文，比較互相矛盾的結果，針對缺少的事實改寫下一次查詢；當再查也不足以改變決策時，就應停止。系統還得分辨一份官方 Benchmark 和五篇轉貼同一數據的社群文章，並記得某個假設為何被排除，避免下次重新走進死胡同。
 
-### 19. Evals 需要任務證據，不是精彩截圖
+例如研究 32GB 電腦是否適合 DSpine，不能只查「DSpine 加速多少」。還應追問：目標模型的 Runtime 是否支援？Draft Cache 需要多少記憶體？Apple Silicon 的支援和現有 Backend 是否相容？有沒有真正的端到端數據？最後應產出工程決策，而不是一堆搜尋片段。
 
-你分享的 Eval 解說強調模型軟體會產生流暢卻不一致的結果，因此需要可重複測試。Minerva’s Den 的測試集應包括有已知證據的檢索、合法 Tool Call、以 Test 評分的程式修改、長時間委派、Timeout／重啟恢復與 Prompt Injection。每輪保存模型、Harness、量化、輸入、標準答案、Trace 和資源占用。
+[Karpathy 的 autoresearch](https://github.com/karpathy/autoresearch) 展示了相關但不同的原則：限制 Agent 可修改的程式範圍，給每次實驗相同的時間預算，量測明確指標，再決定保留或捨棄。官方單 GPU 實作以 NVIDIA 為主，重點不是原封不動搬到 M4，而是**固定 Baseline、形成閉環的實驗設計**。這也是 Ouroboros 自動改善本地模型配置的基礎。
 
-記錄含不確定性的通過率、錯誤分類、耗時、Prompt 成本、峰值記憶體、工具錯誤與人工介入。單次 Demo 看起來快不代表長時間自主工作更可靠。對 32GB Mac 而言，每分鐘、每 GB 完成的有效任務更值得追求。
+自主研究桌真正有價值的輸出應是：「目前有哪些選項、證據是什麼、取捨在哪裡、做哪個實驗可能改變結論。」少了這一層，它就只是自動瀏覽器。
 
+## 工程紀律比華麗的代理組織圖重要
 
-## 檢索與知識基礎架構
+### Superpowers、Skills 與完成前驗證的價值
 
-### 20. SAG2、SAG Wiki 與無 Embedding 的真正意義
+裝了大量 Skills 的 Agent 看起來可能很厲害，實際卻讓模型背負更多無關指令。[Anthropic Skills](https://github.com/anthropics/skills) 與 [Awesome OpenCode](https://github.com/awesome-opencode/awesome-opencode) 很適合用來發現可重用的工作程序，但合理的抽象應是**任務需要時才載入**，而不是把整個 Marketplace 塞進每次 Prompt。
 
-SAG2 的宣傳稱「RAG 死了」，因為不需先為本地文件計算 Embedding。官方技術文件的描述更具體：原始文字切段，以 SQLite FTS5 索引；BM25 找候選；JEV 判斷證據價值；高分段落再提供字詞做多跳檢索。
+[obra 的 Superpowers](https://github.com/obra/superpowers) 則提供更有主張的工程方法，包含 Brainstorming、Writing Plans、Systematic Debugging、Test-driven Development、Code Review 與 Verification Before Completion。關鍵不是 Prompt 能神奇地改善程式，而是讓 Agent 遵循可證偽流程：先寫會失敗的測試、讓它通過、檢查證據，最後才宣告完成。
 
-這仍是**檢索增強**工作，只是改變 Retrieval 機制，不是取消 RAG。建立索引不用 Embedding，不代表沒有索引、沒有模型成本或完全沒有外部呼叫；官方說明指出 JEV 有 Service Call。應在同一文件庫比較 BM25、SAG2 類多跳及 Hybrid RAG，量測證據 Recall、引用、更新成本、延遲與離線邊界。
+多代理分工也是同一道理。實作與 Review 分成不同 Agent，可能帶來獨立觀點，但每次交接都需要時間、上下文與協調成本。小模型如果花在回報的資源比真正工作的還多，組織圖反而變成負擔。Manager 應接收精簡交接資料：修改了哪些檔案、跑了哪些測試、做了什麼決策、還有哪些阻礙，需要時再打開完整日誌。
 
-來源與原始討論連結: [1](https://sag-wiki.zleap.com/en/docs/sag2) · [2](https://zleap.ai/en/technology/sag2)
+定期任務也不能只靠一段「每天早上自動執行」的 Prompt，還需要真正的 Scheduler、持久狀態與冪等操作。無論使用 Harness 內建排程還是 macOS launchd，都應有固定 Job ID、最後成功紀錄、Lock 和安全重試政策。最應避免的是 Agent 自信宣稱完成，但成果根本沒有寫到 Repo。
 
-### 21. Memorilla、壓縮記憶與來源可追溯性
+**工程紀律比裝飾更有價值。** 一個具備清楚 Skill、測試與可靠 Task Ledger 的普通 Agent，通常比一群無法獨立驗證成果的華麗專家團隊更實用。
 
-Memorilla 討論的是將大量文件壓縮成極少量記憶，提供給凍結的 LLM。它與一般 RAG 不同，核心問題是：可否透過學習式壓縮，在未來問答時保留有用事實，而不必每次檢索完整段落？
+### FreeLLMAPI：模型路由可以靈活，但能力不可悄悄降級
 
-問題在於來源可追溯性。壓縮表示可能幫助記住內容，卻難以指出日期、引句或爭議主張的原文位置。研究實作也可能依賴 Linux／CUDA，而非 Mac 的 MLX。應與一般來源檢索比較正確率、多跳推論、引用、增量更新與資源成本。
+[FreeLLMAPI](https://github.com/tashfeenahmed/freellmapi) 從另一個角度處理模型自由：把多個 Provider 帳號及相容 Endpoint 放在同一個 OpenAI 風格的 `/v1` 介面後面。Router 追蹤 Quota、選擇可用 Endpoint，遇到速率限制時 Fallback，並加密保存上游 Key。它也能導向自架 Endpoint，因此可成為本地與雲端推論之間的橋樑。
 
-來源與原始討論連結: [1](https://github.com/snap-stanford/memorilla) · [2](https://www.reddit.com/r/singularity/s/2nvPi5AEpt)
+專案提供 Free 與 Premium 的 Catalog 更新方式，官方文件說明付費方案能較快取得新模型目錄，免費安裝則會延後。這是**模型路由器的功能差異**，不是取得無限免費算力。Agent 依然受每個 Provider 的額度、延遲與 Tool Calling 相容性影響。當首選模型額度耗盡，Fallback 也可能悄悄換成能力更弱的模型。
 
-### 22. Agentic RAG：改寫、重查與停止條件
+這會帶來實際工程問題：Coding Agent 不應在重要工作做到一半時，毫無紀錄地切換到另一個能力等級。模型路由必須可觀察、能遵守預算，而且考慮工具格式相容性。低風險摘要可以接受較弱的 Fallback；需要嚴格通過測試的 Patch，可能更適合等待或指定已知可用模型。
 
-Minerva’s Den 明確需要多次搜尋、改寫問題與 Multiple Queries。欠缺的是判斷迴圈：發現來源不佳、資料矛盾、匹配錯誤、過時或缺乏原始證據時，才決定是否重新搜尋。查更多次不保證答案更好。
+結論是：**Gateway 提供彈性，不能取代容量規劃。** 本地模型提供較可預測的控制，Router 則讓系統在真正需要時，有機會突破硬體的能力邊界。
 
-可靠流程要保存問題、競爭假設、來源、Evidence Ledger、Query Rewrite 歷史與停止預算，也要區分同一原始說法的多次轉載與真正獨立查證。先前的 Agentic RAG 專文已談願景，這裡補充**何時應重查、什麼證據足以改變結論**。
+## 值得探索的個人電腦
 
-來源與原始討論連結: [1](https://erictung1007.github.io/portfolio/#/writing/research-agenda-agentic-rag)
+### Astryx：Design System 不是換一套視覺主題
 
-### 23. Mantis 與增量網頁觀察
+[Meta 的 Astryx](https://github.com/meta/astryx) 提供了一個值得研究的例子：同時考量人類與 Agent 的 Design System。官方文件介紹了具無障礙設計的 React 元件、Theme、Template、CLI、可匯出的內部元件，以及把元件原始碼帶進專案進行客製的能力。它目前以 React 19+ 為目標，對仍使用舊版 React 的專案是重要相容條件。
 
-你轉貼的瀏覽器 Agent 說明稱其為 Mantis，特點是將頁面轉成帶編號元素，操作後只回傳變更部分，減少長時間網頁工作的重複觀察 Token。當時提供的段落沒有精確 Repo 網址，而 GitHub 存在數個完全不同的同名 Mantis，不能隨便指向其中一個。
+值得學習的不是把 Astryx 的外觀貼到每個網站上。Design System 真正保存的是**決策與約束**：Button 有哪些 Variant、Focus 怎麼運作、State 怎麼命名、可使用哪些 Spacing Token、元件應如何組合。這些契約減少 Coding Agent 每次修改時任意做出的設計決策，也更容易找出視覺回歸。
 
-值得研究的機制是穩定 Element Reference 與增量 DOM／Accessibility State。可量測每次成功操作的觀察 Token、Reference 過期錯誤、動態頁面、純視覺元素及權限限制。文字視圖在有語義結構時很有效，但可能漏掉以畫面表達的資訊。
+具有 Immersive Sim 風格的個人網站，最能凸顯這個差異。復古桌面、模擬 Terminal、老式報紙可以共存於一個世界觀，但導航與狀態規則必須一致。突然把訪客傳送到完全不同畫面的轉場，或某個成就在必要動作前就提前解鎖，都會因為違反互動契約而破壞沉浸感。
 
+例如隱藏密碼 **0451**，真正的技術問題是狀態機：線索存在、訪客發現、輸入並驗證密碼，成功後紀念卡才改變外觀；普通紀念卡則始終對所有人開放。有趣的不是數字本身，而是避免 UI 狀態與訪客實際行為互相矛盾。
 
-## 電腦操作與開發工具
+**好的 Design System 不是抹去產品個性，而是讓個性可以被一致地實作與測試。** 對有鮮明視覺風格的 Portfolio，借用 Astryx 的元件紀律，比直接換掉整套設計更有價值。
 
-### 24. Vercel agent-desktop 與 Accessibility Computer Use
+### 如果只有一台小 Mac，我會怎麼組這套系統
 
-Vercel Labs 的 agent-desktop 是 CLI／函式庫，不是模型或獨立 Agent。它讀作業系統的 Accessibility Tree，提供可操作元素的 Reference，讓上層 Agent 執行 Observe、Act、Verify。官方文件列出 macOS、Windows、Linux 支援。相較截圖猜座標，語義式操作可能減少上下文浪費並提高命中率。
+研究這麼多 Repo 之後，我認為最有價值的結論不是列出一長串要安裝的工具，而是讓本地 AI Stack 的每個部分**只負責一件清楚的事**。
 
-但 Accessibility 權限強大、部分 App 的樹不完整，而且 Snapshot 可能包含私人文字。Harness 應限制可操作 App 和動作、操作後再觀察，並遮蔽敏感 Trace。仍應用相同任務與截圖式方案比較速度、成功率與錯誤型態。
+語言模型負責推理；精簡 Harness 執行工具；Task Ledger 保存真實進度；Retrieval 找到證據；獨立介面讓人能監督與介入；可選的外部服務則在真正值得時擴充硬體能力。
 
-來源與原始討論連結: [1](https://github.com/vercel-labs/agent-desktop)
+因此，Minerva’s Den 可以用這樣的架構理解：
 
-### 25. Poki：操作真實 iPhone 與遠端查看 Agent 的差別
+```text
+使用者 / 手機 Companion / 互動網站
+                  |
+             Task / Run Ledger
+                  |
+          通用 Agent Orchestrator
+             /              \
+       Coding Harness     Research Workflow
+       Repo/Diff/Test     Query/Retrieve/Verify
+             \              /
+           Model / Inference Router
+              |           |
+           Local MLX    Optional API
+              |
+         Mac mini M4 / 32GB
+```
 
-Poki 官方文件描述利用 Mac 端設定與裝置準備，使 Agent 操作真正的 iPhone。這是擴大 Tool Action Surface，**不是**只在手機查看 Mac 上 Terminal Agent 的進度。
+第一優先是**可觀察性**：每個 Task 都應有身分、目前狀態、時間、Tool Trace 和可驗證成果。第二是**資源紀律**：單一昂貴的本地推論程序，可能比幾個互相競爭記憶體的程序更有效；要量測 Memory Pressure 和真正完成的工作，而不是統計活躍 Agent 數量。第三是**證據紀律**：研究回答要能指向原始來源，Coding 回答要能指向測試或 Diff。
 
-最有價值的實驗是狹窄的 iPhone 網站迴歸測試：打開頁面、找控制元件、操作、驗證結果並保留證據。裝置授權、OS 權限、網路、日誌與故障恢復都會增加成本。手機操作成功也不能直接推論適合無人值守。
+我不會在第一天就把 Paperclip、多層 Supervisor、數個 Vector Database，以及目錄裡全部的 Skills 一口氣裝上去。那樣的系統在架構圖上很壯觀，實際使用卻可能痛苦。
 
-來源與原始討論連結: [1](https://github.com/JosssphZhou/poki) · [2](https://poki.bot/docs/install)
+今天 Agent 發展最值得關注的變化是：模型智力逐漸成為系統的一個元件，而非完整產品。真正的工程問題，是如何設計模型、工具、記憶、人與實際後果之間的界線。**介面清楚、成果可量測的小電腦，有機會比強大卻不透明的自動化系統更有價值。**
 
-### 26. Henge 與能啟動、能實用之間的差距
+## 延伸閱讀
 
-你看完 Henge 消息後問的是很實際的問題：在 iOS 上跑 macOS，是勉強能用還是只是技術展示？Henge 嘗試以相容層與 Emulator 元件在 iPhone／iPad 上執行 macOS。但能成功啟動，和能連續幾小時跑需要的 App，是不同等級。
-
-應量測開機、輸入延遲、App 相容、瀏覽器反應、記憶體、發熱、電量及 Crash。即使手機能執行 macOS，也不會自動有 Mac mini 的統一記憶體容量。要遠端操作 Minerva’s Den，具認證的薄型 Viewer 很可能比把完整工作站複製到手機更有效率。
-
-來源與原始討論連結: [1](https://github.com/Leviidev/Henge) · [2](https://www.kocpc.com.tw/archives/702552)
-
-### 27. Umless 與本地語音整理
-
-你分享了 Umless 的本機口述工具，它會整理停頓、口頭禪與改口，再把文字輸入目前游標。其流程將 Speech Recognition 與 LLM Cleanup 分開，各等級的模型容量與語言支援不同；轉貼中的 678MB Lite 以英文為主。
-
-對 Minerva’s Den，口述可以成為本地研究或下達 Agent 指令的入口。但整理過的轉錄文字**不等於已授權的工具命令**。應測辨識錯誤、意圖保留、整理延遲、麥克風權限與閒置記憶體。過度積極的 Cleanup 可能改變命令意思，重要操作仍須確認。
-
-來源與原始討論連結: [1](https://github.com/jatinbishla/umless)
-
-### 28. Ghostty、Herdr、Orca 與多代理終端
-
-Ghostty 以及與 Herdr、Orca、T3 類終端的比較，最後回到**工作流程可視性**。快速 Terminal Emulator 不會自己新增 Agent Planning 或 Delegation。多 Pane 介面能顯示 Session、狀態和 Diff，但必須對應真實程序才有價值。
-
-可以評估使用者找到卡住 Agent 的速度、確認 Owner、查看工具與 Patch、重啟後重連，以及避免誤改其他 Session 的能力。介面應保留在 Terminal 工作的感覺，不應突然跳到無關頁面破壞沉浸感。
-
-### 29. Meta Astryx 與適合 Agent 的 Design System
-
-Meta 的 Astryx 是面向人與 Agent 共同開發的開源 React Design System，提供元件、主題、無障礙模式與自訂機制。問題不是要把 Minerva’s Den 已有的復古設計全部換成元件庫，而是能否藉此幫助 Coding Agent 在反覆修改時維持設計意圖。
-
-值得研究元件內部可組合性、Token 一致性、Accessibility 與遷移成本。可讓 Agent 在有與沒有元件規範下做同一個 Dialog，比較視覺退步、重複 CSS、鍵盤操作與 Review 成本。網站的報紙及桌面仍應保留自身風格。
-
-來源與原始討論連結: [1](https://github.com/meta/astryx)
-
-
-## 網站、產品構想與工程理念
-
-### 30. ERIC.EXE 六項互動工作站功能
-
-網站討論選定六項有關聯的功能：互動桌面、短而可跳過的 Boot、可用的模擬 Terminal、升級的報紙、訪客成就和 12 列打孔卡。它們應該屬於同一個虛構個人工作站，而不是互不相干的 Gimmicks。桌面負責導覽、CV 資訊台提供可信內容、Terminal 路由安全命令、報紙刊登研究、打孔卡產生紀念品。
-
-現有網站使用 Vite／React 與 Git-backed 雙語 Markdown，訪客進度可留在 Browser Storage。成功標準是**真正的互動與真實資訊**。每個裝飾物件都要連到實質內容，Accessibility 與可預期導航比華麗動畫優先。
-
-來源與原始討論連結: [1](https://github.com/EricTung1007/portfolio)
-
-### 31. 0451、上鎖抽屜與普通／金色打孔卡
-
-你指出最重要的 UX 錯誤之一：訪客還沒輸入密碼，竟然就出現金色打孔卡。理想流程是閱讀 CV 時發現細微提示，再找到上鎖抽屜、電腦密碼或 sudo 式入口，輸入 **0451** 後才解鎖金卡。沒有找到彩蛋的人仍可獲得普通卡。
-
-系統要有明確狀態：隱藏線索、發現線索、尚未驗證密碼、驗證成功、金卡解鎖。測試從乾淨 Storage 開始，確認普通卡可取得，然後發現提示、輸入密碼、驗證金卡只在成功後出現。錯誤的「已解鎖金卡」提示會同時破壞遊戲性與正確性。
-
-### 32. CV 重複入口、跳頁感與可信 AI 回答
-
-你指出 CV 與 Resume 兩個入口指向同一檔案沒有意義，使用 Terminal 時突然跳頁很突兀，而且小模型曾嚴重重複輸出。三者反映同一產品原則：消除重複操作、保持互動連續性，不要把不可靠的生成文字當成真實個人資料。
-
-網站的 CV 助手是在訪客瀏覽器推論，和 Mac mini 的本地 oMLX 工作不同。已知履歷問題應用已驗證的結構化資料回答，LLM 整理失敗時回到可信證據。Terminal 應在原有介面呈現狀態變化，而不是讓訪客突然被傳送到另一個頁面。
-
-### 33. 每期一篇完整綜合特刊，不是每週一個簡短工具介紹
-
-第一批網站文章涵蓋架構、記憶體、Hermes 遷移、Agentic RAG、Coding 分工、重啟事件與 Ouroboros，卻漏掉大量你分享的 Repo、轉貼文章、模型傳聞和想法。後來你修正編輯政策：**所有尚未實質刊登的素材是輸入，每次只產出一篇有章節的完整綜合文章**。
-
-這需要逐主題盤點和去重，而不是只挑最新、最吸睛的一條連結。每個題目都要保留原始網址、技術機制、適用性、限制與問題。即使你沒安裝某 Repo，也可以做技術介紹。每期長文都成為下一個星期五的去重紀錄。
-
-### 34. 最小權限比模型國籍更重要
-
-討論中反覆區分模型輸出文字，與 Harness、工具能執行的外部操作。沒有 Shell 或寫入權限的聊天模型，直接產生外部效果的能力遠小於擁有檔案、瀏覽器、Email 或部署權限的 Agent。這是重要的**能力區分**，但不代表所有模型文字都不會造成誤導。
-
-安全設計應採最小權限、讀寫授權分離、重大操作審核、日誌遮蔽及把檢索文字當成不可信資料。不能只憑廠商來源推定惡意；應檢查權限、Telemetry、更新路徑與實際行為。模型可靠性仍重要，因為低品質代理可能誤用合法授予的能力。
-
-### 35. 開放本地模型作為產品與市場策略
-
-你提出免費本地模型可能已足以滿足一般使用者的網路搜尋、問答與簡單自動化，降低對訂閱服務的依賴。這是合理的產品假說與使用者自主偏好，**不是任何模型供應商動機已被證實的結論**。離線、隱私、邊際成本與可修改性，即使 Benchmark 不領先，仍可能有重要價值。
-
-自架 Harness 讓人能在法律與外部服務已授權範圍內設計工作流程，但不表示可以繞過其他服務的存取控制。Minerva’s Den 可將模型自由、工具預算、真實評估與使用者自訂確認門檻結合。
-
-### 36. Ouroboros 與不自欺的自主實驗
-
-Ouroboros 的構想是讓 AI 搜尋更好的本地模型配置，或執行受限的權重修改，也可能由較強的規劃模型設計實驗。網站已刊登願景，因此這期補上驗收標準：不可變的 Baseline、固定測試題、運算預算、可重現日誌、Regression Tests、Rollback 與重大修改的人工審查。
-
-小型特選 Benchmark 上的高分可能掩蓋一般能力退化。Agent 應提出可證偽的測試，不能自己改變標準後宣布變聰明。第一階段成果應是自動 Eval 與證據管線，而非不受限制的自我改寫模型。
-
-來源與原始討論連結: [1](https://erictung1007.github.io/portfolio/#/writing/ouroboros-auto-experimentation)
-
-### 37. 夜間重啟事件應轉化為恢復測試
-
-11 月 8 日，OpenCode 與 OpenClaw 的工作在 Mac 重啟前後被中斷。既有文章已記錄程式短暫無回應、任務中斷與重啟後 oMLX 記憶體限制錯誤，並未確認根因。與其猜是哪個 App 造成重啟，不如改善恢復能力。
-
-任務需要持久 ID、Checkpoint、資源紀錄、最後完成動作、重試與冪等寫入。你曾查詢 Hermes 排程卻沒有執行歷史，也說明連「到底有沒有執行」都不容易確認。可主動在任務中重啟代理，驗證只恢復一次，並能從手機看到完整時間線。
-
-來源與原始討論連結: [1](https://erictung1007.github.io/portfolio/#/writing/incident-november-8)
-
-### 38. 五項最值得優先做的實驗
-
-剩餘問題可以轉為五項可重現研究。**一：**相同模型的 Harness 比較，分離模型與 Orchestration。**二：**M4／32GB 在不同量化、上下文與並行時的推論邊界。**三：**比較 BM25、多跳 Lexical 與 Hybrid RAG 的證據品質。**四：**從 Telegram 或 iOS 檢查子代理 Telemetry。**五：**測試網站 CV 可信回答、Terminal 連續性、0451、普通與金色打孔卡、手機閱讀與模型重複輸出。
-
-每項都要保存原始問題、配置、假設、來源、執行方式、結果、資源與決策。「尚未測試」是可以接受的狀態。Minerva’s Den 的價值不在收集 Agent Logo，而是在小電腦上建立真正可查核、可量測的 AI 工作站。
-
----
-
-## 編輯紀錄
-
-本期是一篇附完整繁體中文譯稿的雙語特刊，共收錄 **38 個編號主題**、五大章，並在相應段落保留原始來源。網站原有十二篇英文文章保持不變。往後每週五發刊時，應逐項比對本期題目與來源連結，避免重複或遺漏。這是研究紀錄，不代表所有工具已安裝、已完成驗證或正式採用。
+最值得直接閱讀的是原始專案：[Pi](https://github.com/badlogic/pi-mono)、[OpenCode](https://github.com/anomalyco/opencode)、[DSH Superagent](https://github.com/deepseek-ai/dsh-superagent-prototype)、[Paperclip](https://github.com/paperclipai/paperclip)、[Cindy](https://github.com/makecindy/cindy)、[Superpowers](https://github.com/obra/superpowers)、[Mantis](https://github.com/perzianhq/mantis)、[agent-desktop](https://github.com/vercel-labs/agent-desktop)、[Poki](https://github.com/JosssphZhou/poki)、[Henge](https://github.com/Leviidev/Henge)、[Umless](https://github.com/jatinbishla/umless)、[DSpine](https://github.com/tencent/dspine)、[SAG2](https://sag-wiki.zleap.com/en/docs/sag2)、[Memorilla](https://github.com/snap-stanford/memorilla)、[Astryx](https://github.com/meta/astryx)、[FreeLLMAPI](https://github.com/tashfeenahmed/freellmapi) 與 [autoresearch](https://github.com/karpathy/autoresearch)。其他值得探索的相關計畫包含 [Swarm Site](https://califa.github.io/swarm-site/)、[Awesome OpenCode](https://github.com/awesome-opencode/awesome-opencode)、[Unsloth](https://huggingface.co/unsloth) 和社群的 [ZeroZero Checkpoint](https://huggingface.co/LastMachine/Qwen3-8B-ZeroZero-Heretic)。

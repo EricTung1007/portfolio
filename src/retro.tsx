@@ -125,10 +125,7 @@ const CRT_MENU: {label:string;file:TerminalFile;command:string}[] = [
 
 export function TerminalWindow({language,visitor,navigate,onTheme,onLanguage,onClose}:TerminalProps) {
   const [entry,setEntry]=useState('');
-  const [history,setHistory]=useState<{input:string;output:string}[]>([
-    {input:'',output:labels(language,
-      'ERIC TERMINAL / USER SESSION READY\nThe owner is out of office. Your session will remain here while you browse.',
-      'ERIC 終端機 / 訪客連線就緒\n主人暫時不在。翻閱文件時終端機會繼續保持開啟。')}]);
+  const [history,setHistory]=useState<{input:string;output:string}[]>([]);
   const [booting,setBooting]=useState(()=>{
     try{return sessionStorage.getItem('eric_terminal_booted')!=='1';}catch{return false;}
   });
@@ -162,10 +159,10 @@ export function TerminalWindow({language,visitor,navigate,onTheme,onLanguage,onC
   },[booting,bootStep]);
   useEffect(()=>{outputRef.current?.scrollTo({top:outputRef.current.scrollHeight,behavior:'smooth'});},[history,file]);
   const append=(input:string,output:string)=>setHistory(p=>[...p,{input,output}].slice(-30));
-  const openFile=(id:TerminalFile,input:string)=>{
+  const openFile=(id:TerminalFile,input?:string)=>{
     setFile(id);
     setLockOpen(false);
-    append(input,labels(language,'Mounted file in CRT reader. Select a link below to physically leave this terminal.','已在 CRT 讀取器掛載檔案。如需離開終端機，請點選下方的外部入口。'));
+    if(input) append(input,'');
   };
   const submitPasscode=(value:string)=>{
     if(unlockDrawer(value)){
@@ -217,24 +214,24 @@ export function TerminalWindow({language,visitor,navigate,onTheme,onLanguage,onC
   const doAutocomplete=()=>{if(choices.length){setEntry(choices[Math.min(selected,choices.length-1)]);setSelected(0);}};
   return <div className="terminal-modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget)onClose();}}>
     <section className="terminal-machine" role="dialog" aria-modal="true" aria-label={labels(language,'Vintage terminal','復古終端機')}>
-      <div className="terminal-machine-head"><span>MINERVA COMPUTING SYSTEMS · MARK I / PERSONAL TERMINAL</span>
+      <div className="terminal-machine-head"><span>ERIC.EXE</span>
         <button type="button" onClick={onClose} aria-label={labels(language,'Close terminal','關閉終端機')}>×</button></div>
       <div className="terminal-crt-frame">
         {booting ? <div className="terminal-boot" aria-live="polite">
-          <span>ERIC.EXE / MINERVA NODE · INITIALIZING</span><h2>ERIC.EXE</h2>
+          <h2>ERIC.EXE</h2>
           {['POWERING VACUUM TUBES','MOUNTING PERSONNEL RECORDS','INDEXING ERICTUNG’S WEEKLY','CONNECTING TO MARK I RECORDER','MESSAGE SLOT READY','SYSTEM ONLINE'].slice(0,bootStep+1).map((line,i)=>
             <p key={line}>{line}<b>{i===5?'READY':'OK'}</b></p>)}
           <button type="button" onClick={finishBoot}>{labels(language,'SKIP BOOT / ENTER ↵','略過開機 / 進入 ↵')}</button>
         </div> : <>
           <nav className="terminal-file-menu" aria-label={labels(language,'Computer file directory','電腦檔案目錄')}>
             {CRT_MENU.map(menu=><button type="button" key={menu.file}
-              className={file===menu.file?'active':''} onClick={()=>openFile(menu.file,menu.command)}>
+              className={file===menu.file?'active':''} onClick={()=>openFile(menu.file)}>
               {menu.label}</button>)}
             <button type="button" className={lockOpen?'active':''} onClick={()=>{if(secret){setLockOpen(false);return;}setLockOpen(true);setLockError(false);}}>▣ {secret ? labels(language,'UNLOCKED','已解鎖') : labels(language,'LOCKED','已上鎖')}</button>
           </nav>
           <div className="terminal-screen-scroll">
             <div className="terminal-file">
-              <div className="terminal-file-heading"><small>{record.caption}</small><strong>{record.heading}</strong></div>
+              <div className="terminal-file-heading"><strong>{record.heading}</strong></div>
               <div className="terminal-file-lines">{record.lines.map((line,i)=><p key={i}>{line||'\u00a0'}</p>)}</div>
               {record.links?.length ? <div className="terminal-file-links">
                 {record.links.map(link=><button type="button" key={link.label} onClick={()=>{
@@ -244,8 +241,7 @@ export function TerminalWindow({language,visitor,navigate,onTheme,onLanguage,onC
               </div>:null}
             </div>
             {lockOpen&&<div className="terminal-secure-drawer">
-              <div className="terminal-file-heading"><small>SECURE DRAWER / AUTHORIZATION REQUIRED</small>
-                <strong>{labels(language,'BRASS LOCK · 4 DIGITS','黃銅抽屜 · 四位密碼')}</strong></div>
+              <div className="terminal-file-heading"><strong>{labels(language,'LOCKED DRAWER','上鎖抽屜')}</strong></div>
               <form onSubmit={e=>{e.preventDefault();submitPasscode(code);}}>
                 <label htmlFor="drawer-code">{labels(language,'ENTER ACCESS CODE','輸入存取碼')}</label>
                 <input id="drawer-code" autoComplete="off" inputMode="numeric" maxLength={4} pattern="[0-9]{4}"
@@ -257,7 +253,7 @@ export function TerminalWindow({language,visitor,navigate,onTheme,onLanguage,onC
               {lockError&&<p role="alert">{labels(language,'ACCESS DENIED. Check the personnel file.','存取遭拒，請查看人事檔案。')}</p>}
             </div>}
             {secret && <div className="terminal-classified" role="status">
-              <strong>FILE 0451 · CLASSIFIED / GOLDEN TICKET</strong>
+              <strong>0451 · GOLDEN CARD</strong>
               <p>{drawerNote[language]}</p>
               <button type="button" onClick={()=>navigate('punch')}>
                 {labels(language,'CLAIM THE GOLDEN PUNCH CARD →','領取金色打孔卡 →')}
@@ -285,16 +281,13 @@ export function TerminalWindow({language,visitor,navigate,onTheme,onLanguage,onC
           </form>
         </>}
       </div>
-      <footer className="terminal-machine-footer"><span>MINERVA / VISITOR SESSION · NO SYSTEM PRIVILEGES</span>
-        <span>{labels(language,'FILES OPEN INSIDE THE CRT · TAB TO COMPLETE','檔案於 CRT 內開啟 · TAB 自動補全')}</span></footer>
     </section>
   </div>;
 }
 export function AchievementPanel({language,visitor,onClose}:{language:SiteLanguage;visitor:VisitorActions;onClose:()=>void}) {
   return <section className="retro-ledger"><div className="retro-panel-head"><span>VISITOR ACHIEVEMENT LEDGER</span><button onClick={onClose}>×</button></div>
-    <h2>{labels(language,'Your collection','你的成就收藏')}</h2><p>{visitor.data.achievements.length} / {definedAchievements.length} {labels(language,'stamps collected','個印章已蒐集')}</p>
+    <p className="retro-ledger-count">{visitor.data.achievements.length} / {definedAchievements.length} {labels(language,'stamps','個印章')}</p>
     <div className="retro-badge-grid">{definedAchievements.map(([id,en,zh,detail])=><div key={id} className={'retro-badge '+(visitor.data.achievements.includes(id)?'unlocked':'locked')}><span aria-hidden="true">{visitor.data.achievements.includes(id)?'✷':'○'}</span><strong>{labels(language,en,zh)}</strong><small>{detail}</small></div>)}</div>
-    <p className="retro-ledger-note">{labels(language,'Progress is stored only in your browser.','成就進度只儲存在你的瀏覽器。')}</p>
   </section>;
 }
 const ROWS=['12','11','0','1','2','3','4','5','6','7','8','9'];
@@ -337,13 +330,13 @@ export function PunchCard({language,visitor,onClose}:{language:SiteLanguage;visi
     const url=URL.createObjectURL(blob);
     const a=document.createElement('a');a.href=url;a.download=golden?'minervas-den-golden-0451-card.svg':'eric-visitor-message-card.svg';document.body.appendChild(a);a.click();a.remove();window.setTimeout(()=>URL.revokeObjectURL(url),1000);
   };
-  return <section className="retro-card-machine"><div className="retro-panel-head"><span>MINERVA CARD PUNCH / UNIT 12</span><button onClick={onClose}>×</button></div>
-    <h2>{labels(language,'Punch your visitor card','製作你的訪客打孔卡')}</h2><p>{labels(language,'A 12-row collectible encoded from your local visit. Not an identity or access credential.','依照你本機的探索紀錄製作 12 列紀念打孔卡，並非身分或通行證。')}</p>
-    {golden && <div className="punch-golden-banner">✦ FILE 0451 UNLOCKED · GOLDEN MESSAGE CARD ✦</div>}
+  return <section className="retro-card-machine"><div className="retro-panel-head"><span></span><button onClick={onClose} aria-label={labels(language,'Close','關閉')}>×</button></div>
+    <h2>{labels(language,'Visitor card','訪客打孔卡')}</h2>
+    {golden && <div className="punch-golden-banner">✦ GOLDEN CARD · 0451 ✦</div>}
     <div className="retro-card-fields"><label>{labels(language,'Alias','暱稱')}<input maxLength={28} value={alias} onChange={e=>{setAlias(e.target.value.replace(/[<>]/g,''));setSaved(false);}}/></label>
       <label>{labels(language,'Visitor class','訪客類別')}<select value={role} onChange={e=>{setRole(e.target.value);setSaved(false);}}><option>VISITOR</option><option>RESEARCHER</option><option>OPERATOR</option><option>ARCHIVIST</option></select></label>
       <label>{labels(language,'Interest','興趣')}<select value={interest} onChange={e=>{setInterest(e.target.value);setSaved(false);}}><option>AI</option><option>AGENTS</option><option>DESIGN</option><option>RESEARCH</option><option>SYSTEMS</option></select></label></div>
-    <label className="retro-message-label">{labels(language,'Message for Eric (up to 66 characters printed on the card)','留給 Eric 的訊息（卡面最多顯示 66 字）')}<textarea maxLength={600} rows={3} value={message} onChange={e=>{setMessage(e.target.value);setSaved(false);}} placeholder={labels(language,'Eric was away, so I left this note...','Eric 不在，所以我留下這張紙條…')}/></label>
+    <label className="retro-message-label">{labels(language,'Message','留言')}<textarea maxLength={600} rows={3} value={message} onChange={e=>{setMessage(e.target.value);setSaved(false);}} placeholder={labels(language,'Leave Eric a note…','留給 Eric 的訊息…')}/></label>
     <div className="retro-card-preview" role="img" aria-label="Personal 12-row punch card" dangerouslySetInnerHTML={{__html:svg}}/>
     <div className="retro-card-actions">
       <button type="button" onClick={save}>{labels(language,saved?'UPDATE CARD ON DESK':'LEAVE CARD ON DESK',saved?'更新桌上的卡片':'將卡片留在桌上')}</button>
@@ -356,12 +349,12 @@ export function PunchCard({language,visitor,onClose}:{language:SiteLanguage;visi
       }}>{labels(language,'PUBLISH MESSAGE VIA GITHUB ↗','前往 GitHub 發布留言 ↗')}</button>
     </div>
     {saved && <p role="status" className="retro-card-saved">{labels(language,'Your card is on the desk in this browser.','你的卡片已留在這台瀏覽器的桌上。')}</p>}
-    <small>{labels(language,'Your card is saved locally. To let Eric see your message, open the prefilled GitHub Issue and click Submit new issue after signing in. GitHub will publicly show the alias and your account. QR links to the public website. Punch holes are thematic, not Hollerith encoding.','卡片保存在此瀏覽器。若要讓 Eric 真正看到留言，請登入 GitHub 並在已填好的 Issue 頁面按提交。留言及 GitHub 帳號公開可見。QR 可掃回本網站，孔位為主題編碼。')}</small>
+    <small>{labels(language,'Saved here only. To send Eric the note, sign in to GitHub and submit the public entry.','桌上保存只限此瀏覽器。要讓 Eric 收到，請登入 GitHub 並提交公開留言。')}</small>
   </section>;
 }
 export function BadgeToast({name,language,onDismiss}:{name:string;language:SiteLanguage;onDismiss:()=>void}) {
  const item=definedAchievements.find(a=>a[0]===name);
  useEffect(()=>{if(!name)return;const t=window.setTimeout(onDismiss,3800);return()=>window.clearTimeout(t);},[name,onDismiss]);
  if(!item)return null;
- return <div className="retro-toast" role="status"><span>✷</span><div><small>ACHIEVEMENT UNLOCKED</small><strong>{labels(language,item[1],item[2])}</strong></div><button onClick={onDismiss} aria-label="Dismiss">×</button></div>;
+ return <div className="retro-toast" role="status"><span>✷</span><strong>{labels(language,item[1],item[2])}</strong><button onClick={onDismiss} aria-label="Dismiss">×</button></div>;
 }

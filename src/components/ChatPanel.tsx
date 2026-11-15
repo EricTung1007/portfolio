@@ -3,15 +3,15 @@ import { useWebLLM } from '../hooks.js';
 import type { ChatLanguage } from '../chat-engine.js';
 import { answerFromVerifiedProfile, unknownDeskAnswer } from '../desk-answers.js';
 import { getEvidenceLink } from '../archive.js';
-import { inspectBrowserCapability, chooseBrowserModel, getSystemBrand, type BrowserCapability, type BrowserModelTier } from '../browser-capability.js';
+import { inspectBrowserCapability, chooseBrowserModel, type BrowserCapability, type BrowserModelTier } from '../browser-capability.js';
 
 interface MessageItem { role: 'user' | 'assistant'; content: string; related?: { label:string; href:string } | null; }
 
 const COPY = {
   en: {
-    desk: 'INFORMATION DESK', title: 'Speak with the archivist',
+    desk: 'INFORMATION DESK', title: 'Ask about Eric',
     intro: "The desk answers verified facts instantly. Extended local AI is optional for unusual questions.",
-    init: 'ENABLE EXTENDED AI (OPTIONAL)', loading: 'Awakening the local model', ready: 'ARCHIVIST ONLINE', idle: 'DORMANT',
+    init: 'START LOCAL AI', loading: 'Awakening the local model', ready: 'ARCHIVIST ONLINE', idle: 'DORMANT',
     resume: 'VIEW RESUME', model: 'Optional Qwen3.5 0.8B · Browser WebGPU',
     note: 'Answers are grounded in the CV text extracted at build time plus maintained profile data. Updating CV.pdf and rebuilding refreshes the reference.',
     placeholder: 'Ask the archivist...', send: 'SEND', retry: 'TRY AGAIN',
@@ -21,9 +21,9 @@ const COPY = {
     copy: 'STAMP & COPY', copied: 'COPIED TO CLIPBOARD',
   },
   zh: {
-    desk: '個人資訊台', title: '與檔案管理員交談',
+    desk: '個人資訊台', title: '關於 Eric',
     intro: '資訊台會立即回答已確認的履歷內容，延伸本地 AI 為選用功能。',
-    init: '啟用延伸 AI（選用）', loading: '正在啟動本地模型', ready: '檔案管理員已上線', idle: '尚未啟動',
+    init: '啟動本地 AI', loading: '正在啟動本地模型', ready: '檔案管理員已上線', idle: '尚未啟動',
     resume: '查看履歷', model: '可選用 Qwen3.5 0.8B · 瀏覽器 WebGPU',
     note: '回答依據建置時從 CV.pdf 擷取的文字及個人資料，更新履歷並重新建置後即可同步。',
     placeholder: '向檔案管理員提問…', send: '送出', retry: '重試',
@@ -106,13 +106,10 @@ export function ChatPanel({ onGenerationStart, onGenerationEnd, onAnswer, langua
 
   return (
     <section className="rpg-panel" aria-label={t.desk}>
-      <div className="rpg-panel-header">
-        <span className="rpg-kicker">◈ {t.desk} / {getSystemBrand().toUpperCase()}</span>
-        <span className="rpg-status">{busy ? (language === 'zh' ? '正在查詢' : 'RESEARCHING') : (language === 'zh' ? '資訊台已開放' : 'DESK OPEN')}</span>
-      </div>
+      {busy&&<div className="rpg-panel-header"><span className="rpg-status">{language === 'zh' ? '正在查詢…' : 'SEARCHING…'}</span></div>}
       <div className="rpg-npc">
         <img src={`${import.meta.env.BASE_URL}avatar.png`} alt="Eric's illustrated portrait" className="rpg-npc-avatar" />
-        <div><div className="rpg-npc-label">THE ARCHIVIST</div><h2>{t.title}</h2><p>{t.intro}</p></div>
+        <div><h2>{t.title}</h2></div>
       </div>
       <div className="rpg-conversation" ref={scrollRef} aria-live="polite">
         {messages.map((item, index) => (
@@ -132,7 +129,7 @@ export function ChatPanel({ onGenerationStart, onGenerationEnd, onAnswer, langua
           ) : (
             <>
               <div className="rpg-model-selection">
-                <label htmlFor="desk-model-tier">{language === 'zh' ? '延伸 AI 模型（選用）' : 'Optional AI model'}</label>
+                <label htmlFor="desk-model-tier">{language === 'zh' ? '模型' : 'Model'}</label>
                 <select id="desk-model-tier" value={tier} onChange={e => setTier(e.target.value as BrowserModelTier)}>
                   <option value="small">Qwen3.5 0.8B · {language === 'zh' ? '建議 · 約 1.63 GB VRAM' : 'recommended · ~1.63 GB VRAM'}</option>
                   <option value="lite">SmolLM2 360M · {language === 'zh' ? '舊版輕量 · 約 376 MB' : 'legacy lite · ~376 MB'}</option>
@@ -147,8 +144,8 @@ export function ChatPanel({ onGenerationStart, onGenerationEnd, onAnswer, langua
           )}
           {status === 'error' && <p role="alert">{error}</p>}
           <small>{language === 'zh'
-            ? (!capability ? '正在檢查 WebGPU…' : !capability.gpuAvailable ? '此瀏覽器未提供 WebGPU，仍可使用履歷問答。' : '無法測量實際可用 VRAM。模型需手動載入；一般履歷問答不需模型。')
-            : (!capability ? 'Checking WebGPU…' : !capability.gpuAvailable ? 'WebGPU unavailable. Verified profile Q&A still works.' : 'VRAM cannot be measured reliably. AI loading is opt-in; verified profile answers work without it.')}</small>
+            ? (!capability ? '正在檢查 WebGPU…' : !capability.gpuAvailable ? '此瀏覽器不支援 WebGPU' : '在本機執行 · 需下載模型')
+            : (!capability ? 'Checking WebGPU…' : !capability.gpuAvailable ? 'WebGPU unavailable' : 'Runs on your device · download required')}</small>
         </div>
       )}
       {topicBranch !== null && <button type="button" className="rpg-branch-back" onClick={()=>setTopicBranch(null)}>{language==='en'?'← BACK TO TOPICS':'← 返回主題'}</button>}
@@ -169,10 +166,6 @@ export function ChatPanel({ onGenerationStart, onGenerationEnd, onAnswer, langua
         <input value={input} onChange={(e) => setInput(e.target.value)} placeholder={t.placeholder} aria-label={t.placeholder} disabled={busy} />
         <button type="submit" disabled={!input.trim() || busy}>{t.send}</button>
       </form>
-      <div className="rpg-foot">
-        <a href={`${import.meta.env.BASE_URL}CV.pdf`} target="_blank" rel="noreferrer">{t.resume} ↗</a>
-        <span>{t.note}</span>
-      </div>
     </section>
   );
 }

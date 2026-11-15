@@ -12,6 +12,7 @@ import './motion.js';
 import './index.css';
 import './terminal-v2.css';
 import './mark1.css';
+import './editorial-refinement.css';
 
 type View = 'desktop' | 'terminal' | 'achievements' | 'punch' | 'chat' | 'portfolio' | 'weekly' | ArchiveView | `post:${string}`;
 type Language = 'en' | 'zh';

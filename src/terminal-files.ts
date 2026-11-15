@@ -14,11 +14,8 @@ export function terminalRecord(file:TerminalFile,lang:'en'|'zh'):TerminalRecord 
    heading:'PERSONNEL FILE / ERIC TUNG',
    caption:l('PERSONNEL RECORD · OPENED IN TERMINAL','人事檔案 · 終端機內已開啟'),
    lines:[
-    'NAME / ERIC TUNG',
     l('FIELD / SOFTWARE ENGINEERING · BACKEND · AI','領域 / 軟體工程 · 後端 · 人工智慧'),
     l('BACKGROUND / NURSING · NATIONAL TAIWAN UNIVERSITY','背景 / 護理 · 國立臺灣大學'),
-    '',
-    l('This is the dossier summary. The signed CV PDF is the primary source.','此為履歷檔案摘要，正式內容請以 CV PDF 為準。'),
     '',
     l('Handwritten note tucked beneath this dossier:', '這份檔案底下藏有一行手寫備註：'),
     'BUREAU DRAWER / SECURITY REFERENCE: 0451',
@@ -65,20 +62,14 @@ export function terminalRecord(file:TerminalFile,lang:'en'|'zh'):TerminalRecord 
       {label:l('READ PUBLIC GUESTBOOK','閱讀公開訪客簿'),url:'#/guestbook',action:'guestbook'}]
   };
   case 'help':return {heading:l('OPERATOR MANUAL','操作手冊'),caption:'SYSTEM/HELP',
-   lines:[l('Everything is available in this terminal. Commands open a file first.','所有功能都能從這台電腦操作，指令會先開啟機內檔案。'),
-   '',
+   lines:[
    'work / resume / weekly / archive / research',
    'timeline / experiments / contact / message',
    'help / clear / theme dark / theme light',
    '',
-   l('Select OPEN… only when you want to leave the CRT view.','只有按下 OPEN… 時才會離開 CRT 畫面。'),
-   l('A certain brass drawer requests a four-digit passcode.','有個黃銅抽屜需要四位數密碼。')]}
+   l('The locked drawer needs a four-digit code.','鎖上的抽屜需要四位數密碼。')]}
   ;
-  default:return {heading:l('MINERVA · VISITOR CONSOLE','MINERVA · 訪客主控台'),caption:'SYSTEM/READY',
-   lines:[l('Eric is out of office. You may explore the computer, look through his papers, or leave a note.',
-     'Eric 目前不在辦公室。你可以使用電腦、翻閱他的文件，或留下一則訊息。'),
-     '',l('SELECT A FILE','選擇檔案'),'resume / work / weekly / archive / research',
-     'timeline / experiments / contact / message',
-     '',l('Use TAB to autocomplete or click a file in the menu.','按 TAB 自動補全，或點選選單中的檔案。')]}
+  default:return {heading:'ERIC.EXE',caption:'SYSTEM/READY',
+   lines:[l('Personnel files, articles and messages are available.','人事檔案、文章與訪客留言都已開放。')]}
  }
 }

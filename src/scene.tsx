@@ -57,12 +57,12 @@ export function StudyScene({language,visitor,onOpen,terminal}:{
             <span className="study-paper-headline">{latest?.title??'Notes from the Workshop'}</span>
             <small>{copy(language,'OPEN THE NEWSPAPER ↗','閱讀報紙 ↗')}</small>
           </button>
-          <a className="study-object study-folder" href={`${import.meta.env.BASE_URL}CV.pdf`} target="_blank" rel="noopener noreferrer" onClick={markCvViewed} aria-label={copy(language,'Open resume PDF','開啟履歷 PDF')}>
+          <a className="study-object study-folder" href={`${import.meta.env.BASE_URL}cv.html?lang=${language}`} target="_blank" rel="noopener noreferrer" onClick={markCvViewed} aria-label={copy(language,'Open resume','開啟履歷')}>
             <span className="study-folder-tab">PERSONNEL FILE · 001</span>
             <span className="study-folder-crest">ET</span>
             <strong>ERIC TUNG</strong>
             <span>CV / RESUME</span>
-            <small>{copy(language,'OPEN CV PDF ↗','開啟履歷 PDF ↗')}</small>
+            <small>{copy(language,'OPEN CV ↗','開啟履歷 ↗')}</small>
           </a>
           {cvViewed&&<div className="study-cv-clue" aria-label={copy(language,'Handwritten personnel file note','人事檔案手寫備註')}>
             <small>PERSONNEL FILE · ADDENDUM</small><strong>0451</strong>
@@ -121,7 +121,7 @@ export function StudyScene({language,visitor,onOpen,terminal}:{
       </div>
     </div>
     <nav className="study-quicklinks" aria-label={copy(language,'Quick access','快速存取')}>
-      <a href={`${import.meta.env.BASE_URL}CV.pdf`} target="_blank" rel="noopener noreferrer" onClick={markCvViewed}>{copy(language,'OPEN PERSONNEL FILE','開啟人事履歷')} ↗</a>
+      <a href={`${import.meta.env.BASE_URL}cv.html?lang=${language}`} target="_blank" rel="noopener noreferrer" onClick={markCvViewed}>{copy(language,'OPEN PERSONNEL FILE','開啟人事履歷')} ↗</a>
       <button type="button" onClick={()=>act('cabinet')}>{copy(language,'PROJECTS','專案')} ↗</button>
       <button type="button" onClick={()=>act('weekly')}>{copy(language,'WRITING','文章')} ↗</button>
       <button type="button" onClick={()=>act('punch')}>{copy(language,'LEAVE MESSAGE','留下訊息')} ↗</button>

@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Che-Hao Tung | Curriculum Vitae</title>
+  <style>
+    :root { color-scheme: light; --bg:#f4f6f8; --paper:#fff; --text:#173247; --muted:#536679; --line:#d7e1e8; --accent:#14708a; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:system-ui,-apple-system,"Noto Sans TC","Microsoft JhengHei",sans-serif; }
+    .toolbar { position:sticky; top:0; z-index:2; background:rgba(255,255,255,.97); border-bottom:1px solid var(--line); }
+    .toolbar-inner { max-width:1100px; min-height:74px; padding:12px 22px; margin:auto; display:flex; align-items:center; gap:18px; }
+    .back { font-size:13px; text-decoration:none; color:var(--muted); white-space:nowrap; }
+    .back:hover { color:var(--accent); }
+    .heading { min-width:0; flex:1; }
+    h1 { margin:0; font-size:17px; font-weight:700; }
+    .sub { margin-top:3px; color:var(--muted); font-size:12px; }
+    .actions { display:flex; align-items:center; flex-wrap:wrap; gap:10px; }
+    .switch { display:flex; padding:3px; border:1px solid var(--line); border-radius:10px; background:#f1f4f6; }
+    .switch button { border:0; padding:9px 13px; font:600 13px/1 system-ui,-apple-system,"Noto Sans TC",sans-serif; background:transparent; color:var(--muted); border-radius:7px; cursor:pointer; }
+    .switch button[aria-pressed="true"] { background:var(--text); color:white; }
+    .download { display:inline-block; border:1px solid var(--accent); background:var(--accent); color:white; font-size:13px; text-decoration:none; font-weight:600; padding:10px 13px; border-radius:8px; white-space:nowrap; }
+    .download:hover { background:#0c5b73; }
+    .paper-wrap { max-width:1050px; margin:24px auto; padding:0 18px 25px; }
+    .pdf-frame { display:block; width:100%; height:calc(100dvh - 133px); min-height:600px; background:var(--paper); border:1px solid var(--line); border-radius:8px; box-shadow:0 6px 30px rgba(20,44,60,.08); }
+    .fallback { font-size:13px; color:var(--muted); text-align:center; margin:16px 0 0; }
+    .fallback a { color:var(--accent); }
+    :focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
+    @media(max-width:680px) {
+      .toolbar-inner { flex-wrap:wrap; gap:12px; padding:12px 14px; }
+      .back { order:0; }
+      .heading { flex:1 1 60%; }
+      .actions { width:100%; justify-content:space-between; }
+      .paper-wrap { padding:0 8px 18px; margin-top:12px; }
+      .pdf-frame { height:calc(100dvh - 182px); min-height:430px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="toolbar">
+    <div class="toolbar-inner">
+      <a class="back" href="./" id="back">← Portfolio</a>
+      <div class="heading"><h1>Che-Hao Tung</h1><div class="sub" id="subtitle">Curriculum Vitae · PDF</div></div>
+      <div class="actions">
+        <div class="switch" role="group" aria-label="Resume language">
+          <button type="button" id="en" aria-pressed="true">English</button>
+          <button type="button" id="zh" aria-pressed="false">繁體中文</button>
+        </div>
+        <a class="download" id="download" href="./CV.pdf" download>Download PDF ↓</a>
+      </div>
+    </div>
+  </header>
+  <main class="paper-wrap">
+    <iframe class="pdf-frame" id="resume" title="English curriculum vitae PDF" src="./CV.pdf"></iframe>
+    <p class="fallback" id="fallback">PDF not displaying? <a id="open" href="./CV.pdf" target="_blank" rel="noopener noreferrer">Open it in a new tab</a>.</p>
+  </main>
+  <script>
+    (() => {
+      const buttons = {en:document.getElementById('en'),zh:document.getElementById('zh')};
+      const iframe=document.getElementById('resume');
+      const download=document.getElementById('download');
+      const subtitle=document.getElementById('subtitle');
+      const open=document.getElementById('open');
+      const fallback=document.getElementById('fallback');
+      const back=document.getElementById('back');
+      function select(lang) {
+        const zh=lang==='zh';
+        const url=zh?'./CV_zh_TW.pdf':'./CV.pdf';
+        document.documentElement.lang=zh?'zh-Hant':'en';
+        document.title=(zh?'董哲豪 | 中文履歷':'Che-Hao Tung | Curriculum Vitae');
+        buttons.en.setAttribute('aria-pressed',String(!zh));
+        buttons.zh.setAttribute('aria-pressed',String(zh));
+        iframe.src=url;
+        iframe.title=zh?'董哲豪繁體中文履歷 PDF':'Che-Hao Tung English CV PDF';
+        download.href=url; download.textContent=zh?'下載 PDF ↓':'Download PDF ↓';
+        subtitle.textContent=zh?'履歷 · PDF':'Curriculum Vitae · PDF';
+        fallback.firstChild.textContent=zh?'無法顯示 PDF？':'PDF not displaying? ';
+        open.textContent=zh?'在新分頁開啟':'Open it in a new tab';
+        back.textContent=zh?'← 返回作品集':'← Portfolio';
+        const next=new URL(location.href); next.searchParams.set('lang',lang);
+        history.replaceState(null,'',next);
+      }
+      buttons.en.addEventListener('click',()=>select('en'));
+      buttons.zh.addEventListener('click',()=>select('zh'));
+      select(new URLSearchParams(location.search).get('lang')==='zh'?'zh':'en');
+    })();
+  </script>
+</body>
+</html>

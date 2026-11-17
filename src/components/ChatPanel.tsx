@@ -170,7 +170,7 @@ export function ChatPanel({ onGenerationStart, onGenerationEnd, onAnswer, langua
         <button type="submit" disabled={!input.trim() || busy}>{t.send}</button>
       </form>
       <div className="rpg-foot">
-        <a href={`${import.meta.env.BASE_URL}CV.pdf`} target="_blank" rel="noreferrer">{t.resume} ↗</a>
+        <a href={`${import.meta.env.BASE_URL}cv.html?lang=${language}`} target="_blank" rel="noreferrer">{t.resume} ↗</a>
         <span>{t.note}</span>
       </div>
     </section>

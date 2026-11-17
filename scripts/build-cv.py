@@ -1,7 +1,7 @@
 """Generate one-page English and Traditional Chinese CV PDFs for GitHub Pages."""
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from subprocess import run
+from subprocess import run as subprocess_run
 from docx import Document
 from docx.shared import Inches, Pt, RGBColor
 from docx.enum.text import WD_TAB_ALIGNMENT
@@ -162,7 +162,7 @@ if __name__=='__main__':
         for code,zh in [('EN',False),('zh_TW',True)]:
             docx=Path(temp)/f'CV_{code}.docx'
             make(zh).save(docx)
-            result=run(['libreoffice','-env:UserInstallation=file:///tmp/lo_portfolio_cv','--headless','--convert-to','pdf','--outdir',str(OUT),str(docx)],capture_output=True,text=True,timeout=120)
+            result=subprocess_run(['libreoffice','-env:UserInstallation=file:///tmp/lo_portfolio_cv','--headless','--convert-to','pdf','--outdir',str(OUT),str(docx)],capture_output=True,text=True,timeout=120)
             output=OUT/f'CV_{code}.pdf'
             if result.returncode or not output.exists() or output.stat().st_size<1000:
                 raise RuntimeError(f'PDF conversion failed for {code}: {result.stdout} {result.stderr}')

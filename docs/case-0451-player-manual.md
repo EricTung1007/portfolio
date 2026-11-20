@@ -44,14 +44,15 @@ Each seed determines multiple independent variations:
 1. One of four case directives: Degree Priority (enemies start armored), Evidence First (extra starting Evidence), Audit Overload (every fourth enemy turn adds MISFILED), or Night Shift (combat healing reduced).
 2. Each officer's standard or status-bearing attack variant, fully telegraphed.
 3. Three story-event assignments, shuffled among the pre-authored event sites.
-4. Card draw/shuffle order and rewards (rewards try to offer CODE, CARE and CROSS choices).
+4. Three optional **C**abinets in dead-end rooms, containing a randomized assignment of one extra three-card draft, one HP recovery and one ailment repair. Each is single-use; optional rooms reward exploration rather than blocking the main route.
+5. Card draw/shuffle order and rewards (rewards try to offer CODE, CARE and CROSS choices).
 
 You can restart to obtain a different case. The main map remains handcrafted; this is intentionally not yet a procedural dungeon.
 
 ## 6. Deckbuilding / 行動卡構築
 The archive contains **112 actions**: 16 original cards and 96 additional cards based on Python, SQL, APIs, Git/Docker, RAG, local inference and evaluation, clinical assessment, nursing documentation, risk prevention, health-information systems and research. These are fictional actions inspired by **skills mentioned in the real CV**; cards do not assert new employment achievements.
 
-Each non-final officer victory and each registered dossier presents up to three random options. You may take exactly one or skip. Event decisions may also award cards, remove one basic Python, or restore HP. The entire card library can be searched in the game; not all cards appear in one run.
+Each non-final officer victory, each registered dossier and the optional draft cabinet present up to three random options. You may take exactly one or skip. Event decisions may also award cards, remove one basic Python, or restore HP. The entire card library can be searched in the game; not all cards appear in one run.
 
 **Practical tips / 操作建議**
 - Build Evidence with CARE or research, then spend it on CODE to take down procedural shields.

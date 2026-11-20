@@ -1,9 +1,10 @@
 import { knowledge } from './data.js';
 import { EXTRA_CARDS, EXTRA_EFFECTS, EXTRA_CARD_IDS } from './case-roguelite-cards.js';
+import { UPGRADE_CARDS, UPGRADE_EFFECTS, UPGRADE_CHOICES, UPGRADE_COUNT } from './case-upgrades.js';
 
 export type Language = 'en' | 'zh';
 export type Direction = 0 | 1 | 2 | 3;
-export type Phase = 'review' | 'denied' | 'maze' | 'battle' | 'reward' | 'record' | 'event' | 'dead' | 'clear' | 'settled';
+export type Phase = 'review' | 'denied' | 'maze' | 'battle' | 'reward' | 'record' | 'event' | 'dead' | 'clear' | 'settled' | 'upgrade';
 export type CardCategory = 'code' | 'care' | 'hybrid';
 export type CardId = string;
 export type Ailment = 'wounded'|'bleeding'|'infected'|'ddosed';
@@ -25,6 +26,7 @@ export type Run = {
   directive:Directive; mapVariant:number; variants:Record<EnemyId,number>; eventSites:Record<string,EventId>;
   statuses:AilmentSet; foeStatuses:AilmentSet; findings:number; freePlayed:number;
   cabinets:Record<string,CabinetPrize>; openedCabinets:string[];
+  upgradePending:number; nextTurnDraw:number;
   x: number; y: number; dir: Direction; visited: string[]; steps: number;
   hp: number; maxHp: number; block: number; carry: number; energy: number; evidence: number;
   deck: CardId[]; drawPile: CardId[]; discard: CardId[]; hand: CardId[]; turn: number;
@@ -99,8 +101,10 @@ const BASE_CARDS: Record<CardId,Card> = {
   research:{id:'research',name:['PEER REVIEW','同儕審查'],text:['Gain 3 evidence; draw 1.','獲得 3 證據，抽 1 張。'],cost:1,category:'hybrid',origin:['Published research: reproducible evidence','學術研究：重視可驗證的證據']},
   risk:{id:'risk',name:['RISK SCREEN','風險評估'],text:['Gain 4 block. Next 2 enemy attacks deal 4 less.','獲得 4 護盾；敵人接下來 2 次攻擊減少 4 傷害。'],cost:1,category:'care',origin:['Morse / Braden: anticipate preventable harm','Morse／Braden：事前評估與預防傷害']},
 };
-export const CARDS:Record<CardId,Card> = {...BASE_CARDS,...EXTRA_CARDS};
-export const CARD_COUNT=Object.keys(CARDS).length;
+export const CARDS:Record<CardId,Card> = {...BASE_CARDS,...EXTRA_CARDS,...UPGRADE_CARDS};
+export const CARD_COUNT=Object.keys(BASE_CARDS).length+EXTRA_CARD_IDS.length;
+export const CARD_UPGRADE_COUNT=UPGRADE_COUNT;
+export { UPGRADE_CHOICES } from './case-upgrades.js';
 export { EXTRA_EFFECTS, EXTRA_CARD_IDS } from './case-roguelite-cards.js';
 export const BASE_DECK: CardId[] = ['python','python','sql','api','rag','triage','triage','assessment','handoff','chart'];
 const REWARD_POOL: CardId[] = ['automation','abap','maui','llm','stabilize','research','risk','debug','rag','api','assessment','chart',...EXTRA_CARD_IDS];
@@ -148,7 +152,7 @@ export function createRun(runs=0,seed=((Date.now()+runs*101)|0)):Run {
     phase:'review', role:'',denials:0,seed,rng:mixSeed(seed),runs,
     directive:'degree_priority',mapVariant:0,variants:{gatekeeper:0,auditor:0,engine:0},eventSites:{...EVENTS},
     statuses:emptyAilments(),foeStatuses:emptyAilments(),findings:0,freePlayed:0,
-    cabinets:{},openedCabinets:[],
+    cabinets:{},openedCabinets:[],upgradePending:0,nextTurnDraw:0,
     x:1,y:1,dir:2,visited:['1,1'],steps:0,
     hp:42,maxHp:42,block:0,carry:0,energy:3,evidence:0,
     deck:[...BASE_DECK],drawPile:[],discard:[],hand:[],turn:1,
@@ -217,7 +221,7 @@ export function startFight(run:Run,foe:EnemyId):Run {
   const g=clone(run);g.phase='battle';g.foe=foe;g.foeHp=ENEMIES[foe].hp;
   g.foeBlock=0;g.foeExposed=0;g.foeInterrupted=false;g.riskScreened=0;g.misfiled=0;g.turn=1;
   g.energy=3;g.evidence=(g.role==='ENGINEER'?1:0)+(g.directive==='evidence_first'?1:0);
-  g.block=0;g.carry=0;g.lastCard='';g.freePlayed=0;g.foeStatuses=emptyAilments();
+  g.block=0;g.carry=0;g.lastCard='';g.freePlayed=0;g.foeStatuses=emptyAilments();g.nextTurnDraw=0;
   if(g.directive==='degree_priority')g.foeBlock=5;
   g.hand=[];g.discard=[];g.drawPile=shuffle(g,g.deck);draw(g,5);
   pushMessage(g,'INSPECTION BEGINS · '+ENEMIES[foe].name[0]);
@@ -269,6 +273,7 @@ export function move(run:Run,command:'left'|'right'|'forward'|'back'):Run {
 export function recordFile(run:Run):Run {
   if(run.phase!=='record')return run;
   const g=clone(run);g.dossiers.push(g.record);g.phase='reward';
+  g.upgradePending++;
   prepareReward(g);
   pushMessage(g,'PROJECT VERIFIED · SELECT A PROCEDURE · '+g.dossiers.length+'/2');
   return g;
@@ -303,7 +308,8 @@ function deal(g:Run,base:number,ignoreArmor=false,code=true) {
     const used=Math.min(2,g.evidence);g.evidence-=used;amount+=2*used;
   }
   if(code && g.foeExposed>0){amount+=2;g.foeExposed--;}
-  if(g.foeStatuses.wounded>0)amount+=g.foeStatuses.wounded;
+
+  // WOUNDED weakens the opponent's attack; it does not secretly amplify player damage.
   if(ignoreArmor){g.foeHp=Math.max(0,g.foeHp-amount);return amount;}
   const blocked=Math.min(amount,g.foeBlock);g.foeBlock-=blocked;
   g.foeHp=Math.max(0,g.foeHp-amount+blocked);
@@ -344,8 +350,20 @@ export function play(run:Run,index:number):Run {
   const beforeBlock=g.block;
   const next=intentFor(g.foe as EnemyId,g.turn,g.variants[g.foe as EnemyId]);
   let outcome='';
-  if(EXTRA_EFFECTS[id]){
-    for(const effect of EXTRA_EFFECTS[id]){
+  const upgradedEffects=UPGRADE_EFFECTS[id];
+  const specialUpgrade=id==='python_a'||id==='python_b'||id==='triage_a'||id==='triage_b'||id==='llm_a'||id==='llm_b';
+  if(specialUpgrade){
+    switch(id){
+      case 'python_a':deal(g,4+(previous&&CARDS[previous].category==='code'?2:0));break;
+      case 'python_b':deal(g,7+(previous&&CARDS[previous].category==='code'?4:0));break;
+      case 'triage_a':g.block+=6+(next.kind==='attack'?8:0);break;
+      case 'triage_b':g.block+=4+(next.kind==='attack'?3:0);break;
+      case 'llm_a':if(g.evidence>0){g.evidence--;deal(g,18,false,false);}else deal(g,4,false,false);break;
+      case 'llm_b':if(g.evidence>0){g.evidence--;deal(g,10,false,false);}else deal(g,4,false,false);break;
+    }
+    outcome=card.name[0]+' EXECUTED';
+  }else if(EXTRA_EFFECTS[id]||upgradedEffects){
+    for(const effect of (EXTRA_EFFECTS[id]??upgradedEffects)){
       const n=effect.amount;
       switch(effect.kind){
         case 'damage':deal(g,n,false,card.category==='code');break;
@@ -363,6 +381,7 @@ export function play(run:Run,index:number):Run {
           g.foeStatuses[effect.kind]=Math.min(3,g.foeStatuses[effect.kind]+n);break;
       }
     }
+    if(id==='handoff_b')g.nextTurnDraw=Math.min(2,g.nextTurnDraw+1);
     outcome=card.name[0]+' EXECUTED';
   }else switch(id){
     case 'python':deal(g,6+(previous&&CARDS[previous].category==='code'?3:0));outcome='SCRIPT EXECUTED';break;
@@ -373,7 +392,7 @@ export function play(run:Run,index:number):Run {
     case 'debug':{
       const hasExposure=g.foeExposed>0;
       deal(g,4);
-      if(hasExposure){g.foeInterrupted=true;g.foeExposed=Math.max(0,g.foeExposed-1);outcome='BREAKPOINT HIT · ACTION CANCELLED';}
+      if(hasExposure){g.foeInterrupted=true;outcome='BREAKPOINT HIT · ACTION CANCELLED';}
       else {g.foeExposed++;outcome='FAULT IDENTIFIED · EXPOSED +1';}
       break;
     }
@@ -438,7 +457,7 @@ export function endTurn(run:Run):Run {
   g.foeInterrupted=false;g.turn++;
   g.block=g.carry;g.carry=0;g.energy=Math.max(1,3-Math.min(2,g.misfiled));
   g.lastCard='';g.freePlayed=0;
-  draw(g,Math.max(2,5-g.statuses.ddosed));
+  draw(g,Math.max(2,5+g.nextTurnDraw-g.statuses.ddosed));g.nextTurnDraw=0;
   g.statuses.ddosed=Math.max(0,g.statuses.ddosed-1);
   pushMessage(g,interrupted?'PROCEDURE INTERRUPTED':damage?'HP -'+damage:
     intent.kind==='guard'?'ENEMY ARMOR +'+intent.amount:
@@ -448,9 +467,28 @@ export function endTurn(run:Run):Run {
 export function chooseReward(run:Run,id:CardId|null):Run {
   if(run.phase!=='reward'||(id!==null&&!run.reward.includes(id)))return run;
   const g=clone(run);if(id)g.deck.push(id);
-  g.phase='maze';g.hand=[];g.discard=[];g.drawPile=[];g.block=0;g.carry=0;g.evidence=0;
+  g.phase=g.upgradePending>0?'upgrade':'maze';g.hand=[];g.discard=[];g.drawPile=[];g.block=0;g.carry=0;g.evidence=0;
   pushMessage(g,id?'NEW PROCEDURE FILED · '+CARDS[id].name[0]:'REWARD DECLINED');
   return g;
+}
+export function chooseUpgrade(run:Run,index:number,branch:'A'|'B'|null):Run {
+  if(run.phase!=='upgrade')return run;
+  const g=clone(run);
+  if(branch!==null){
+    const base=g.deck[index];
+    const choices=UPGRADE_CHOICES[base];
+    if(!choices)return run;
+    const upgraded=choices[branch==='A'?0:1];
+    if(!CARDS[upgraded])return run;
+    g.deck[index]=upgraded; // Only the selected copy is changed.
+    pushMessage(g,'PROCEDURE AMENDED · '+CARDS[upgraded].name[0]);
+  }else pushMessage(g,'AMENDMENT DECLINED');
+  g.upgradePending=Math.max(0,g.upgradePending-1);
+  g.phase=g.upgradePending?'upgrade':'maze';
+  return g;
+}
+export function upgradeableIndices(g:Run):number[]{
+  return g.deck.map((id,i)=>UPGRADE_CHOICES[id]?i:-1).filter(index=>index>=0);
 }
 export function progress(g:Run):number {
   return g.dossiers.length + g.defeated.length;

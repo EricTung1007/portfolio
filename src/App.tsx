@@ -216,6 +216,7 @@ export default function App() {
   const viewFromHash = (): View => {
     const hash = window.location.hash;
     if (hash === '' || hash === '#/' || hash === '#/department') return 'department';
+    if (hash === '#/portfolio') return 'portfolio';
     if (hash === '#/chat') return 'chat';
     if (hash === '#/terminal') return 'terminal';
     if (hash === '#/achievements') return 'achievements';
@@ -267,7 +268,7 @@ export default function App() {
   const isUtility=view==='achievements'||view==='punch';
   const isPost = view.startsWith('post:');
 
-  if (view === 'department') return <Department language={language} onNavigate={target => setView(target)} />;
+  if (view === 'department') return <Department language={language} onNavigate={target => setView(target)} onLanguageChange={setLanguage} />;
 
   return (
     <>

@@ -402,3 +402,73 @@
 .dm-broken-form s{color:#914c3f;text-decoration-thickness:3px;}
 .dm-broken-form strong{display:inline-block;color:#a0443b;border:3px dashed #a0443b;padding:4px 8px;}
 @media(max-width:650px){.dm-broken-form{font-size:11px;padding:16px;}}
+
+
+/* CASE 0451 v3: legible statuses, card archive, language and directive. */
+.dm-catalog{padding:18px clamp(12px,3vw,28px);background:#1d2a24;border-bottom:4px solid #ad8066;color:#ded9b8}
+.dm-catalog-title{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+.dm-catalog-title button{background:#d0c5a5;color:#27332a;border:2px solid #6b7a66;padding:7px 12px;font:700 12px ui-monospace,monospace}
+.dm-catalog input{width:100%;max-width:620px;padding:12px;background:#d6cdab;color:#222b25;border:3px solid #71826d;font:700 13px ui-monospace,monospace;margin-bottom:12px}
+.dm-catalog-list{max-height:min(65vh,530px);overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;padding:3px}
+.dm-catalog-entry{background:#354539;border:2px solid #73856d;padding:12px}
+.dm-catalog-entry>div{display:flex;justify-content:space-between;align-items:start;gap:7px}
+.dm-catalog-entry strong{color:#e8debe;font-size:12px}
+.dm-catalog-entry span{font-size:9px;color:#d5b778;white-space:nowrap}
+.dm-catalog-entry p{margin:10px 0;font-size:11px}
+.dm-catalog-entry small{color:#b7c4ae;font-size:10px}
+.dm-ailment{background:#512c2b;color:#ffd4b8;padding:2px 5px;border:1px solid #ae7364}
+.dm-foe-ailment{background:#343653;color:#d2e2fd;padding:2px 5px;border:1px solid #8f9cac}
+.dm-directive{background:#7d663e;color:#ffedbc;padding:5px 8px;border:1px solid #beaa76;font-size:10px}
+.dm-case-notice{font-size:11px;line-height:1.6;color:#48513e;margin:12px 0;padding:11px;border:1px dashed #818973;background:#c4bfa5}
+.dm-manual a{display:inline-block;margin-top:12px;color:#f0dca1;text-decoration:underline}
+@media(max-width:650px){.dm-catalog-list{grid-template-columns:repeat(2,minmax(0,1fr));max-height:48vh}.dm-catalog-entry{padding:9px}.dm-catalog-entry>div{display:block}.dm-directive{font-size:9px}}
+@media(max-width:390px){.dm-catalog-list{grid-template-columns:1fr}}
+
+/* Iconography is specific to the real action, while effect strips are computed
+   from actual play rules. Cards remain readable on narrow mobile screens. */
+.dm-card-art{display:block;width:100%;height:auto;min-height:62px;max-height:88px;aspect-ratio:160/86;
+ margin:3px 0 8px;border:2px solid #34483a;image-rendering:pixelated;shape-rendering:crispEdges;background:#2c443b}
+.dm-card strong{min-height:34px}
+.dm-catalog-entry .dm-card-art{max-width:220px;min-height:0;margin:2px 0 10px}
+.dm-card:focus-visible .dm-card-art{outline:2px solid #e6d89f;outline-offset:2px}
+.dm-upgrade{border:4px solid #1b2420;margin-top:16px;padding:clamp(14px,2.5vw,28px);
+ background:#222e27;box-shadow:5px 5px 0 #111a16}
+.dm-upgrade h2{margin:20px 0 10px;color:#e5d8b0;font-size:22px}
+.dm-upgrade>p{font-size:12px;line-height:1.65;color:#b6c6b6;margin-bottom:18px}
+.dm-upgrade-choices{max-height:550px;overflow-y:auto;display:grid;gap:14px}
+.dm-upgrade-row{border:2px solid #6b816c;padding:12px;background:#2d3a30}
+.dm-upgrade-base{font-size:11px;font-weight:900;color:#dbcfa9;padding:0 0 10px}
+.dm-upgrade-cards{display:flex;flex-wrap:wrap;gap:10px}
+.dm-upgrade-cards .dm-card{width:min(100%,186px);min-height:0}
+.dm-upgrade .dm-skip button{margin-top:14px}
+@media(max-width:650px){
+  .dm-card-art{max-height:76px;margin-bottom:6px}
+  .dm-upgrade-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+  .dm-upgrade-cards .dm-card{width:100%}
+  .dm-upgrade-choices{max-height:60vh}
+}
+@media(max-width:390px){
+  .dm-card-art{max-height:66px}
+  .dm-catalog-entry .dm-card-art{max-width:100%}
+}
+
+/* Final administrative hearing: argument from source documents, never trivia. */
+.dm-hearing{border:4px solid #293329;background:#bab397;color:#263127;
+ margin-top:16px;padding:clamp(16px,3vw,30px);box-shadow:6px 6px #171f1a}
+.dm-hearing h2{font:900 clamp(20px,4vw,30px)/1.15 ui-monospace,monospace;margin:22px 0 12px;color:#363328}
+.dm-hearing>p{max-width:75ch;font:700 12px/1.7 ui-monospace,monospace;margin:0 0 20px}
+.dm-hearing-exhibits{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.dm-hearing-exhibits>div{border:3px solid #666c56;background:#d1c8a7;padding:12px}
+.dm-hearing-exhibits strong{font:900 11px/1.5 ui-monospace,monospace}
+.dm-hearing-exhibits p{font:700 11px/1.6 ui-monospace,monospace;margin:8px 0}
+.dm-hearing-exhibits a{text-decoration:underline;color:#41594e;font:900 10px ui-monospace,monospace}
+.dm-hearing-rule{border-left:7px solid #9e4f46;padding:12px;margin:16px 0;
+ background:#eee0ba;font:900 12px/1.5 ui-monospace,monospace}
+.dm-hearing .dm-event-actions button{font-size:12px;line-height:1.6}
+@media(max-width:650px){.dm-hearing-exhibits{grid-template-columns:1fr}}
+
+/* Explicit consent to spend game Evidence; a tactical choice, not a hidden tax. */
+.dm-evidence-toggle{font:900 10px ui-monospace,monospace;padding:5px 7px;border:2px solid #ac9d74;
+ background:#8c754b;color:#fff0bf;cursor:pointer}
+.dm-evidence-toggle.hold{background:#2b5661;color:#dbf0f2;border-color:#95bec4}
+.dm-evidence-toggle:focus-visible{outline:2px solid #f1dca8;outline-offset:2px}

@@ -1,4 +1,4 @@
-import { MAP, EVENTS, DIRS, DIR_NAMES, type Run } from './case-engine.js';
+import { mapForRun, DIR_NAMES, type Run } from './case-engine.js';
 
 const TILE_COLORS=[
   ['#303b34','#556353','#7e8b70','#a2a885'],
@@ -38,12 +38,14 @@ function getTextures(){
 function colorForMarker(symbol:string){
   if(symbol==='E')return '#c25e4c';
   if(symbol==='X')return '#cfb374';
+  if(symbol==='C')return '#d8cb9c';
   if(symbol==='?')return '#8fbbc5';
   return '#c8cfa9';
 }
 export function renderCorridor(canvas:HTMLCanvasElement,g:Run){
   const ctx=canvas.getContext('2d');if(!ctx)return;
   const W=320,H=200;
+  const MAP=mapForRun(g);
   ctx.imageSmoothingEnabled=false;
   ctx.fillStyle='#202b2d';ctx.fillRect(0,0,W,H/2);
   ctx.fillStyle='#353b32';ctx.fillRect(0,H/2,W,H/2);
@@ -83,8 +85,13 @@ export function renderCorridor(canvas:HTMLCanvasElement,g:Run){
     if((kind==='A'||kind==='H')&&g.dossiers.includes(kind))return;
     if('EAHX'.includes(kind)){markers.push({x,y,type:kind,dist:Math.hypot(x-g.x,y-g.y)});}
   }));
-  Object.keys(EVENTS).forEach(k=>{
-    const ev=EVENTS[k];
+  Object.keys(g.cabinets).forEach(k=>{
+    if(g.openedCabinets.includes(k))return;
+    const [x,y]=k.split(',').map(Number);
+    markers.push({x,y,type:'C',dist:Math.hypot(x-g.x,y-g.y)});
+  });
+  Object.keys(g.eventSites).forEach(k=>{
+    const ev=g.eventSites[k];
     if(g.events.includes(ev))return;
     const [x,y]=k.split(',').map(Number);
     markers.push({x,y,type:'?',dist:Math.hypot(x-g.x,y-g.y)});

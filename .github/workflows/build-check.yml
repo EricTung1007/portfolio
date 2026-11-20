@@ -6,7 +6,7 @@ on:
       - feat/8bit-bureau-maze-deckbuilder
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -19,6 +19,25 @@ jobs:
         run: ./node_modules/.bin/esbuild src/case-engine.ts --bundle --platform=node --format=esm --outfile=/tmp/case0451-engine.mjs
       - name: Test gameplay invariants and paths
         run: node scripts/test-case.mjs
+      - name: Fuzz 128 executable cards and deterministic case setups
+        run: node scripts/test-fuzz.mjs
+      - name: Verify authored 128 card illustrations match actual effects
+        run: |
+          ./node_modules/.bin/esbuild src/case-card-art.tsx --bundle --platform=node --format=esm --outfile=/tmp/case0451-card-art.mjs
+          node scripts/test-card-art.mjs
+      - name: Smoke-render all game phases and card layouts
+        run: |
+          ./node_modules/.bin/esbuild src/department.tsx --bundle --platform=node --format=esm --outfile=./.ci/case0451-component.mjs --external:react --external:react/jsx-runtime --loader:.css=empty --define:import.meta.env.BASE_URL='"/"'
+          node scripts/test-ui.mjs
       - name: Simulate combat balance
         run: node scripts/balance-case.mjs
       - run: npm run build
+      - name: Install Chromium for non-human browser QA
+        run: |
+          npm install --no-save --package-lock=false playwright@1.57.0
+          npx playwright install --with-deps chromium
+      - name: Exercise real browser UI on desktop and 375px mobile
+        run: |
+          npm run preview -- --host 127.0.0.1 --port 4173 >/tmp/case0451-preview.log 2>&1 &
+          node scripts/test-browser.mjs
+

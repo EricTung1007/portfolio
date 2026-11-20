@@ -3,9 +3,9 @@ import { pathToFileURL } from 'node:url';
 
 const game = await import(pathToFileURL('/tmp/case0451-engine.mjs').href);
 const {
-  BASE_DECK,CARDS,ENEMIES,MAP,EVENTS,
-  createRun,reject,startAppeal,reclassify,move,recordFile,resolveEvent,
-  intentFor,startFight,play,endTurn,chooseReward,
+  BASE_DECK,CARDS,CARD_COUNT,CARD_UPGRADE_COUNT,UPGRADE_CHOICES,upgradeableIndices,chooseUpgrade,DIRECTIVES,ENEMIES,MAP,MAP_VARIANT_COUNT,mapForRun,EVENTS,
+  createRun,reject,startAppeal,reclassify,acceptClassification,move,recordFile,resolveEvent,
+  intentFor,startFight,play,endTurn,chooseReward,resolveHearing,toggleEvidence,
 } = game;
 let checks=0;
 function expect(condition,message) {assert.ok(condition,message);checks++;}
@@ -16,7 +16,10 @@ function atHand(run,...cards){return {...run,hand:cards,drawPile:[],discard:[],e
   const start=createRun(0,451);
   eq(start.phase,'review','begins on inspection form');
   eq(start.deck.length,BASE_DECK.length,'starter deck count');
-  eq(Object.keys(CARDS).length,16,'CV-grounded card count');
+  eq(CARD_COUNT,112,'112 CV-grounded action cards');
+  eq(Object.keys(CARDS).length,128,'112 actions plus 16 upgrade versions');
+  eq(CARD_UPGRADE_COUNT,16,'eight authored cards have two upgrades each');
+  expect(Object.values(CARDS).every(c=>Number.isInteger(c.cost)&&c.cost>=0&&c.cost<=2),'all cards cost 0..2 energy');
   expect(Object.values(CARDS).every(c=>c.name.length===2&&c.text.length===2&&c.origin.length===2),'cards are bilingual and CV-sourced');
   const rejected=reject(start,'ENGINEER');
   eq(rejected.phase,'denied','classification refused');
@@ -48,13 +51,15 @@ function atHand(run,...cards){return {...run,hand:cards,drawPile:[],discard:[],e
   eq(g.hand.length,5,'draw five starting cards');
   eq(g.foeHp,ENEMIES.gatekeeper.hp,'correct enemy HP');
   eq(intentFor('gatekeeper',1).amount,7,'telegraphed attack');
+  const initialEvidence=g.evidence;
   g=atHand(g,'assessment','api');
   g=play(g,0);
-  eq(g.evidence,1,'assessment creates evidence');
+  eq(g.evidence,Math.min(6,initialEvidence+1),'assessment creates evidence');
   eq(g.block,5,'assessment creates clinical protection');
+  const spent=Math.min(2,g.evidence);
   g=play(g,0);
-  eq(g.evidence,0,'REST consumes evidence');
-  eq(g.foeHp,ENEMIES.gatekeeper.hp-(7+2),'REST pierces armor plus evidence damage');
+  eq(g.evidence,Math.min(6,initialEvidence+1)-spent,'REST consumes available evidence');
+  eq(g.foeHp,ENEMIES.gatekeeper.hp-(7+2*spent),'REST pierces armor plus evidence damage');
 }
 {
   let g=startFight(startAppeal(reject(createRun(0,101),'ENGINEER')),'gatekeeper');
@@ -99,9 +104,10 @@ function atHand(run,...cards){return {...run,hand:cards,drawPile:[],discard:[],e
 {
   let g=startFight(startAppeal(reject(createRun(0,103),'NURSE')),'auditor');
   g=atHand(g,'chart');g.misfiled=2;
+  const beforeEvidence=g.evidence;
   g=play(g,0);
   eq(g.misfiled,0,'SOAP correction removes inaccurate classification');
-  eq(g.evidence,2,'SOAP adds documented evidence');
+  eq(g.evidence,Math.min(6,beforeEvidence+2),'SOAP adds documented evidence');
 }
 {
   let g=startFight(startAppeal(reject(createRun(0,104),'OTHER')),'auditor');
@@ -119,10 +125,11 @@ function atHand(run,...cards){return {...run,hand:cards,drawPile:[],discard:[],e
   let g=startAppeal(reject(createRun(0,105),'OTHER'));
   g.x=4;g.y=5;g.dir=1;g=move(g,'forward');
   eq(g.phase,'event','story encounter triggered on map tile');
-  eq(g.event,'reference','correct reference room');
+  eq(g.event,g.eventSites['5,5'],'event assignment matches randomized location');
+  const resolvedEvent=g.event;
   g=resolveEvent(g,0);
-  expect(g.deck.includes('research'),'paper choice adds research card');
-  expect(g.events.includes('reference'),'event cannot be farmed repeatedly');
+  expect(resolvedEvent==='reference'?g.deck.includes('research'):resolvedEvent==='printer'?g.deck.includes('maui'):g.hp<=g.maxHp,'event choice resolved correctly');
+  expect(g.events.includes(resolvedEvent),'event cannot be farmed repeatedly');
   g=move({...g,x:4,y:5,dir:1},'forward');
   eq(g.phase,'maze','resolved event no longer blocks movement');
 }
@@ -133,12 +140,25 @@ function atHand(run,...cards){return {...run,hand:cards,drawPile:[],discard:[],e
   eq(g.record,'A','RAG project evidence');
   g=recordFile(g);
   expect(g.dossiers.includes('A'),'record registered');
+  eq(g.phase,'reward','dossier grants an action-card draft');
+  g=chooseReward(g,null);
+  eq(g.phase,'upgrade','filing a verified project opens per-card amendment');
+  const target=upgradeableIndices(g).find(index=>g.deck[index]==='python');
+  expect(target!=null,'a starting Python copy can be upgraded');
+  const otherCopies=g.deck.filter(id=>id==='python').length;
+  g=chooseUpgrade(g,target,'A');
+  eq(g.phase,'maze','upgrading returns to dungeon');
+  eq(g.deck[target],'python_a','targeted Python copy changed');
+  eq(g.deck.filter(id=>id==='python').length,otherCopies-1,'one duplicate remains unchanged');
   g={...g,x:3,y:3,dir:1};
   g=move(g,'forward');
   eq(g.phase,'maze','central door rejects incomplete evidence');
   g={...g,x:3,y:3,dir:1,dossiers:['A','H'],defeated:['gatekeeper','auditor']};
   g=move(g,'forward');
-  eq(g.phase,'battle','complete dossier unlocks final boss');
+  eq(g.phase,'hearing','complete dossier unlocks final evidence hearing');
+  g=resolveHearing(g,1);
+  eq(g.phase,'battle','supported objection starts the final boss');
+  eq(g.hearingResult,'validated','true argument is recorded as the hearing outcome');
   eq(g.foe,'engine','actual classification engine encounter');
   g=atHand(g,'api');g.foeHp=3;g=play(g,0);
   eq(g.phase,'clear','defeating final boss wins the appeal');
@@ -149,4 +169,156 @@ function atHand(run,...cards){return {...run,hand:cards,drawPile:[],discard:[],e
   g=endTurn(g);
   eq(g.phase,'dead','lethal damage ends run');
 }
+
+{
+  const a=createRun(0,1451),b=createRun(0,1451);
+  eq(a.directive,b.directive,'same seed reproduces directive');
+  eq(a.variants,b.variants,'same seed reproduces enemy variants');
+  eq(a.mapVariant,b.mapVariant,'same seed reproduces maze shortcuts');
+  eq(MAP_VARIANT_COUNT,3,'three authored map variants');
+  eq(a.eventSites,b.eventSites,'same seed reproduces randomized event placements');
+  eq(a.cabinets,b.cabinets,'same seed reproduces hidden cabinet rewards');
+  eq(Object.values(a.eventSites).sort(),Object.values(EVENTS).sort(),'all three events remain present');
+  eq(Object.values(a.cabinets).sort(),['draft','recovery','repair'],'all cabinet prize types present');
+  const sample=Array.from({length:40},(_,i)=>createRun(0,4000+i));
+  expect(new Set(sample.map(g=>g.directive)).size>=3,'directives vary across fixed seeds');
+  expect(new Set(sample.map(g=>g.mapVariant)).size===3,'all map variants sampled across seeds');
+  expect(new Set(sample.map(g=>JSON.stringify(g.eventSites))).size>=3,'event sites vary across fixed seeds');
+  eq(Object.keys(DIRECTIVES).length,4,'four bureau directives');
+}
+{
+  let g=startFight(startAppeal(reject(createRun(0,351),'OTHER')),'auditor');
+  g=atHand(g,'audit_query','schema_migration','policy_diff');g.energy=5;
+  g=play(g,0);g=play(g,0);g=play(g,0);
+  expect(g.foeStatuses.bleeding>0,'authored card can apply enemy bleeding');
+  expect(g.foeStatuses.infected>0,'authored card can apply enemy infection');
+  expect(g.foeStatuses.wounded>0,'authored card can apply enemy wounded');
+  const previousHp=g.foeHp;
+  g=endTurn(g);
+  expect(g.foeHp<previousHp,'bleeding and infection inflict enemy damage at turn end');
+}
+{
+  let g=startFight(startAppeal(reject(createRun(0,355),'OTHER')),'gatekeeper');
+  g.statuses={wounded:1,bleeding:2,infected:1,ddosed:1};
+  g=atHand(g,'risk','git_revert');
+  g=play(g,0);
+  eq(g.block,2,'wounded reduces block gained from a card');
+  g=play(g,0);
+  eq(g.statuses.bleeding,0,'cleanse prioritizes and removes bleeding stacks');
+  eq(g.statuses.infected,0,'cleanse also removes infected stack');
+  g=atHand(g,'source_lookup','source_lookup','source_lookup');
+  g=play(g,0);g=play(g,0);
+  eq(g.freePlayed,2,'two zero-cost cards permitted per turn');
+  g=atHand(g,'source_lookup');
+  const result=play(g,0);
+  eq(result,g,'third free card is rejected in one turn');
+}
+{
+  let g=startFight(startAppeal(reject(createRun(0,365),'OTHER')),'gatekeeper');
+  g={...g,turn:2,foeStatuses:{wounded:0,bleeding:0,infected:0,ddosed:1}};
+  const armor=g.foeBlock;g=atHand(g);g=endTurn(g);
+  eq(g.foeBlock,armor,'DDOSED disrupts a non-attack enemy action');
+}
+{
+  const start=reject(createRun(0,400),'NURSE');
+  const closed=acceptClassification(start);
+  eq(closed.phase,'settled','player can explicitly close the appeal');
+  let g=startFight(startAppeal(start),'engine');
+  g=atHand(g,'api');g.foeHp=3;g.findings=0;g=play(g,0);
+  eq(g.ending,'EXCEPTION GRANTED','standard victory requires no optional findings');
+  g=startFight(startAppeal(start),'engine');g=atHand(g,'api');g.foeHp=3;g.findings=2;g.hearingResult='validated';
+  g=play(g,0);
+  eq(g.ending,'RULE §0451 INVALIDATED','supported hearing unlocks rule-invalidating ending');
+}
+{
+  let g=startAppeal(reject(createRun(0,908),'OTHER'));
+  const site='5,3', [x,y]=site.split(',').map(Number);
+  const reward=g.cabinets[site];
+  g={...g,x:x-1,y,dir:1};
+  g=move(g,'forward');
+  expect(g.openedCabinets.includes(site),'optional cabinet opened and tracked');
+  if(reward==='draft')eq(g.phase,'reward','draft cabinet presents reward choices');
+  else expect(g.phase==='maze','non-draft cabinet keeps exploration active');
+  if(g.phase==='reward')g=chooseReward(g,null);
+  g={...g,x:x-1,y,dir:1};
+  g=move(g,'forward');
+  eq(g.phase,'maze','cabinet cannot be farmed repeatedly');
+}
+{
+  for(let variant=0;variant<MAP_VARIANT_COUNT;variant++){
+    const m=mapForRun({mapVariant:variant});
+    const visited=new Set(['1,1']),q=[[1,1]];
+    while(q.length){
+      const [x,y]=q.shift();
+      for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){
+        const nx=x+dx,ny=y+dy,key=nx+','+ny;
+        if(m[ny]?.[nx]&&m[ny][nx]!=='#'&&!visited.has(key)){
+          visited.add(key);q.push([nx,ny]);
+        }
+      }
+    }
+    for(const key of ['1,11','7,1','6,13','10,3','4,3','5,3','11,5','11,11',...Object.keys(EVENTS)]){
+      expect(visited.has(key),'variant '+variant+' reaches '+key);
+    }
+  }
+}
+{
+  const base=startAppeal(reject(createRun(0,911),'OTHER'));
+  let g=startFight(base,'gatekeeper');
+  g=atHand(g,'python_a','python_b');g.energy=1;g.foeBlock=0;
+  const before=g.foeHp;
+  g=play(g,0);
+  expect(g.foeHp<before,'quick scripted card resolves as a valid action');
+  eq(g.energy,1,'quick script costs zero');
+  const after=g.foeHp;g=play(g,0);
+  expect(g.foeHp<after,'batch script resolves separately');
+  eq(g.energy,0,'batch script consumes one energy');
+}
+{
+  let g=startFight(startAppeal(reject(createRun(0,913),'OTHER')),'gatekeeper');
+  g.foeExposed=2;g=atHand(g,'debug');
+  g=play(g,0);
+  eq(g.foeExposed,1,'breakpoint consumes exactly one exposed charge on interrupt');
+  expect(g.foeInterrupted,'breakpoint still interrupts an exposed foe');
+}
+{
+  let g=startFight(startAppeal(reject(createRun(0,914),'OTHER')),'gatekeeper');
+  g.foeStatuses.wounded=2;
+  g=atHand(g,'api');const hp=g.foeHp;
+  g=play(g,0);
+  eq(g.foeHp,hp-7,'wounded weakens enemy attack without unlisted bonus to own damage');
+}
+{
+  const g=chooseUpgrade(startAppeal(reject(createRun(0,915),'OTHER')),-1,null);
+  eq(g.phase,'maze','upgrade action is inert outside upgrade phase');
+  expect(Object.keys(UPGRADE_CHOICES).length===8,'eight eligible base cards');
+}
+{
+  let g=startAppeal(reject(createRun(0,1902),'NURSE'));
+  g={...g,phase:'hearing',dossiers:['A','H'],defeated:['gatekeeper','auditor'],findings:2};
+  let wrong=resolveHearing(g,0);
+  eq(wrong.phase,'battle','unsupported objection still enters battle');
+  eq(wrong.hearingResult,'dismissed','unsupported appeal does not invalidate regulation');
+  expect(wrong.foeBlock>=5,'unsupported appeal incurs procedural armor');
+  let right=resolveHearing(g,1);
+  eq(right.hearingResult,'validated','project contradiction supports invalidation');
+  expect(right.foeExposed>=2,'successful hearing exposes classification engine');
+  expect(right.evidence>=1,'documented source becomes usable battle Evidence');
+  eq(resolveHearing(right,1),right,'hearing cannot be farmed from combat');
+}
+{
+  let g=startFight(startAppeal(reject(createRun(0,2277),'ENGINEER')),'gatekeeper');
+  g.foeBlock=0;g.evidence=3;g.hand=['api'];g.energy=3;
+  g=toggleEvidence(g);
+  eq(g.useEvidence,false,'Evidence reserve can be enabled during combat');
+  const before=g.evidence;const hp=g.foeHp;
+  g=play(g,0);
+  eq(g.evidence,before,'HOLD preserves Evidence on a normal CODE attack');
+  eq(g.foeHp,hp-7,'HOLD does not grant hidden Evidence bonus damage');
+  g.hand=['api'];g=toggleEvidence(g);
+  eq(g.useEvidence,true,'AUTO can be restored without ending turn');
+  g=play(g,0);
+  eq(g.evidence,before-2,'AUTO consumes two Evidence on next CODE attack');
+}
 console.log('CASE 0451: '+checks+' gameplay assertions passed.');
+

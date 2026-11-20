@@ -1,16 +1,33 @@
 import { knowledge } from './data.js';
+import { EXTRA_CARDS, EXTRA_EFFECTS, EXTRA_CARD_IDS } from './case-roguelite-cards.js';
+import { UPGRADE_CARDS, UPGRADE_EFFECTS, UPGRADE_CHOICES, UPGRADE_COUNT } from './case-upgrades.js';
 
 export type Language = 'en' | 'zh';
 export type Direction = 0 | 1 | 2 | 3;
-export type Phase = 'review' | 'denied' | 'maze' | 'battle' | 'reward' | 'record' | 'event' | 'dead' | 'clear';
+export type Phase = 'review' | 'denied' | 'maze' | 'battle' | 'reward' | 'record' | 'event' | 'dead' | 'clear' | 'settled' | 'upgrade' | 'hearing';
 export type CardCategory = 'code' | 'care' | 'hybrid';
-export type CardId = 'python'|'sql'|'api'|'debug'|'rag'|'automation'|'abap'|'maui'|'llm'|'triage'|'assessment'|'handoff'|'chart'|'stabilize'|'research'|'risk';
+export type CardId = string;
+export type Ailment = 'wounded'|'bleeding'|'infected'|'ddosed';
+export type AilmentSet = Record<Ailment,number>;
+export type Directive = 'degree_priority'|'evidence_first'|'audit_overload'|'night_shift';
+export const DIRECTIVES:Record<Directive,[string,string,string,string]> = {
+  degree_priority:['DEGREE PRIORITY','學歷優先令','Opponents begin with 5 armor.','敵方開戰獲得 5 護甲。'],
+  evidence_first:['EVIDENCE FIRST','證據先行令','Start each fight with 1 evidence.','每場戰鬥開始獲得 1 證據。'],
+  audit_overload:['AUDIT OVERLOAD','稽核超載令','Every fourth enemy turn adds 1 MISFILED.','敵方每四回合附加 1 層誤分類。'],
+  night_shift:['NIGHT SHIFT','深夜值班令','Healing actions restore 2 fewer HP.','戰鬥中的治療減少 2 HP。'],
+};
+export const emptyAilments=():AilmentSet=>({wounded:0,bleeding:0,infected:0,ddosed:0});
 export type Card = { id: CardId; name: [string,string]; text: [string,string]; cost: number; category: CardCategory; origin: [string,string] };
 export type EnemyId = 'gatekeeper'|'auditor'|'engine';
-export type Intent = { kind: 'attack'|'guard'|'misfile'; amount: number; name: [string,string] };
+export type Intent = { kind: 'attack'|'guard'|'misfile'; amount: number; name: [string,string]; status?:Ailment };
 export type EventId = 'reference' | 'printer' | 'rest';
 export type Run = {
   phase: Phase; role: string; denials: number; seed: number; rng: number; runs: number;
+  directive:Directive; mapVariant:number; variants:Record<EnemyId,number>; eventSites:Record<string,EventId>;
+  statuses:AilmentSet; foeStatuses:AilmentSet; findings:number; freePlayed:number;
+  cabinets:Record<string,CabinetPrize>; openedCabinets:string[];
+  upgradePending:number; nextTurnDraw:number; useEvidence:boolean;
+  hearingResult:'pending'|'validated'|'dismissed';
   x: number; y: number; dir: Direction; visited: string[]; steps: number;
   hp: number; maxHp: number; block: number; carry: number; energy: number; evidence: number;
   deck: CardId[]; drawPile: CardId[]; discard: CardId[]; hand: CardId[]; turn: number;
@@ -35,6 +52,18 @@ export const MAP = [
   '#.....A.#.....#',
   '###############',
 ] as const;
+// Three authored routes open shortcuts without hiding any mandatory location.
+const MAP_OPENINGS:Record<number,Array<[number,number]>>={
+  0:[],1:[[6,5],[8,12]],2:[[2,9],[10,5]],
+};
+export const MAP_VARIANT_COUNT=Object.keys(MAP_OPENINGS).length;
+export function mapForRun(g:Pick<Run,'mapVariant'>):string[]{
+  const result:string[]=[...MAP];
+  for(const [x,y] of MAP_OPENINGS[g.mapVariant]??[]){
+    result[y]=result[y].slice(0,x)+'.'+result[y].slice(x+1);
+  }
+  return result;
+}
 export const DIRS: Array<[number, number]> = [[0,-1],[1,0],[0,1],[-1,0]];
 export const DIR_NAMES = ['N','E','S','W'];
 export const DOSSIERS = { A: knowledge.projects[0], H: knowledge.projects[1] };
@@ -55,7 +84,7 @@ export const ENEMIES: Record<EnemyId,{name:[string,string]; hp:number; intro:[st
     description:['The final rule: every person must fit exactly one box.','最終規則：每個人必須被放進唯一一個格子。'],
   },
 };
-export const CARDS: Record<CardId,Card> = {
+const BASE_CARDS: Record<CardId,Card> = {
   python:{id:'python',name:['PYTHON SCRIPT','Python 腳本'],text:['6 DMG. +3 if the previous card was CODE.','造成 6 傷害；上一張是程式卡時 +3。'],cost:1,category:'code',origin:['Python: scripting and automation','Python：自動化與腳本']},
   sql:{id:'sql',name:['SQL QUERY','SQL 查詢'],text:['3 DMG. Strip 6 armor. Expose 2.','造成 3 傷害；削除 6 護甲，揭露弱點 2。'],cost:1,category:'code',origin:['SQL: inspecting stored data','SQL：檢索資料庫與查找錯誤']},
   api:{id:'api',name:['REST REQUEST','REST API 請求'],text:['7 DMG ignoring enemy armor.','造成無視護甲的 7 傷害。'],cost:1,category:'code',origin:['REST API: crossing system boundaries','REST API：跨越系統邊界']},
@@ -73,9 +102,16 @@ export const CARDS: Record<CardId,Card> = {
   research:{id:'research',name:['PEER REVIEW','同儕審查'],text:['Gain 3 evidence; draw 1.','獲得 3 證據，抽 1 張。'],cost:1,category:'hybrid',origin:['Published research: reproducible evidence','學術研究：重視可驗證的證據']},
   risk:{id:'risk',name:['RISK SCREEN','風險評估'],text:['Gain 4 block. Next 2 enemy attacks deal 4 less.','獲得 4 護盾；敵人接下來 2 次攻擊減少 4 傷害。'],cost:1,category:'care',origin:['Morse / Braden: anticipate preventable harm','Morse／Braden：事前評估與預防傷害']},
 };
+export const CARDS:Record<CardId,Card> = {...BASE_CARDS,...EXTRA_CARDS,...UPGRADE_CARDS};
+export const CARD_COUNT=Object.keys(BASE_CARDS).length+EXTRA_CARD_IDS.length;
+export const CARD_UPGRADE_COUNT=UPGRADE_COUNT;
+export { UPGRADE_CHOICES } from './case-upgrades.js';
+export { EXTRA_EFFECTS, EXTRA_CARD_IDS } from './case-roguelite-cards.js';
 export const BASE_DECK: CardId[] = ['python','python','sql','api','rag','triage','triage','assessment','handoff','chart'];
-const REWARD_POOL: CardId[] = ['automation','abap','maui','llm','stabilize','research','risk','debug','rag','api','assessment','chart'];
+const REWARD_POOL: CardId[] = ['automation','abap','maui','llm','stabilize','research','risk','debug','rag','api','assessment','chart',...EXTRA_CARD_IDS];
 export const EVENTS: Record<string,EventId> = {'5,5':'reference','11,7':'printer','3,9':'rest'};
+export const CABINET_SITES=['5,3','11,5','11,11'] as const;
+export type CabinetPrize='draft'|'recovery'|'repair';
 export const EVENT_TEXT: Record<EventId,{name:[string,string];story:[string,string];options:[[string,string],[string,string]]}> = {
   reference:{
     name:['THE REFERENCE DESK','參考資料室'],
@@ -94,8 +130,15 @@ export const EVENT_TEXT: Record<EventId,{name:[string,string];story:[string,stri
   },
 };
 export function loc(x:number,y:number){return x+','+y;}
-export function wall(x:number,y:number){return MAP[y]?.[x] === '#' || MAP[y]?.[x] == null;}
+export function wall(x:number,y:number,g?:Pick<Run,'mapVariant'>){const map=g?mapForRun(g):MAP;return map[y]?.[x] === '#' || map[y]?.[x] == null;}
 export function name(language:Language, values:[string,string]){return values[language==='en'?0:1];}
+// Mix similar user seeds first: adjacent run IDs must not share the same directive.
+function mixSeed(seed:number):number {
+  let x=(seed^(seed>>>16))>>>0;
+  x=Math.imul(x,0x7feb352d);x^=x>>>15;
+  x=Math.imul(x,0x846ca68b);x^=x>>>16;
+  return x>>>0;
+}
 function rand(state:Run,max:number):number {
   state.rng = (Math.imul(state.rng,1664525)+1013904223)>>>0;
   return Math.floor(state.rng / 4294967296 * max);
@@ -107,7 +150,10 @@ function shuffle(state:Run,items:CardId[]):CardId[] {
 }
 export function createRun(runs=0,seed=((Date.now()+runs*101)|0)):Run {
   const g:Run={
-    phase:'review', role:'',denials:0,seed,rng:seed>>>0,runs,
+    phase:'review', role:'',denials:0,seed,rng:mixSeed(seed),runs,
+    directive:'degree_priority',mapVariant:0,variants:{gatekeeper:0,auditor:0,engine:0},eventSites:{...EVENTS},
+    statuses:emptyAilments(),foeStatuses:emptyAilments(),findings:0,freePlayed:0,
+    cabinets:{},openedCabinets:[],upgradePending:0,nextTurnDraw:0,useEvidence:true,hearingResult:'pending',
     x:1,y:1,dir:2,visited:['1,1'],steps:0,
     hp:42,maxHp:42,block:0,carry:0,energy:3,evidence:0,
     deck:[...BASE_DECK],drawPile:[],discard:[],hand:[],turn:1,
@@ -115,12 +161,23 @@ export function createRun(runs=0,seed=((Date.now()+runs*101)|0)):Run {
     defeated:[],dossiers:[],record:'A',events:[],event:'reference',reward:[],
     message:'',history:[],ending:'',
   };
+  const directives=Object.keys(DIRECTIVES) as Directive[];
+  g.directive=directives[rand(g,directives.length)];
+  g.mapVariant=rand(g,MAP_VARIANT_COUNT);
+  g.variants={gatekeeper:rand(g,2),auditor:rand(g,2),engine:rand(g,2)};
+  const sites=Object.keys(EVENTS),variants=shuffle(g,Object.values(EVENTS));
+  g.eventSites=Object.fromEntries(sites.map((site,i)=>[site,variants[i]])) as Record<string,EventId>;
+  const cabinetPrizes=shuffle(g,['draft','recovery','repair']) as CabinetPrize[];
+  g.cabinets=Object.fromEntries(CABINET_SITES.map((site,i)=>[site,cabinetPrizes[i]])) as Record<string,CabinetPrize>;
   return g;
 }
 function clone(g:Run):Run {
   return {...g,deck:[...g.deck],drawPile:[...g.drawPile],discard:[...g.discard],
     hand:[...g.hand],visited:[...g.visited],defeated:[...g.defeated],dossiers:[...g.dossiers],
-    events:[...g.events],reward:[...g.reward],history:[...g.history]};
+    events:[...g.events],reward:[...g.reward],history:[...g.history],
+    statuses:{...g.statuses},foeStatuses:{...g.foeStatuses},
+    variants:{...g.variants},eventSites:{...g.eventSites},
+    cabinets:{...g.cabinets},openedCabinets:[...g.openedCabinets]};
 }
 function pushMessage(g:Run,text:string) {g.message=text;g.history=[...g.history.slice(-3),text];}
 function draw(g:Run,count:number) {
@@ -135,6 +192,11 @@ export function reject(run:Run,role:string):Run {
   const g=clone(run);g.role=role;g.denials++;g.phase='denied';return g;
 }
 export function reclassify(run:Run):Run {return {...run,phase:'review'};}
+export function acceptClassification(run:Run):Run {
+  const g=clone(run);if(g.phase!=='denied')return run;
+  g.phase='settled';g.ending='EXCEPTION FILED WITHOUT APPEAL';
+  pushMessage(g,'CASE CLOSED · DEPARTMENT RETAINS FINAL AUTHORITY');return g;
+}
 export function startAppeal(run:Run):Run {
   const g=clone(run);g.phase='maze';g.hp=g.maxHp;
   if(g.role==='ENGINEER'){g.deck.push('debug');}
@@ -143,18 +205,25 @@ export function startAppeal(run:Run):Run {
   pushMessage(g,'APPEAL ACCEPTED · FIND 2 DOSSIERS · CHALLENGE 3 RULINGS');
   return g;
 }
-export function intentFor(foe:EnemyId,turn:number):Intent {
+export function intentFor(foe:EnemyId,turn:number,variant=0):Intent {
   const pattern = {
     gatekeeper:[{kind:'attack',amount:7,name:['REJECT STAMP','退件印章']},{kind:'guard',amount:7,name:['DIPLOMA SHIELD','學歷盾牌']},{kind:'attack',amount:11,name:['INVALIDATE','資格撤銷']}],
     auditor:[{kind:'guard',amount:9,name:['AUDIT TRAIL','稽核護甲']},{kind:'attack',amount:9,name:['REDACTION','遮蔽紀錄']},{kind:'misfile',amount:1,name:['MISFILE RECORD','誤分類紀錄']},{kind:'attack',amount:12,name:['SANCTION','程序處分']}],
     engine:[{kind:'attack',amount:12,name:['FORCED CLASSIFICATION','強制分類']},{kind:'misfile',amount:1,name:['ERASE CATEGORY','抹除類別']},{kind:'guard',amount:11,name:['SYSTEM POLICY','制度防護']},{kind:'attack',amount:16,name:['FINAL VERDICT','最終裁決']}],
   } as Record<EnemyId, Intent[]>;
-  return pattern[foe][(turn-1)%pattern[foe].length];
+  const original=pattern[foe][(turn-1)%pattern[foe].length];
+  if(!variant)return original;
+  const status:Partial<Record<EnemyId,Ailment>>={gatekeeper:'wounded',auditor:'bleeding',engine:'infected'};
+  // Familiar, fully telegraphed damage patterns; randomized versions add legible ailments.
+  if(original.kind!=='attack')return original;
+  return {...original,status:foe==='engine'&&turn%4===0?'ddosed':status[foe]};
 }
 export function startFight(run:Run,foe:EnemyId):Run {
   const g=clone(run);g.phase='battle';g.foe=foe;g.foeHp=ENEMIES[foe].hp;
   g.foeBlock=0;g.foeExposed=0;g.foeInterrupted=false;g.riskScreened=0;g.misfiled=0;g.turn=1;
-  g.energy=3;g.evidence=g.role==='ENGINEER'?1:0;g.block=0;g.carry=0;g.lastCard='';
+  g.energy=3;g.evidence=(g.role==='ENGINEER'?1:0)+(g.directive==='evidence_first'?1:0);
+  g.block=0;g.carry=0;g.lastCard='';g.freePlayed=0;g.foeStatuses=emptyAilments();g.nextTurnDraw=0;g.useEvidence=true;
+  if(g.directive==='degree_priority')g.foeBlock=5;
   g.hand=[];g.discard=[];g.drawPile=shuffle(g,g.deck);draw(g,5);
   pushMessage(g,'INSPECTION BEGINS · '+ENEMIES[foe].name[0]);
   return g;
@@ -170,27 +239,47 @@ export function move(run:Run,command:'left'|'right'|'forward'|'back'):Run {
   if(command==='right'){g.dir=((g.dir+1)%4) as Direction;return g;}
   const [dx,dy]=DIRS[g.dir];const dir=command==='back'?-1:1;
   const nx=g.x+dx*dir, ny=g.y+dy*dir;
-  if(wall(nx,ny)){pushMessage(g,'NO ENTRY · WALL');return g;}
+  if(wall(nx,ny,g)){pushMessage(g,'NO ENTRY · WALL');return g;}
   g.x=nx;g.y=ny;g.steps++;
   const k=loc(nx,ny);if(!g.visited.includes(k))g.visited.push(k);
-  const cell=MAP[ny][nx];
+  const cell=mapForRun(g)[ny][nx];
+  const prize=g.cabinets[k];
+  if(prize&&!g.openedCabinets.includes(k)){
+    g.openedCabinets.push(k);
+    if(prize==='draft'){
+      prepareReward(g);g.phase='reward';
+      pushMessage(g,'UNCLAIMED PROCEDURE · SELECT A CARD');
+    } else if(prize==='recovery'){
+      g.hp=Math.min(g.maxHp,g.hp+8);
+      pushMessage(g,'OFFICE BREAK ROOM · HP +8');
+    } else {
+      cleanse(g,3);
+      pushMessage(g,'MISSING FORMS FOUND · AILMENTS CLEARED');
+    }
+    return g;
+  }
   if(cell==='E'){
     const foe:EnemyId=k==='1,11'?'gatekeeper':'auditor';
     if(!g.defeated.includes(foe))return startFight(g,foe);
   }
   if((cell==='A'||cell==='H')&&!g.dossiers.includes(cell)){g.phase='record';g.record=cell;return g;}
   if(cell==='X'){
-    if(challengeFinal(g))return startFight(g,'engine');
-    pushMessage(g,'FINAL DOOR LOCKED · 2 DOSSIERS + 2 INSPECTORS');
+    if(challengeFinal(g)){
+      g.phase='hearing';pushMessage(g,'FILE 0451 · FINAL ADMINISTRATIVE HEARING');return g;
+    }
+    // Approachable terminal, not yet actionable. No hidden prerequisite.
+    pushMessage(g,'FINAL TERMINAL INACTIVE · VERIFY 2 DOSSIERS AND 2 RULINGS');
   }
-  const ev=EVENTS[k];
+  const ev=g.eventSites[k];
   if(ev&&!g.events.includes(ev)){g.phase='event';g.event=ev;return g;}
   g.message='';return g;
 }
 export function recordFile(run:Run):Run {
   if(run.phase!=='record')return run;
-  const g=clone(run);g.dossiers.push(g.record);g.phase='maze';
-  pushMessage(g,'EVIDENCE REGISTERED · '+g.dossiers.length+'/2');
+  const g=clone(run);g.dossiers.push(g.record);g.phase='reward';
+  g.upgradePending++;
+  prepareReward(g);
+  pushMessage(g,'PROJECT VERIFIED · SELECT A PROCEDURE · '+g.dossiers.length+'/2');
   return g;
 }
 export function resolveEvent(run:Run,choice:0|1):Run {
@@ -198,52 +287,114 @@ export function resolveEvent(run:Run,choice:0|1):Run {
   const g=clone(run);
   g.events.push(g.event);g.phase='maze';
   if(g.event==='reference'){
-    if(choice===0)g.deck.push('research');
+    if(choice===0){g.deck.push('research');g.findings++;}
     else g.hp=Math.min(g.maxHp,g.hp+8);
   } else if(g.event==='printer'){
-    if(choice===0)g.deck.push('maui');
+    if(choice===0){g.deck.push('maui');g.findings++;}
     else {const i=g.deck.indexOf('python');if(i!==-1)g.deck.splice(i,1);}
   } else if(g.event==='rest'){
     if(choice===0)g.hp=Math.min(g.maxHp,g.hp+12);
-    else g.deck.push('risk');
+    else {g.deck.push('risk');g.findings++;}
   }
   pushMessage(g,'ADMINISTRATIVE DECISION ACCEPTED');
   return g;
 }
+function heal(g:Run,amount:number){const penalty=g.statuses.infected+(g.directive==='night_shift'?2:0);g.hp=Math.min(g.maxHp,g.hp+Math.max(0,amount-penalty));}
+function cleanse(g:Run,amount:number){
+  for(const key of ['bleeding','infected','wounded','ddosed'] as Ailment[]){
+    const used=Math.min(amount,g.statuses[key]);g.statuses[key]-=used;amount-=used;
+  }
+  if(amount>0)g.misfiled=Math.max(0,g.misfiled-amount);
+}
 function deal(g:Run,base:number,ignoreArmor=false,code=true) {
   let amount=base;
-  if(code && g.evidence>0){
+  if(code && g.useEvidence && g.evidence>0){
     const used=Math.min(2,g.evidence);g.evidence-=used;amount+=2*used;
   }
   if(code && g.foeExposed>0){amount+=2;g.foeExposed--;}
+
+  // WOUNDED weakens the opponent's attack; it does not secretly amplify player damage.
   if(ignoreArmor){g.foeHp=Math.max(0,g.foeHp-amount);return amount;}
   const blocked=Math.min(amount,g.foeBlock);g.foeBlock-=blocked;
   g.foeHp=Math.max(0,g.foeHp-amount+blocked);
   return amount-blocked;
 }
+function prepareReward(g:Run){
+  const fresh=shuffle(g,REWARD_POOL.filter(id=>!g.deck.includes(id)));
+  const categories:['code','care','hybrid']=['code','care','hybrid'];
+  const picks:CardId[]=[];
+  for(const category of shuffle(g,categories)){
+    const found=fresh.find(id=>CARDS[id].category===category&&!picks.includes(id));
+    if(found)picks.push(found);
+  }
+  g.reward=[...picks,...fresh.filter(id=>!picks.includes(id))].slice(0,3);
+}
 function finishFight(g:Run){
   g.defeated.push(g.foe as EnemyId);
   g.hp=Math.min(g.maxHp,g.hp+5); // Nursing passive: recovery after every successful case.
+  g.statuses.bleeding=0;g.statuses.ddosed=0;
+  g.statuses.wounded=Math.max(0,g.statuses.wounded-1);
+  g.statuses.infected=Math.max(0,g.statuses.infected-1);
   if(g.foe==='engine'){
-    g.phase='clear';g.ending='RULE §0451 INVALIDATED';g.reward=[];
+    g.phase='clear';g.ending=g.hearingResult==='validated'?'RULE §0451 INVALIDATED':'EXCEPTION GRANTED';g.reward=[];
     pushMessage(g,'CLASSIFICATION ENGINE OVERRIDDEN');
     return;
   }
   g.phase='reward';
-  const pool=shuffle(g,REWARD_POOL.filter(id=>!g.deck.includes(id)));
-  const fallback=shuffle(g,REWARD_POOL);
-  g.reward=[...pool,...fallback].slice(0,3);
+  prepareReward(g);
   pushMessage(g,'INSPECTION PASSED · NURSING PASSIVE: +5 HP');
+}
+export function toggleEvidence(run:Run):Run {
+  if(run.phase!=='battle')return run;
+  const g=clone(run);
+  g.useEvidence=!g.useEvidence;
+  pushMessage(g,g.useEvidence?'EVIDENCE SPENDING ENABLED':'EVIDENCE RESERVED FOR LATER');
+  return g;
 }
 export function play(run:Run,index:number):Run {
   if(run.phase!=='battle'||index<0||index>=run.hand.length)return run;
   const id=run.hand[index], card=CARDS[id];
-  if(card.cost>run.energy)return run;
+  if(card.cost>run.energy||(card.cost===0&&run.freePlayed>=2))return run;
   const g=clone(run),previous=g.lastCard;
   g.energy-=card.cost;g.hand.splice(index,1);g.discard.push(id);
-  const next=intentFor(g.foe as EnemyId,g.turn);
+  if(card.cost===0)g.freePlayed++;
+  const beforeBlock=g.block;
+  const next=intentFor(g.foe as EnemyId,g.turn,g.variants[g.foe as EnemyId]);
   let outcome='';
-  switch(id){
+  const upgradedEffects=UPGRADE_EFFECTS[id];
+  const specialUpgrade=id==='python_a'||id==='python_b'||id==='triage_a'||id==='triage_b'||id==='llm_a'||id==='llm_b';
+  if(specialUpgrade){
+    switch(id){
+      case 'python_a':deal(g,4+(previous&&CARDS[previous].category==='code'?2:0));break;
+      case 'python_b':deal(g,7+(previous&&CARDS[previous].category==='code'?4:0));break;
+      case 'triage_a':g.block+=6+(next.kind==='attack'?8:0);break;
+      case 'triage_b':g.block+=4+(next.kind==='attack'?3:0);break;
+      case 'llm_a':if(g.evidence>0){g.evidence--;deal(g,18,false,false);}else deal(g,4,false,false);break;
+      case 'llm_b':if(g.evidence>0){g.evidence--;deal(g,10,false,false);}else deal(g,4,false,false);break;
+    }
+    outcome=card.name[0]+' EXECUTED';
+  }else if(EXTRA_EFFECTS[id]||upgradedEffects){
+    for(const effect of (EXTRA_EFFECTS[id]??upgradedEffects)){
+      const n=effect.amount;
+      switch(effect.kind){
+        case 'damage':deal(g,n,false,card.category==='code');break;
+        case 'pierce':deal(g,n,true,card.category==='code');break;
+        case 'block':g.block+=n;break;
+        case 'evidence':g.evidence=Math.min(6,g.evidence+n);break;
+        case 'expose':g.foeExposed=Math.min(5,g.foeExposed+n);break;
+        case 'draw':draw(g,n);break;
+        case 'heal':heal(g,n);break;
+        case 'strip':g.foeBlock=Math.max(0,g.foeBlock-n);break;
+        case 'carry':g.carry=Math.max(g.carry,n);break;
+        case 'energy':g.energy=Math.min(5,g.energy+n);break;
+        case 'cleanse':cleanse(g,n);break;
+        case 'bleeding':case 'infected':case 'ddosed':case 'wounded':
+          g.foeStatuses[effect.kind]=Math.min(3,g.foeStatuses[effect.kind]+n);break;
+      }
+    }
+    if(id==='handoff_b')g.nextTurnDraw=Math.min(2,g.nextTurnDraw+1);
+    outcome=card.name[0]+' EXECUTED';
+  }else switch(id){
     case 'python':deal(g,6+(previous&&CARDS[previous].category==='code'?3:0));outcome='SCRIPT EXECUTED';break;
     case 'sql':{
       const stripped=Math.min(6,g.foeBlock);g.foeBlock-=stripped;deal(g,3);
@@ -252,7 +403,7 @@ export function play(run:Run,index:number):Run {
     case 'debug':{
       const hasExposure=g.foeExposed>0;
       deal(g,4);
-      if(hasExposure){g.foeInterrupted=true;g.foeExposed=Math.max(0,g.foeExposed-1);outcome='BREAKPOINT HIT · ACTION CANCELLED';}
+      if(hasExposure){g.foeInterrupted=true;outcome='BREAKPOINT HIT · ACTION CANCELLED';}
       else {g.foeExposed++;outcome='FAULT IDENTIFIED · EXPOSED +1';}
       break;
     }
@@ -275,10 +426,11 @@ export function play(run:Run,index:number):Run {
     case 'assessment':g.block+=5;g.evidence=Math.min(6,g.evidence+1);outcome='OBSERVATION DOCUMENTED';break;
     case 'handoff':g.block+=7;g.carry= Math.max(g.carry,4);outcome='SAFE HANDOFF';break;
     case 'chart':g.block+=3;g.evidence=Math.min(6,g.evidence+2);g.misfiled=0;outcome='RECORD CORRECTED';break;
-    case 'stabilize':g.hp=Math.min(g.maxHp,g.hp+6);g.block+=4;outcome='PATIENT STABILIZED';break;
+    case 'stabilize':heal(g,6);g.block+=4;outcome='PATIENT STABILIZED';break;
     case 'research':g.evidence=Math.min(6,g.evidence+3);draw(g,1);outcome='CLAIM PEER REVIEWED';break;
     case 'risk':g.block+=4;g.riskScreened=Math.min(2,g.riskScreened+2);outcome='FUTURE ATTACK RISK REDUCED';break;
   }
+  if(g.block>beforeBlock&&g.statuses.wounded>0)g.block=Math.max(beforeBlock,g.block-g.statuses.wounded*2);
   g.lastCard=id;
   pushMessage(g,outcome);
   if(g.foeHp<=0)finishFight(g);
@@ -286,35 +438,87 @@ export function play(run:Run,index:number):Run {
 }
 export function endTurn(run:Run):Run {
   if(run.phase!=='battle')return run;
-  const g=clone(run),foe=g.foe as EnemyId,intent=intentFor(foe,g.turn);
+  const g=clone(run),foe=g.foe as EnemyId,intent=intentFor(foe,g.turn,g.variants[foe]);
   g.discard.push(...g.hand);g.hand=[];
+  // Resolve visible bureaucratic bleeding/infection before the advertised action.
+  g.foeHp=Math.max(0,g.foeHp-g.foeStatuses.bleeding-g.foeStatuses.infected*2);
+  g.foeStatuses.bleeding=Math.max(0,g.foeStatuses.bleeding-1);
+  if(g.foeHp<=0){finishFight(g);return g;}
+  if(intent.kind!=='attack'&&g.foeStatuses.ddosed>0){
+    g.foeInterrupted=true;g.foeStatuses.ddosed--;
+  }
   let damage=0;
   if(!g.foeInterrupted){
     if(intent.kind==='attack'){
-      const mitigated=Math.max(0,intent.amount-(g.riskScreened>0?4:0));
+      const mitigated=Math.max(0,intent.amount-(g.riskScreened>0?4:0)-g.foeStatuses.wounded*2);
       if(g.riskScreened>0)g.riskScreened--;
       damage=Math.max(0,mitigated-g.block);
       g.hp=Math.max(0,g.hp-damage);
+      if(damage>0&&intent.status)g.statuses[intent.status]=Math.min(3,g.statuses[intent.status]+1);
+      g.foeStatuses.wounded=Math.max(0,g.foeStatuses.wounded-1);
     }else if(intent.kind==='guard')g.foeBlock+=intent.amount;
     else if(intent.kind==='misfile')g.misfiled+=intent.amount;
   }
+  const dotDamage=g.statuses.bleeding*2+g.statuses.infected;
+  g.hp=Math.max(0,g.hp-dotDamage);
+  g.statuses.bleeding=Math.max(0,g.statuses.bleeding-1);
+  if(g.directive==='audit_overload'&&g.turn%4===0)g.misfiled++;
   if(g.hp<=0){g.phase='dead';pushMessage(g,'APPLICATION TERMINATED · RETRY AVAILABLE');return g;}
   const interrupted=g.foeInterrupted;
   g.foeInterrupted=false;g.turn++;
   g.block=g.carry;g.carry=0;g.energy=Math.max(1,3-Math.min(2,g.misfiled));
-  g.lastCard='';
-  draw(g,5);
-  pushMessage(g,interrupted?'BREAKPOINT · ENEMY ACTION CANCELLED':damage?'HP -'+damage:
+  g.lastCard='';g.freePlayed=0;
+  draw(g,Math.max(2,5+g.nextTurnDraw-g.statuses.ddosed));g.nextTurnDraw=0;
+  g.statuses.ddosed=Math.max(0,g.statuses.ddosed-1);
+  pushMessage(g,interrupted?'PROCEDURE INTERRUPTED':damage?'HP -'+damage:
     intent.kind==='guard'?'ENEMY ARMOR +'+intent.amount:
-    intent.kind==='misfile'?'MISFILED · ENERGY -1 PER STACK':'ATTACK BLOCKED');
+    intent.kind==='misfile'?'MISFILED · ENERGY -1 PER STACK':dotDamage?'STATUS DAMAGE -'+dotDamage:'ATTACK BLOCKED');
   return g;
 }
 export function chooseReward(run:Run,id:CardId|null):Run {
   if(run.phase!=='reward'||(id!==null&&!run.reward.includes(id)))return run;
   const g=clone(run);if(id)g.deck.push(id);
-  g.phase='maze';g.hand=[];g.discard=[];g.drawPile=[];g.block=0;g.carry=0;g.evidence=0;
+  g.phase=g.upgradePending>0?'upgrade':'maze';g.hand=[];g.discard=[];g.drawPile=[];g.block=0;g.carry=0;g.evidence=0;
   pushMessage(g,id?'NEW PROCEDURE FILED · '+CARDS[id].name[0]:'REWARD DECLINED');
   return g;
+}
+export function resolveHearing(run:Run,choice:0|1|2):Run {
+  if(run.phase!=='hearing')return run;
+  const accepted=choice===1;
+  const evaluated=clone(run);
+  evaluated.hearingResult=accepted?'validated':'dismissed';
+  const g=startFight(evaluated,'engine');
+  if(accepted){
+    // Showing two real cross-disciplinary projects defeats the "one category" premise.
+    g.foeExposed=Math.min(5,2+Math.min(2,g.findings));
+    g.foeBlock=Math.max(0,g.foeBlock-5);
+    g.evidence=Math.min(6,g.evidence+1+Math.min(2,g.findings));
+    pushMessage(g,'HEARING: CONTRADICTION ENTERED INTO RECORD');
+  }else{
+    // A private exemption or relying on the degree leaves the invalid rule intact.
+    g.foeBlock+=choice===0?5:3;
+    pushMessage(g,'HEARING: PROCEDURAL EXCEPTION ONLY');
+  }
+  return g;
+}
+export function chooseUpgrade(run:Run,index:number,branch:'A'|'B'|null):Run {
+  if(run.phase!=='upgrade')return run;
+  const g=clone(run);
+  if(branch!==null){
+    const base=g.deck[index];
+    const choices=UPGRADE_CHOICES[base];
+    if(!choices)return run;
+    const upgraded=choices[branch==='A'?0:1];
+    if(!CARDS[upgraded])return run;
+    g.deck[index]=upgraded; // Only the selected copy is changed.
+    pushMessage(g,'PROCEDURE AMENDED · '+CARDS[upgraded].name[0]);
+  }else pushMessage(g,'AMENDMENT DECLINED');
+  g.upgradePending=Math.max(0,g.upgradePending-1);
+  g.phase=g.upgradePending?'upgrade':'maze';
+  return g;
+}
+export function upgradeableIndices(g:Run):number[]{
+  return g.deck.map((id,i)=>UPGRADE_CHOICES[id]?i:-1).filter(index=>index>=0);
 }
 export function progress(g:Run):number {
   return g.dossiers.length + g.defeated.length;

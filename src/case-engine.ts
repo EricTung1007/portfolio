@@ -55,7 +55,7 @@ const MAP_OPENINGS:Record<number,Array<[number,number]>>={
 };
 export const MAP_VARIANT_COUNT=Object.keys(MAP_OPENINGS).length;
 export function mapForRun(g:Pick<Run,'mapVariant'>):string[]{
-  const result=[...MAP];
+  const result:string[]=[...MAP];
   for(const [x,y] of MAP_OPENINGS[g.mapVariant]??[]){
     result[y]=result[y].slice(0,x)+'.'+result[y].slice(x+1);
   }

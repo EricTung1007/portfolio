@@ -380,3 +380,25 @@
 @media(prefers-reduced-motion:reduce){
  .dm-encounter-portrait{animation:none}
 }
+
+
+/* The bureau's interface progressively loses its confidence as evidence is filed. */
+.dm-progress-2 .dm-logo span {color:#c27b66;text-decoration:line-through;}
+.dm-progress-3 .dm-tag {background:#c4ad81;box-shadow:5px 0 0 #943f38;}
+.dm-progress-4 .dm-top {border-bottom-color:#943e35;}
+.dm-progress-4 .dm-tag {outline:2px dashed #d5bd80;outline-offset:3px;}
+.dm-broken-form{
+  width:min(100%,570px);margin:0 auto 27px;
+  background:#bcb69b;color:#293027;
+  border:5px solid #303729;
+  padding:20px 22px;
+  box-shadow:7px 7px 0 #1a201b;
+  text-align:left;
+  font:900 13px/1.6 ui-monospace,monospace;
+  transform:rotate(-1deg);
+}
+.dm-broken-form>div{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;border-bottom:3px solid #3c4337;padding-bottom:10px;}
+.dm-broken-form p{margin:19px 0 12px;color:#303628;}
+.dm-broken-form s{color:#914c3f;text-decoration-thickness:3px;}
+.dm-broken-form strong{display:inline-block;color:#a0443b;border:3px dashed #a0443b;padding:4px 8px;}
+@media(max-width:650px){.dm-broken-form{font-size:11px;padding:16px;}}

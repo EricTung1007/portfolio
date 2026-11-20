@@ -163,7 +163,9 @@ function atHand(run,...cards){return {...run,hand:cards,drawPile:[],discard:[],e
   eq(a.directive,b.directive,'same seed reproduces directive');
   eq(a.variants,b.variants,'same seed reproduces enemy variants');
   eq(a.eventSites,b.eventSites,'same seed reproduces randomized event placements');
+  eq(a.cabinets,b.cabinets,'same seed reproduces hidden cabinet rewards');
   eq(Object.values(a.eventSites).sort(),Object.values(EVENTS).sort(),'all three events remain present');
+  eq(Object.values(a.cabinets).sort(),['draft','recovery','repair'],'all cabinet prize types present');
   const sample=Array.from({length:40},(_,i)=>createRun(0,4000+i));
   expect(new Set(sample.map(g=>g.directive)).size>=3,'directives vary across fixed seeds');
   expect(new Set(sample.map(g=>JSON.stringify(g.eventSites))).size>=3,'event sites vary across fixed seeds');
@@ -212,6 +214,20 @@ function atHand(run,...cards){return {...run,hand:cards,drawPile:[],discard:[],e
   g=startFight(startAppeal(start),'engine');g=atHand(g,'api');g.foeHp=3;g.findings=2;
   g=play(g,0);
   eq(g.ending,'RULE §0451 INVALIDATED','two findings unlock rule-invalidating ending');
+}
+{
+  let g=startAppeal(reject(createRun(0,908),'OTHER'));
+  const site='5,3', [x,y]=site.split(',').map(Number);
+  const reward=g.cabinets[site];
+  g={...g,x:x-1,y,dir:1};
+  g=move(g,'forward');
+  expect(g.openedCabinets.includes(site),'optional cabinet opened and tracked');
+  if(reward==='draft')eq(g.phase,'reward','draft cabinet presents reward choices');
+  else expect(g.phase==='maze','non-draft cabinet keeps exploration active');
+  if(g.phase==='reward')g=chooseReward(g,null);
+  g={...g,x:x-1,y,dir:1};
+  g=move(g,'forward');
+  eq(g.phase,'maze','cabinet cannot be farmed repeatedly');
 }
 console.log('CASE 0451: '+checks+' gameplay assertions passed.');
 

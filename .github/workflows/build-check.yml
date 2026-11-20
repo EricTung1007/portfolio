@@ -15,4 +15,8 @@ jobs:
           cache: npm
       - run: sudo apt-get update && sudo apt-get install -y poppler-utils
       - run: npm ci
+      - name: Compile gameplay rules for node tests
+        run: ./node_modules/.bin/esbuild src/case-engine.ts --bundle --platform=node --format=esm --outfile=/tmp/case0451-engine.mjs
+      - name: Test gameplay invariants and paths
+        run: node scripts/test-case.mjs
       - run: npm run build

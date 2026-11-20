@@ -3,8 +3,8 @@ import { pathToFileURL } from 'node:url';
 
 const game = await import(pathToFileURL('/tmp/case0451-engine.mjs').href);
 const {
-  BASE_DECK,CARDS,ENEMIES,MAP,EVENTS,
-  createRun,reject,startAppeal,reclassify,move,recordFile,resolveEvent,
+  BASE_DECK,CARDS,CARD_COUNT,DIRECTIVES,ENEMIES,MAP,EVENTS,
+  createRun,reject,startAppeal,reclassify,acceptClassification,move,recordFile,resolveEvent,
   intentFor,startFight,play,endTurn,chooseReward,
 } = game;
 let checks=0;
@@ -16,7 +16,9 @@ function atHand(run,...cards){return {...run,hand:cards,drawPile:[],discard:[],e
   const start=createRun(0,451);
   eq(start.phase,'review','begins on inspection form');
   eq(start.deck.length,BASE_DECK.length,'starter deck count');
-  eq(Object.keys(CARDS).length,16,'CV-grounded card count');
+  eq(CARD_COUNT,112,'112 CV-grounded action cards');
+  eq(Object.keys(CARDS).length,112,'card dictionary count');
+  expect(Object.values(CARDS).every(c=>Number.isInteger(c.cost)&&c.cost>=0&&c.cost<=2),'all cards cost 0..2 energy');
   expect(Object.values(CARDS).every(c=>c.name.length===2&&c.text.length===2&&c.origin.length===2),'cards are bilingual and CV-sourced');
   const rejected=reject(start,'ENGINEER');
   eq(rejected.phase,'denied','classification refused');
@@ -119,10 +121,11 @@ function atHand(run,...cards){return {...run,hand:cards,drawPile:[],discard:[],e
   let g=startAppeal(reject(createRun(0,105),'OTHER'));
   g.x=4;g.y=5;g.dir=1;g=move(g,'forward');
   eq(g.phase,'event','story encounter triggered on map tile');
-  eq(g.event,'reference','correct reference room');
+  eq(g.event,g.eventSites['5,5'],'event assignment matches randomized location');
+  const resolvedEvent=g.event;
   g=resolveEvent(g,0);
-  expect(g.deck.includes('research'),'paper choice adds research card');
-  expect(g.events.includes('reference'),'event cannot be farmed repeatedly');
+  expect(resolvedEvent==='reference'?g.deck.includes('research'):resolvedEvent==='printer'?g.deck.includes('maui'):g.hp<=g.maxHp,'event choice resolved correctly');
+  expect(g.events.includes(resolvedEvent),'event cannot be farmed repeatedly');
   g=move({...g,x:4,y:5,dir:1},'forward');
   eq(g.phase,'maze','resolved event no longer blocks movement');
 }
@@ -133,6 +136,8 @@ function atHand(run,...cards){return {...run,hand:cards,drawPile:[],discard:[],e
   eq(g.record,'A','RAG project evidence');
   g=recordFile(g);
   expect(g.dossiers.includes('A'),'record registered');
+  eq(g.phase,'reward','dossier grants an action-card draft');
+  g=chooseReward(g,null);
   g={...g,x:3,y:3,dir:1};
   g=move(g,'forward');
   eq(g.phase,'maze','central door rejects incomplete evidence');
@@ -149,4 +154,61 @@ function atHand(run,...cards){return {...run,hand:cards,drawPile:[],discard:[],e
   g=endTurn(g);
   eq(g.phase,'dead','lethal damage ends run');
 }
+
+{
+  const a=createRun(0,1451),b=createRun(0,1451);
+  eq(a.directive,b.directive,'same seed reproduces directive');
+  eq(a.variants,b.variants,'same seed reproduces enemy variants');
+  eq(a.eventSites,b.eventSites,'same seed reproduces randomized event placements');
+  eq(Object.values(a.eventSites).sort(),Object.values(EVENTS).sort(),'all three events remain present');
+  const sample=Array.from({length:40},(_,i)=>createRun(0,4000+i));
+  expect(new Set(sample.map(g=>g.directive)).size>=3,'directives vary across fixed seeds');
+  expect(new Set(sample.map(g=>JSON.stringify(g.eventSites))).size>=3,'event sites vary across fixed seeds');
+  eq(Object.keys(DIRECTIVES).length,4,'four bureau directives');
+}
+{
+  let g=startFight(startAppeal(reject(createRun(0,351),'OTHER')),'auditor');
+  g=atHand(g,'test_harness','network_quarantine','audit_query');
+  g=play(g,0);g=play(g,0);g=play(g,0);
+  expect(g.foeStatuses.bleeding>0,'authored card can apply enemy bleeding');
+  expect(g.foeStatuses.infected>0,'authored card can apply enemy infection');
+  expect(g.foeStatuses.wounded>0,'authored card can apply enemy wounded');
+  const previousHp=g.foeHp;
+  g=endTurn(g);
+  expect(g.foeHp<previousHp,'bleeding and infection inflict enemy damage at turn end');
+}
+{
+  let g=startFight(startAppeal(reject(createRun(0,355),'OTHER')),'gatekeeper');
+  g.statuses={wounded:1,bleeding:2,infected:1,ddosed:1};
+  g=atHand(g,'risk','git_revert');
+  g=play(g,0);
+  eq(g.block,2,'wounded reduces block gained from a card');
+  g=play(g,0);
+  eq(g.statuses.bleeding,0,'cleanse prioritizes and removes bleeding stacks');
+  eq(g.statuses.infected,0,'cleanse also removes infected stack');
+  g=atHand(g,'source_lookup','source_lookup','source_lookup');
+  g=play(g,0);g=play(g,0);
+  eq(g.freePlayed,2,'two zero-cost cards permitted per turn');
+  g=atHand(g,'source_lookup');
+  const result=play(g,0);
+  eq(result,g,'third free card is rejected in one turn');
+}
+{
+  let g=startFight(startAppeal(reject(createRun(0,365),'OTHER')),'gatekeeper');
+  g={...g,turn:2,foeStatuses:{wounded:0,bleeding:0,infected:0,ddosed:1}};
+  const armor=g.foeBlock;g=atHand(g);g=endTurn(g);
+  eq(g.foeBlock,armor,'DDOSED disrupts a non-attack enemy action');
+}
+{
+  const start=reject(createRun(0,400),'NURSE');
+  const closed=acceptClassification(start);
+  eq(closed.phase,'settled','player can explicitly close the appeal');
+  let g=startFight(startAppeal(start),'engine');
+  g=atHand(g,'api');g.foeHp=3;g.findings=0;g=play(g,0);
+  eq(g.ending,'EXCEPTION GRANTED','standard victory requires no optional findings');
+  g=startFight(startAppeal(start),'engine');g=atHand(g,'api');g.foeHp=3;g.findings=2;
+  g=play(g,0);
+  eq(g.ending,'RULE §0451 INVALIDATED','two findings unlock rule-invalidating ending');
+}
 console.log('CASE 0451: '+checks+' gameplay assertions passed.');
+

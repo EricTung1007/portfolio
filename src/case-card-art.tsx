@@ -42,7 +42,7 @@ const GLYPHS:Record<EffectKind,string>={
 };
 export function artEffects(id:string):EffectKind[]{
  const fx:CardEffect[]|undefined=EXTRA_EFFECTS[id]??UPGRADE_EFFECTS[id];
- return fx?fx.map(effect=>effect.kind):CORE_FX[id]??[];
+ return fx?.length?fx.map(effect=>effect.kind):CORE_FX[id]??[];
 }
 const STROKE='#1e2927';
 function MotifDrawing({type}:{type:Motif}):ReactNode {

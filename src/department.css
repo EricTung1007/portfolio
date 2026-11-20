@@ -245,3 +245,138 @@
 @media(prefers-reduced-motion:reduce) {
   .dm * { transition: none !important; animation: none !important; }
 }
+
+/* CASE 0451 V2: first-person encounters, visible pixel portraits and semantic-card HUD */
+.dm-viewport-combat {
+  border-color:#271b1a;
+  box-shadow:0 0 0 4px #9b654b,8px 8px 0 #1d251f;
+}
+.dm-encounter {
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:space-between;
+  padding:clamp(28px,4vw,42px) 10px 13px;
+  overflow:hidden;pointer-events:none;
+  background:linear-gradient(90deg,#160d0d66,transparent 40%,transparent 60%,#160d0d66);
+  z-index:1;
+}
+.dm-encounter-top {
+  display:flex;gap:12px;flex-wrap:wrap;justify-content:space-between;align-items:center;
+  width:100%;max-width:660px;
+  color:#e9dab8;font:900 clamp(10px,1.45vw,16px) ui-monospace,monospace;
+  letter-spacing:.02em;text-shadow:2px 3px #171a16;
+}
+.dm-encounter-name {max-width:75%;background:#161c19cf;border:2px solid #aa8e70;padding:6px 9px;}
+.dm-encounter-hp {background:#161c19d9;border:2px solid #ad5746;color:#f5c7aa;padding:6px 9px;}
+.dm-encounter-portrait {
+  flex:1;min-height:0;width:100%;
+  display:flex;align-items:center;justify-content:center;
+  filter:drop-shadow(9px 10px 0 #0f1212b9);
+  animation:dm-enemy-entry .2s steps(4) both;
+}
+.dm-encounter-portrait svg {
+  display:block;
+  width:clamp(140px,34vw,270px);
+  max-width:55%;
+  height:100%;
+  max-height:250px;
+  image-rendering:pixelated;
+  shape-rendering:crispEdges;
+}
+.dm-encounter-intent {
+  width:min(95%,560px);
+  background:#141c18e8;
+  border:3px solid #ad8066;
+  border-left:9px solid #ba604c;
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  padding:8px 13px;
+  font:900 clamp(10px,1.4vw,15px) ui-monospace,monospace;
+  color:#e9ddba;
+  text-shadow:1px 1px #111;
+}
+.dm-encounter-intent strong{color:#f0a68e;font-size:clamp(10px,1.5vw,16px);white-space:nowrap;}
+.dm-encounter-intent small{color:#aee3a1;font-size:11px;}
+@keyframes dm-enemy-entry {
+  0%{transform:translateY(-6px);opacity:.5;filter:brightness(2)}
+  50%{transform:translateX(5px);filter:brightness(1.4)}
+  100%{transform:translateX(0);opacity:1;filter:none}
+}
+.dm-fight-dialogue{
+  background:#2d352e;color:#eee2bb;border-left:5px solid #b26a59;
+  padding:10px 14px;margin-bottom:14px;
+  font:900 clamp(11px,1.35vw,14px)/1.5 ui-monospace,monospace;
+}
+.dm-combo-guide{
+  margin:0 0 16px;color:#c4ceac;
+  font:800 11px/1.5 ui-monospace,monospace;
+  border-bottom:1px dashed #7b917b;
+  padding-bottom:10px;
+}
+.dm-battle-resources{gap:8px 18px;}
+.dm-battle-resources strong{color:#f5dda2;}
+.dm-misfiled{color:#efa18a;}
+.dm-card{min-height:188px;}
+.dm-card .dm-card-hotkey{
+  position:absolute;top:8px;right:9px;padding:3px 5px;
+  border:1px solid #7b806f;font:900 10px ui-monospace,monospace;
+}
+.dm-card-origin{
+  display:block;margin-top:auto;padding-top:8px;color:#3d453c;
+  font:700 9px/1.35 ui-monospace,monospace;
+  border-top:1px dotted #777e70;
+}
+.dm-hand{gap:9px;}
+.dm-card strong{padding-right:14px;}
+.dm-card:hover:not(:disabled){box-shadow:3px 8px 0 #111a15;}
+.dm-skip{margin-top:18px;}
+.dm-skip button{
+  background:transparent;color:#dad5b7;
+  border:2px solid #a1ad97;padding:11px 15px;cursor:pointer;
+  font:700 12px ui-monospace,monospace;
+}
+.dm-event{
+  border:4px solid #222824;
+  background:#b8af91;
+  color:#272a21;
+  padding:clamp(18px,3vw,30px);
+  margin:16px 0;box-shadow:6px 6px 0 #1a211b;
+  font:700 14px/1.7 ui-monospace,monospace;
+}
+.dm-event .dm-record-head{color:#5b5544;border-color:#5b5544;}
+.dm-event h2{font-size:clamp(20px,3vw,30px);margin:21px 0 14px;}
+.dm-event p{max-width:65ch;line-height:1.65;}
+.dm-event-actions{display:grid;gap:12px;margin-top:27px;}
+.dm-event-actions button{
+  background:#e4d8b2;color:#262921;padding:14px;
+  border:3px solid #4c5045;box-shadow:3px 3px #696c59;
+  text-align:left;font:900 13px ui-monospace,monospace;cursor:pointer;
+}
+.dm-event-actions button:hover{background:#eee4c6;transform:translateY(-2px);}
+.dm-manual{
+  background:#222c25;border-bottom:4px solid #64775e;
+  padding:16px clamp(15px,3vw,32px);
+  color:#d5d1b3;
+  font:12px/1.65 ui-monospace,monospace;
+}
+.dm-manual strong{font-size:14px;color:#f0dca1;}
+.dm-manual p{max-width:92ch;margin-top:8px;}
+.dm-fight-dialogue,.dm-combo-guide,.dm-card-origin,.dm-encounter-intent{
+  overflow-wrap:anywhere;
+}
+@media(max-width:650px){
+  .dm-encounter{padding:25px 6px 6px;}
+  .dm-encounter-top{font-size:9px;gap:5px;}
+  .dm-encounter-name,.dm-encounter-hp{padding:3px 5px;}
+  .dm-encounter-portrait svg{width:125px;max-height:120px;}
+  .dm-encounter-intent{
+    border-width:2px;border-left-width:5px;padding:4px 6px;
+    font-size:9px;gap:5px;
+  }
+  .dm-encounter-intent strong{font-size:9px;}
+  .dm-card{min-height:183px;}
+  .dm-card-origin{font-size:9px;}
+  .dm-event-actions button{font-size:11px;}
+  .dm-battle-resources{gap:8px 11px;}
+}
+@media(prefers-reduced-motion:reduce){
+ .dm-encounter-portrait{animation:none}
+}

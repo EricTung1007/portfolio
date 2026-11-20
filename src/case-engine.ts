@@ -22,7 +22,7 @@ export type Intent = { kind: 'attack'|'guard'|'misfile'; amount: number; name: [
 export type EventId = 'reference' | 'printer' | 'rest';
 export type Run = {
   phase: Phase; role: string; denials: number; seed: number; rng: number; runs: number;
-  directive:Directive; variants:Record<EnemyId,number>; eventSites:Record<string,EventId>;
+  directive:Directive; mapVariant:number; variants:Record<EnemyId,number>; eventSites:Record<string,EventId>;
   statuses:AilmentSet; foeStatuses:AilmentSet; findings:number; freePlayed:number;
   cabinets:Record<string,CabinetPrize>; openedCabinets:string[];
   x: number; y: number; dir: Direction; visited: string[]; steps: number;
@@ -49,6 +49,18 @@ export const MAP = [
   '#.....A.#.....#',
   '###############',
 ] as const;
+// Three authored routes open shortcuts without hiding any mandatory location.
+const MAP_OPENINGS:Record<number,Array<[number,number]>>={
+  0:[],1:[[6,5],[8,12]],2:[[2,9],[10,5]],
+};
+export const MAP_VARIANT_COUNT=Object.keys(MAP_OPENINGS).length;
+export function mapForRun(g:Pick<Run,'mapVariant'>):string[]{
+  const result=[...MAP];
+  for(const [x,y] of MAP_OPENINGS[g.mapVariant]??[]){
+    result[y]=result[y].slice(0,x)+'.'+result[y].slice(x+1);
+  }
+  return result;
+}
 export const DIRS: Array<[number, number]> = [[0,-1],[1,0],[0,1],[-1,0]];
 export const DIR_NAMES = ['N','E','S','W'];
 export const DOSSIERS = { A: knowledge.projects[0], H: knowledge.projects[1] };
@@ -113,7 +125,7 @@ export const EVENT_TEXT: Record<EventId,{name:[string,string];story:[string,stri
   },
 };
 export function loc(x:number,y:number){return x+','+y;}
-export function wall(x:number,y:number){return MAP[y]?.[x] === '#' || MAP[y]?.[x] == null;}
+export function wall(x:number,y:number,g?:Pick<Run,'mapVariant'>){const map=g?mapForRun(g):MAP;return map[y]?.[x] === '#' || map[y]?.[x] == null;}
 export function name(language:Language, values:[string,string]){return values[language==='en'?0:1];}
 // Mix similar user seeds first: adjacent run IDs must not share the same directive.
 function mixSeed(seed:number):number {
@@ -134,7 +146,7 @@ function shuffle(state:Run,items:CardId[]):CardId[] {
 export function createRun(runs=0,seed=((Date.now()+runs*101)|0)):Run {
   const g:Run={
     phase:'review', role:'',denials:0,seed,rng:mixSeed(seed),runs,
-    directive:'degree_priority',variants:{gatekeeper:0,auditor:0,engine:0},eventSites:{...EVENTS},
+    directive:'degree_priority',mapVariant:0,variants:{gatekeeper:0,auditor:0,engine:0},eventSites:{...EVENTS},
     statuses:emptyAilments(),foeStatuses:emptyAilments(),findings:0,freePlayed:0,
     cabinets:{},openedCabinets:[],
     x:1,y:1,dir:2,visited:['1,1'],steps:0,
@@ -146,6 +158,7 @@ export function createRun(runs=0,seed=((Date.now()+runs*101)|0)):Run {
   };
   const directives=Object.keys(DIRECTIVES) as Directive[];
   g.directive=directives[rand(g,directives.length)];
+  g.mapVariant=rand(g,MAP_VARIANT_COUNT);
   g.variants={gatekeeper:rand(g,2),auditor:rand(g,2),engine:rand(g,2)};
   const sites=Object.keys(EVENTS),variants=shuffle(g,Object.values(EVENTS));
   g.eventSites=Object.fromEntries(sites.map((site,i)=>[site,variants[i]])) as Record<string,EventId>;
@@ -221,10 +234,10 @@ export function move(run:Run,command:'left'|'right'|'forward'|'back'):Run {
   if(command==='right'){g.dir=((g.dir+1)%4) as Direction;return g;}
   const [dx,dy]=DIRS[g.dir];const dir=command==='back'?-1:1;
   const nx=g.x+dx*dir, ny=g.y+dy*dir;
-  if(wall(nx,ny)){pushMessage(g,'NO ENTRY · WALL');return g;}
+  if(wall(nx,ny,g)){pushMessage(g,'NO ENTRY · WALL');return g;}
   g.x=nx;g.y=ny;g.steps++;
   const k=loc(nx,ny);if(!g.visited.includes(k))g.visited.push(k);
-  const cell=MAP[ny][nx];
+  const cell=mapForRun(g)[ny][nx];
   const prize=g.cabinets[k];
   if(prize&&!g.openedCabinets.includes(k)){
     g.openedCabinets.push(k);

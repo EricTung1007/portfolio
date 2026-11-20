@@ -3,7 +3,7 @@ import { pathToFileURL } from 'node:url';
 
 const game = await import(pathToFileURL('/tmp/case0451-engine.mjs').href);
 const {
-  BASE_DECK,CARDS,CARD_COUNT,DIRECTIVES,ENEMIES,MAP,EVENTS,
+  BASE_DECK,CARDS,CARD_COUNT,DIRECTIVES,ENEMIES,MAP,MAP_VARIANT_COUNT,mapForRun,EVENTS,
   createRun,reject,startAppeal,reclassify,acceptClassification,move,recordFile,resolveEvent,
   intentFor,startFight,play,endTurn,chooseReward,
 } = game;
@@ -162,12 +162,15 @@ function atHand(run,...cards){return {...run,hand:cards,drawPile:[],discard:[],e
   const a=createRun(0,1451),b=createRun(0,1451);
   eq(a.directive,b.directive,'same seed reproduces directive');
   eq(a.variants,b.variants,'same seed reproduces enemy variants');
+  eq(a.mapVariant,b.mapVariant,'same seed reproduces maze shortcuts');
+  eq(MAP_VARIANT_COUNT,3,'three authored map variants');
   eq(a.eventSites,b.eventSites,'same seed reproduces randomized event placements');
   eq(a.cabinets,b.cabinets,'same seed reproduces hidden cabinet rewards');
   eq(Object.values(a.eventSites).sort(),Object.values(EVENTS).sort(),'all three events remain present');
   eq(Object.values(a.cabinets).sort(),['draft','recovery','repair'],'all cabinet prize types present');
   const sample=Array.from({length:40},(_,i)=>createRun(0,4000+i));
   expect(new Set(sample.map(g=>g.directive)).size>=3,'directives vary across fixed seeds');
+  expect(new Set(sample.map(g=>g.mapVariant)).size===3,'all map variants sampled across seeds');
   expect(new Set(sample.map(g=>JSON.stringify(g.eventSites))).size>=3,'event sites vary across fixed seeds');
   eq(Object.keys(DIRECTIVES).length,4,'four bureau directives');
 }
@@ -228,6 +231,24 @@ function atHand(run,...cards){return {...run,hand:cards,drawPile:[],discard:[],e
   g={...g,x:x-1,y,dir:1};
   g=move(g,'forward');
   eq(g.phase,'maze','cabinet cannot be farmed repeatedly');
+}
+{
+  for(let variant=0;variant<MAP_VARIANT_COUNT;variant++){
+    const m=mapForRun({mapVariant:variant});
+    const visited=new Set(['1,1']),q=[[1,1]];
+    while(q.length){
+      const [x,y]=q.shift();
+      for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){
+        const nx=x+dx,ny=y+dy,key=nx+','+ny;
+        if(m[ny]?.[nx]&&m[ny][nx]!=='#'&&!visited.has(key)){
+          visited.add(key);q.push([nx,ny]);
+        }
+      }
+    }
+    for(const key of ['1,11','7,1','6,13','10,3','4,3','5,3','11,5','11,11',...Object.keys(EVENTS)]){
+      expect(visited.has(key),'variant '+variant+' reaches '+key);
+    }
+  }
 }
 console.log('CASE 0451: '+checks+' gameplay assertions passed.');
 

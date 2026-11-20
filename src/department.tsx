@@ -21,7 +21,7 @@ function load():Run {
       if(data && typeof data.seed==='number' && Array.isArray(data.deck) &&
         Array.isArray(data.visited) && Array.isArray(data.defeated) &&
         data.statuses && data.foeStatuses && data.directive in DIRECTIVES &&
-        data.eventSites && data.variants && typeof data.findings==='number' &&
+        data.eventSites && data.variants && data.cabinets && Array.isArray(data.openedCabinets) && typeof data.findings==='number' &&
         ['review','denied','maze','battle','reward','record','event','dead','clear','settled'].includes(data.phase))return data;
     }
   }catch{/* untrusted or unavailable local storage */}
@@ -37,7 +37,8 @@ function MiniMap({run,language}:{run:Run;language:Language}){
       {[...row].map((cell,x)=>{
         const visible=nearby(x,y),here=run.x===x&&run.y===y;
         const marker=run.eventSites[x+','+y];
-        const symbol=cell==='E'?'!':cell==='X'?'X':cell==='A'||cell==='H'?'F':marker&&!run.events.includes(marker)?'?':'';
+        const cabinet=run.cabinets[x+','+y]&&!run.openedCabinets.includes(x+','+y);
+        const symbol=cell==='E'?'!':cell==='X'?'X':cell==='A'||cell==='H'?'F':cabinet?'C':marker&&!run.events.includes(marker)?'?':'';
         return <span key={x} className={'dm-mapcell '+(here?'you':!visible?'fog':cell==='#'?'wall':cell==='X'?'exit':'floor')}>
           {here?DIR_NAMES[run.dir]:visible&&cell!=='#'?symbol:''}
         </span>;
@@ -116,7 +117,7 @@ export function Department({language,onNavigate,onLanguageChange}:{language:Lang
         <p>{copy(language,'MOVE: WASD / arrows, M: map, 1-8: action cards, Enter: end turn. Touch controls are available.','移動：WASD／方向鍵；M：地圖；1–8：行動卡；Enter：結束回合。支援觸控。')}</p>
         <p>{copy(language,'Each turn: 3 Energy, 5 cards. CARE protects and gathers Evidence; CODE uses Evidence to strengthen attacks. Enemy intent is always shown. Up to two free (0 Energy) cards per turn.','每回合 3 行動力、抽 5 張。CARE 防護與搜集證據；CODE 可消耗證據強化攻擊。敵人行動提前預告；每回合最多打出兩張 0 費卡。')}</p>
         <p>{copy(language,'STATUS: WOUNDED reduces new block by 2 per stack. BLEEDING costs 2 HP per stack at turn end and decays. INFECTED costs 1 HP per stack per turn and reduces healing. DDOSED reduces next-turn draws. On enemies, bleeding/infection deal damage; wounded weakens attacks; DDOSED cancels the next non-attack action.','狀態：創傷每層減少 2 點新增護盾；流血每層於回合結束失去 2 HP 並逐層消退；感染每層持續損失 1 HP 並降低治療；遭阻斷會減少下回合抽牌。施加於敵人的流血與感染造成持續傷害，創傷降低攻擊，遭阻斷可取消下一次非攻擊行動。')}</p>
-        <p>{copy(language,'RANDOM CASE: each run changes its bureau directive, enemy variants, event locations, draws and rewards. Find optional procedural contradictions for the strongest ending.','隨機案件：每局會改變特別條款、敵人變體、事件位置、抽牌及獎勵。調查程序矛盾可取得更完整的結局。')}</p>
+        <p>{copy(language,'RANDOM CASE: each run changes its directive, enemy variants, event locations, hidden optional cabinets, draws and rewards. Find optional procedural contradictions for the strongest ending.','隨機案件：每局會改變特別條款、敵人變體、事件位置、可選檔案櫃、抽牌及獎勵。調查程序矛盾可取得更完整的結局。')}</p>
         <a href="https://github.com/EricTung1007/portfolio/blob/feat/case-0451-v3-roguelite/docs/case-0451-player-manual.md" target="_blank" rel="noreferrer">{copy(language,'Full player manual','完整玩家手冊')}</a>
       </section>}
       {showCatalog&&<section className="dm-catalog" aria-label={copy(language,'Action card library','行動卡圖鑑')}>

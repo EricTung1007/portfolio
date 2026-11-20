@@ -152,10 +152,17 @@ Balance should be tuned against these paths, not simply by comparing raw damage-
 - [x] Three branching events, reward/skip decisions, multiple opening builds.
 - [x] Auto-save/resume, restart, mouse/keyboard/mobile controls.
 - [ ] Browser-playthrough across desktop/mobile, low-health and resume edge cases.
-- [ ] Automated balance simulations (win rates, fight lengths, dominant cards).
+- [x] Initial deterministic balance simulation: 120 seeds for each of two heuristic policies; see note below. Human playtesting remains necessary.
 - [ ] Procedural maps / more floors, if a later playtest demonstrates value.
 - [ ] Audio/FX polish without hurting accessibility.
 - [ ] Localized flavor dialogue expansion informed by actual playtest feedback.
+
+## Initial balance result (scripted policies, not player research)
+GitHub Actions ran the rule engine against 120 fixed seeds per policy. Both simulations assume two reachable healing-event choices totaling up to 20 HP and sample the same three bosses in sequence; they omit maze travel and do not model real human decision-making.
+
+- Naïve policy: plays the first affordable card, wins 84/120 (70%), averages 2.7 bosses defeated and 18.5 total turns.
+- Planned policy: reads intent, builds evidence, uses defensive skills at the right time, wins 119/120 (99%), averages 2.99 bosses defeated and 13.4 total turns.
+- **Interpretation**: working with the system has observable mechanical payoff. The expert policy may be too reliable; adjust only after testing real visitors. This simulator is a sanity check, not a valid estimate of real users' win rates.
 
 ## Production / QA gates
 1. **Build**: TypeScript/Vite CI passes.

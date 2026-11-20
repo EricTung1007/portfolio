@@ -88,6 +88,7 @@ const BASE_CARDS: Record<CardId,Card> = {
 };
 export const CARDS:Record<CardId,Card> = {...BASE_CARDS,...EXTRA_CARDS};
 export const CARD_COUNT=Object.keys(CARDS).length;
+export { EXTRA_EFFECTS, EXTRA_CARD_IDS } from './case-roguelite-cards.js';
 export const BASE_DECK: CardId[] = ['python','python','sql','api','rag','triage','triage','assessment','handoff','chart'];
 const REWARD_POOL: CardId[] = ['automation','abap','maui','llm','stabilize','research','risk','debug','rag','api','assessment','chart',...EXTRA_CARD_IDS];
 export const EVENTS: Record<string,EventId> = {'5,5':'reference','11,7':'printer','3,9':'rest'};

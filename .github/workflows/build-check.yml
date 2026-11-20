@@ -23,6 +23,10 @@ jobs:
         run: |
           ./node_modules/.bin/esbuild src/case-card-art.tsx --bundle --platform=node --format=esm --outfile=/tmp/case0451-card-art.mjs
           node scripts/test-card-art.mjs
+      - name: Smoke-render all game phases and card layouts
+        run: |
+          ./node_modules/.bin/esbuild src/department.tsx --bundle --platform=node --format=esm --outfile=./.ci/case0451-component.mjs --external:react --external:react/jsx-runtime --loader:.css=empty --define:import.meta.env.BASE_URL='"/"'
+          node scripts/test-ui.mjs
       - name: Simulate combat balance
         run: node scripts/balance-case.mjs
       - run: npm run build

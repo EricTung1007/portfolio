@@ -43,10 +43,11 @@ Choose occupation → rejected → file appeal → orient in the first-person ma
 | Energy | 3 each turn | Spend to play cards. MISFILED can reduce next-turn energy, minimum 1. | Finite attention |
 | Block | 0 | Absorbs telegraphed attack and normally expires at turn end. | Safety controls |
 | Carry | 0 | HANDOFF transfers 4 block into next turn. | Continuity of care |
-| Evidence | 0, max 6 | Care/research/RAG builds it; each CODE hit spends up to 2, adding +2 damage per evidence. | Verifiable claims |
+| Evidence | 0, max 6 | Care/research/RAG builds it; most CODE hits spend up to 2, adding +2 damage per evidence. LOCAL LLM spends one to enter its grounded mode. | Verifiable claims |
 | Exposed | 0 | SQL reveals structural weakness. CODE attacks deal +2 and consume a stack; BREAKPOINT can instead cancel the current enemy action. | Debugging from data |
 | Enemy armor | 0 | Reduces ordinary attacks; REST bypasses; ABAP removes/retools; SQL strips. | Procedural shielding |
 | MISFILED | 0 | Auditor or Engine applies this energy-reduction status. SOAP NOTE clears it. | Wrong record classification |
+| Risk Screened | 0 | Next two enemy ATTACK intents deal 4 less damage; guard/misfile turns do not consume it. | Preventive risk assessment |
 
 **Intent is announced** before the enemy acts. Guard, attack, and MISFILED actions are all legible. If an intended action is interrupted, it does nothing. There are no surprise random damage rolls.
 
@@ -70,7 +71,7 @@ All cards are *actions*, not summons, hero cards, or unit placement. Numbered ke
 | CARE | SOAP Note (clinical charting/HIS) | 1 | Block 3, evidence +2, clear MISFILED | Documentation corrects the record |
 | CARE | Stabilize (vital signs) | 2 | Heal 6, block 4 | Therapeutic intervention restores function |
 | CROSS | Peer Review (2026 paper) | 1 | Evidence +3, draw 1 | Claims are strengthened by external verification |
-| CARE | Risk Screen (Morse/Braden) | 1 | Block 5, +4 if enemy intent is ATTACK | Prevent an identifiable risk |
+| CARE | Risk Screen (Morse/Braden) | 1 | Block 4; next two enemy attacks deal 4 less damage each | Prevent an identifiable future risk |
 
 This is intentionally not a literal claim that technical or nursing skills “cause damage” in real life. The effects express each skill's *problem-solving behavior in a fictional adversarial bureaucracy*.
 

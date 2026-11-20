@@ -14,11 +14,12 @@ permissions:
 
 concurrency:
   group: "pages"
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   build:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -26,7 +27,12 @@ jobs:
           node-version: 20
           cache: npm
       - name: Install PDF and CJK font support
-        run: sudo apt-get update && sudo apt-get install -y poppler-utils libreoffice-writer fonts-lato fonts-noto-cjk python3-docx
+        timeout-minutes: 8
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          sudo apt-get update -qq -o Acquire::Retries=2 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20
+          sudo apt-get install -y -qq --no-install-recommends poppler-utils libreoffice-writer fonts-lato fonts-noto-cjk python3-docx
       - name: Generate English and Traditional Chinese CVs
         run: |
           /usr/bin/python3 scripts/build-cv.py

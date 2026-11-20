@@ -5,7 +5,7 @@ const game = await import(pathToFileURL('/tmp/case0451-engine.mjs').href);
 const {
   BASE_DECK,CARDS,CARD_COUNT,CARD_UPGRADE_COUNT,UPGRADE_CHOICES,upgradeableIndices,chooseUpgrade,DIRECTIVES,ENEMIES,MAP,MAP_VARIANT_COUNT,mapForRun,EVENTS,
   createRun,reject,startAppeal,reclassify,acceptClassification,move,recordFile,resolveEvent,
-  intentFor,startFight,play,endTurn,chooseReward,resolveHearing,
+  intentFor,startFight,play,endTurn,chooseReward,resolveHearing,toggleEvidence,
 } = game;
 let checks=0;
 function expect(condition,message) {assert.ok(condition,message);checks++;}
@@ -305,6 +305,20 @@ function atHand(run,...cards){return {...run,hand:cards,drawPile:[],discard:[],e
   expect(right.foeExposed>=2,'successful hearing exposes classification engine');
   expect(right.evidence>=1,'documented source becomes usable battle Evidence');
   eq(resolveHearing(right,1),right,'hearing cannot be farmed from combat');
+}
+{
+  let g=startFight(startAppeal(reject(createRun(0,2277),'ENGINEER')),'gatekeeper');
+  g.foeBlock=0;g.evidence=3;g.hand=['api'];g.energy=3;
+  g=toggleEvidence(g);
+  eq(g.useEvidence,false,'Evidence reserve can be enabled during combat');
+  const before=g.evidence;const hp=g.foeHp;
+  g=play(g,0);
+  eq(g.evidence,before,'HOLD preserves Evidence on a normal CODE attack');
+  eq(g.foeHp,hp-7,'HOLD does not grant hidden Evidence bonus damage');
+  g.hand=['api'];g=toggleEvidence(g);
+  eq(g.useEvidence,true,'AUTO can be restored without ending turn');
+  g=play(g,0);
+  eq(g.evidence,before-2,'AUTO consumes two Evidence on next CODE attack');
 }
 console.log('CASE 0451: '+checks+' gameplay assertions passed.');
 

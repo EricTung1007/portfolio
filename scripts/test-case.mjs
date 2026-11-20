@@ -262,7 +262,7 @@ function atHand(run,...cards){return {...run,hand:cards,drawPile:[],discard:[],e
 {
   const base=startAppeal(reject(createRun(0,911),'OTHER'));
   let g=startFight(base,'gatekeeper');
-  g=atHand(g,'python_a','python_b');g.energy=1;
+  g=atHand(g,'python_a','python_b');g.energy=1;g.foeBlock=0;
   const before=g.foeHp;
   g=play(g,0);
   expect(g.foeHp<before,'quick scripted card resolves as a valid action');

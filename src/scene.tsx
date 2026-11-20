@@ -4,7 +4,7 @@ import { getPosts } from './posts.js';
 import type { SiteLanguage, VisitorActions } from './retro.js';
 import './scene.css';
 
-type DeskAction = 'terminal'|'chat'|'weekly'|'cabinet'|'punch'|'portfolio'|'guestbook';
+type DeskAction = 'terminal'|'chat'|'weekly'|'cabinet'|'punch'|'portfolio'|'guestbook'|'department';
 const copy = (language:SiteLanguage,en:string,zh:string)=>language==='zh'?zh:en;
 
 export function StudyScene({language,visitor,onOpen,terminal}:{
@@ -22,7 +22,7 @@ export function StudyScene({language,visitor,onOpen,terminal}:{
   },[]);
   const latest=getPosts(language)[0];
   const markCvViewed=()=>{visitor.visit('cv');setCvViewed(true);try{sessionStorage.setItem('eric_cv_examined','1');}catch{/* optional session */}};
-  const act=(target:DeskAction)=>{visitor.visit(target);onOpen(target)};
+  const act=(target:DeskAction)=>{if(target!=='department') visitor.visit(target);onOpen(target)};
   return <main className="study-world">
     <div className="study-wall" aria-hidden="true">
       <div className="study-ornamental-stripe"/>
@@ -53,6 +53,13 @@ export function StudyScene({language,visitor,onOpen,terminal}:{
             <span className="study-paper-rule"/>
             <span className="study-paper-headline">{latest?.title??'Notes from the Workshop'}</span>
           </button>
+          <a className="study-object study-docket" href="#/department"
+            onClick={e=>{e.preventDefault();onOpen('department');}}
+            aria-label={copy(language,'Enter Case 0451 classification game','進入案件 0451 分類遊戲')}>
+            <span className="study-docket-number">D.O.C. / NO. 0451</span>
+            <strong>CASE 0451</strong>
+            <span className="study-docket-stamp">FILE APPEAL ▸</span>
+          </a>
           <a className="study-object study-folder" href={`${import.meta.env.BASE_URL}cv.html?lang=${language}`} target="_blank" rel="noopener noreferrer" onClick={markCvViewed} aria-label={copy(language,'Open resume','開啟履歷')}>
             <span className="study-folder-tab">PERSONNEL FILE</span>
             <span className="study-folder-crest">ET</span>

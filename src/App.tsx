@@ -273,7 +273,7 @@ export default function App() {
     <>
       <div className="topbar">
         <a className="wordmark" href="#/desktop" onClick={(e) => { e.preventDefault(); setView('desktop'); }} title="OS-inspired name, not an installer">{systemBrand}</a>
-        <div className="topbar-actions"><a className="topbar-direct-cv" href={`${import.meta.env.BASE_URL}cv.html?lang=${language}`} target="_blank" rel="noopener noreferrer">{language==='en'?'CV':'履歷'} ↗</a><button className="retro-nav" type="button" onClick={()=>setView('desktop')}>{language==='en'?'DESKTOP':'桌面'}</button>
+        <div className="topbar-actions"><a className="topbar-direct-cv" href={`${import.meta.env.BASE_URL}cv.html?lang=${language}`} target="_blank" rel="noopener noreferrer">{language==='en'?'CV':'履歷'} ↗</a><button className="retro-nav" type="button" onClick={()=>setView('desktop')}>{language==='en'?'DESKTOP':'桌面'}</button><button className="retro-nav" type="button" onClick={()=>setView('department')}>{language==='en'?'CASE 0451':'案件 0451'}</button>
           <a className="topbar-weekly" href="#/weekly" onClick={e => { e.preventDefault(); setView('weekly'); }}>{language === 'en' ? 'WEEKLY' : '週刊'}</a>
           <div className="language-switch" role="group" aria-label="Language">
             <button type="button" className={language === 'en' ? 'selected' : ''} onClick={() => setLanguage('en')} aria-pressed={language === 'en'}>EN</button>

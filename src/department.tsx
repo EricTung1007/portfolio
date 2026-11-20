@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  CARDS, CARD_COUNT, DIRECTIVES, DIR_NAMES, DIRS, DOSSIERS, ENEMIES, EVENT_TEXT, mapForRun, 
+  CARDS, CARD_COUNT, CARD_UPGRADE_COUNT, UPGRADE_CHOICES, upgradeableIndices, chooseUpgrade, DIRECTIVES, DIR_NAMES, DIRS, DOSSIERS, ENEMIES, EVENT_TEXT, mapForRun, 
   chooseReward, createRun, endTurn, intentFor, move, name, play, progress,
   reclassify, recordFile, reject, resolveEvent, startAppeal, acceptClassification,
   type CardId, type Language, type Run,
 } from './case-engine.js';
 import { EnemySprite } from './case-sprites.js';
+import { CardArt } from './case-card-art.js';
 import { renderCorridor, orientation } from './case-raycast.js';
 import './department.css';
 
@@ -20,9 +21,9 @@ function load():Run {
       const data=JSON.parse(cached) as Run;
       if(data && typeof data.seed==='number' && Array.isArray(data.deck) &&
         Array.isArray(data.visited) && Array.isArray(data.defeated) &&
-        data.statuses && data.foeStatuses && data.directive in DIRECTIVES &&
+        data.statuses && data.foeStatuses && Number.isInteger(data.upgradePending) && Number.isInteger(data.nextTurnDraw) && data.directive in DIRECTIVES &&
         data.eventSites && Number.isInteger(data.mapVariant) && data.mapVariant>=0 && data.mapVariant<3 && data.variants && data.cabinets && Array.isArray(data.openedCabinets) && typeof data.findings==='number' &&
-        ['review','denied','maze','battle','reward','record','event','dead','clear','settled'].includes(data.phase))return data;
+        ['review','denied','maze','battle','reward','record','event','upgrade','dead','clear','settled'].includes(data.phase))return data;
     }
   }catch{/* untrusted or unavailable local storage */}
   return createRun();
@@ -51,6 +52,7 @@ function CardButton({id,index,language,disabled,onClick}:{id:CardId;index?:numbe
   return <button type="button" onClick={onClick} disabled={disabled} className={'dm-card dm-card-'+(card.category==='care'?'defense':card.category==='hybrid'?'utility':'attack')} title={name(language,card.origin)}>
     <span className="dm-card-cost">{card.cost}</span>
     {index!=null&&<span className="dm-card-hotkey">{index+1}</span>}
+    <CardArt id={id}/>
     <strong>{name(language,card.name)}</strong>
     <small>{card.category==='code'?'CODE':card.category==='care'?'CARE':'CROSS'}</small>
     <p>{name(language,card.text)}</p>
@@ -67,7 +69,7 @@ export function Department({language,onNavigate,onLanguageChange}:{language:Lang
   const change=useCallback((action:'left'|'right'|'forward'|'back')=>setRun(g=>move(g,action)),[]);
   useEffect(()=>{try{localStorage.setItem(STORAGE,JSON.stringify(run));}catch{/* optional save */}},[run]);
   useEffect(()=>{
-    if(canvas.current && ['maze','battle','reward','record','event'].includes(run.phase))renderCorridor(canvas.current,run);
+    if(canvas.current && ['maze','battle','reward','record','event','upgrade'].includes(run.phase))renderCorridor(canvas.current,run);
   },[run]);
   useEffect(()=>{
     const handle=(event:KeyboardEvent)=>{
@@ -93,7 +95,7 @@ export function Department({language,onNavigate,onLanguageChange}:{language:Lang
   const restart=()=>{setRun(g=>createRun(g.runs+1));setShowMap(false);setShowRules(false);setShowCatalog(false);};
   const currentFoe=run.foe?ENEMIES[run.foe]:null;
   const currentIntent=run.foe?intentFor(run.foe,run.turn,run.variants[run.foe]):null;
-  const inDungeon=['maze','battle','reward','record','event'].includes(run.phase);
+  const inDungeon=['maze','battle','reward','record','event','upgrade'].includes(run.phase);
   const document=run.record==='A'?DOSSIERS.A:DOSSIERS.H;
   const canMove=run.phase==='maze';
 
@@ -121,11 +123,12 @@ export function Department({language,onNavigate,onLanguageChange}:{language:Lang
         <a href="https://github.com/EricTung1007/portfolio/blob/feat/case-0451-v3-roguelite/docs/case-0451-player-manual.md" target="_blank" rel="noreferrer">{copy(language,'Full player manual','完整玩家手冊')}</a>
       </section>}
       {showCatalog&&<section className="dm-catalog" aria-label={copy(language,'Action card library','行動卡圖鑑')}>
-        <div className="dm-catalog-title"><strong>{copy(language,'ACTION ARCHIVE','行動卡牌檔案')} · {CARD_COUNT}</strong><button type="button" onClick={()=>setShowCatalog(false)}>{copy(language,'CLOSE','關閉')}</button></div>
+        <div className="dm-catalog-title"><strong>{copy(language,'ACTION ARCHIVE','行動卡牌檔案')} · {CARD_COUNT}+{CARD_UPGRADE_COUNT}</strong><button type="button" onClick={()=>setShowCatalog(false)}>{copy(language,'CLOSE','關閉')}</button></div>
         <input type="search" value={catalogFilter} onChange={e=>setCatalogFilter(e.target.value)} placeholder={copy(language,'Search cards or skill source...','搜尋卡名或技能來源…')} aria-label={copy(language,'Search all cards','搜尋所有卡片')}/>
         <div className="dm-catalog-list">{Object.values(CARDS)
           .filter(card=>[...card.name,...card.origin].some(t=>t.toLocaleLowerCase().includes(catalogFilter.toLocaleLowerCase())))
           .map(card=><div key={card.id} className="dm-catalog-entry">
+            <CardArt id={card.id}/>
             <div><strong>{name(language,card.name)}</strong><span>{card.category.toUpperCase()} · {card.cost} EN</span></div>
             <p>{name(language,card.text)}</p>
             <small>{name(language,card.origin)}</small>
@@ -240,11 +243,26 @@ export function Department({language,onNavigate,onLanguageChange}:{language:Lang
         </section>}
         {run.phase==='reward'&&<section className="dm-result">
           <div className="dm-result-stamp">INSPECTION PASSED</div>
-          <p>{copy(language,'NURSING PASSIVE: +5 HP. SELECT A NEW PROCEDURE.','護理被動：恢復 5 HP。選擇一個新行動。')}</p>
+          <p>{copy(language,'PROCEDURE AUTHORIZED. SELECT ONE CARD OR SKIP.','取得行動卡選擇資格。可選擇一張或略過。')}</p>
           <div className="dm-reward-cards">
             {run.reward.map(id=><CardButton key={id} id={id} language={language} onClick={()=>setRun(g=>chooseReward(g,id))}/>)}
           </div>
           <div className="dm-skip"><button type="button" onClick={()=>setRun(g=>chooseReward(g,null))}>{copy(language,'KEEP DECK AS IS','維持現有牌組')}</button></div>
+        </section>}
+        {run.phase==='upgrade'&&<section className="dm-upgrade" aria-label={copy(language,'Amend one action','修訂一張行動卡')}>
+          <div className="dm-record-head"><span>FORM 0451-U · {copy(language,'PROCEDURE AMENDMENT','行動卡修訂')}</span><span>{copy(language,'SINGLE COPY ONLY','僅修改指定的一張')}</span></div>
+          <h2>{copy(language,'SELECT ONE PROCEDURE TO REWRITE','選擇一張卡片修改')}</h2>
+          <p>{copy(language,'Both options change the actual card effect. Only the selected copy is upgraded; duplicates stay unchanged.','兩種修訂都會改變實際效果。只升級指定的一張牌，牌組中其他同名卡保持不變。')}</p>
+          <div className="dm-upgrade-choices">
+            {upgradeableIndices(run).map(index=><div key={index} className="dm-upgrade-row">
+              <div className="dm-upgrade-base">{copy(language,'COPY','副本')} #{index+1} · {name(language,CARDS[run.deck[index]].name)}</div>
+              <div className="dm-upgrade-cards">
+                {UPGRADE_CHOICES[run.deck[index]].map((upgradedId,branch)=>
+                  <CardButton key={upgradedId} id={upgradedId} language={language} onClick={()=>setRun(g=>chooseUpgrade(g,index,branch===0?'A':'B'))}/>)}
+              </div>
+            </div>)}
+          </div>
+          <div className="dm-skip"><button type="button" onClick={()=>setRun(g=>chooseUpgrade(g,-1,null))}>{copy(language,'KEEP CURRENT PROCEDURES','不修訂，保留現有牌組')}</button></div>
         </section>}
         {run.phase==='record'&&<section className="dm-record">
           <div className="dm-record-head"><span>EXHIBIT {run.record==='A'?'01':'02'}</span><span>VERIFIED</span></div>

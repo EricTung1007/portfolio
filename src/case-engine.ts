@@ -14,7 +14,7 @@ export type Run = {
   x: number; y: number; dir: Direction; visited: string[]; steps: number;
   hp: number; maxHp: number; block: number; carry: number; energy: number; evidence: number;
   deck: CardId[]; drawPile: CardId[]; discard: CardId[]; hand: CardId[]; turn: number;
-  foe: EnemyId | ''; foeHp: number; foeBlock: number; foeExposed: number; foeInterrupted: boolean; misfiled: number; lastCard: CardId | '';
+  foe: EnemyId | ''; foeHp: number; foeBlock: number; foeExposed: number; foeInterrupted: boolean; riskScreened: number; misfiled: number; lastCard: CardId | '';
   defeated: EnemyId[]; dossiers: ('A'|'H')[]; record: 'A'|'H'; events: EventId[]; event: EventId; reward: CardId[];
   message: string; history: string[]; ending: string;
 };
@@ -71,7 +71,7 @@ export const CARDS: Record<CardId,Card> = {
   chart:{id:'chart',name:['SOAP NOTE','SOAP 紀錄'],text:['Gain 3 block, 2 evidence. Clear MISFILED.','獲得 3 護盾、2 證據，清除誤分類。'],cost:1,category:'care',origin:['Clinical charting: documented observations','護理紀錄：留下可查核的事實']},
   stabilize:{id:'stabilize',name:['STABILIZE','穩定生命徵象'],text:['Heal 6 HP; gain 4 block.','恢復 6 HP，獲得 4 護盾。'],cost:2,category:'care',origin:['Vital signs: intervention and recovery','生命徵象：採取干預與恢復']},
   research:{id:'research',name:['PEER REVIEW','同儕審查'],text:['Gain 3 evidence; draw 1.','獲得 3 證據，抽 1 張。'],cost:1,category:'hybrid',origin:['Published research: reproducible evidence','學術研究：重視可驗證的證據']},
-  risk:{id:'risk',name:['RISK SCREEN','風險評估'],text:['Gain 5 block. Reduce current attack by 4.','獲得 5 護盾；本回合敵方攻擊降低 4。'],cost:1,category:'care',origin:['Morse / Braden: anticipate preventable harm','Morse／Braden：事前評估與預防傷害']},
+  risk:{id:'risk',name:['RISK SCREEN','風險評估'],text:['Gain 4 block. Next 2 enemy attacks deal 4 less.','獲得 4 護盾；敵人接下來 2 次攻擊減少 4 傷害。'],cost:1,category:'care',origin:['Morse / Braden: anticipate preventable harm','Morse／Braden：事前評估與預防傷害']},
 };
 export const BASE_DECK: CardId[] = ['python','python','sql','api','rag','triage','triage','assessment','handoff','chart'];
 const REWARD_POOL: CardId[] = ['automation','abap','maui','llm','stabilize','research','risk','debug','rag','api','assessment','chart'];
@@ -111,7 +111,7 @@ export function createRun(runs=0,seed=((Date.now()+runs*101)|0)):Run {
     x:1,y:1,dir:2,visited:['1,1'],steps:0,
     hp:42,maxHp:42,block:0,carry:0,energy:3,evidence:0,
     deck:[...BASE_DECK],drawPile:[],discard:[],hand:[],turn:1,
-    foe:'',foeHp:0,foeBlock:0,foeExposed:0,foeInterrupted:false,misfiled:0,lastCard:'',
+    foe:'',foeHp:0,foeBlock:0,foeExposed:0,foeInterrupted:false,riskScreened:0,misfiled:0,lastCard:'',
     defeated:[],dossiers:[],record:'A',events:[],event:'reference',reward:[],
     message:'',history:[],ending:'',
   };
@@ -153,7 +153,7 @@ export function intentFor(foe:EnemyId,turn:number):Intent {
 }
 export function startFight(run:Run,foe:EnemyId):Run {
   const g=clone(run);g.phase='battle';g.foe=foe;g.foeHp=ENEMIES[foe].hp;
-  g.foeBlock=0;g.foeExposed=0;g.foeInterrupted=false;g.misfiled=0;g.turn=1;
+  g.foeBlock=0;g.foeExposed=0;g.foeInterrupted=false;g.riskScreened=0;g.misfiled=0;g.turn=1;
   g.energy=3;g.evidence=g.role==='ENGINEER'?1:0;g.block=0;g.carry=0;g.lastCard='';
   g.hand=[];g.discard=[];g.drawPile=shuffle(g,g.deck);draw(g,5);
   pushMessage(g,'INSPECTION BEGINS · '+ENEMIES[foe].name[0]);
@@ -246,12 +246,12 @@ export function play(run:Run,index:number):Run {
   switch(id){
     case 'python':deal(g,6+(previous&&CARDS[previous].category==='code'?3:0));outcome='SCRIPT EXECUTED';break;
     case 'sql':{
-      const stripped=Math.min(6,g.foeBlock);g.foeBlock-=stripped;deal(g,3,false,false);
+      const stripped=Math.min(6,g.foeBlock);g.foeBlock-=stripped;deal(g,3);
       g.foeExposed=Math.min(5,g.foeExposed+2);outcome='QUERY RETURNS: EXPOSED +2';break;}
     case 'api':deal(g,7,true);outcome='ARMOR BYPASSED';break;
     case 'debug':{
       const hasExposure=g.foeExposed>0;
-      deal(g,4,false,false);
+      deal(g,4);
       if(hasExposure){g.foeInterrupted=true;g.foeExposed=Math.max(0,g.foeExposed-1);outcome='BREAKPOINT HIT · ACTION CANCELLED';}
       else {g.foeExposed++;outcome='FAULT IDENTIFIED · EXPOSED +1';}
       break;
@@ -264,7 +264,7 @@ export function play(run:Run,index:number):Run {
     }
     case 'abap':{
       const converted=Math.min(7,g.foeBlock);g.foeBlock-=converted;
-      deal(g,3+converted,false,false);outcome='WORKFLOW PATCH APPLIED';break;}
+      deal(g,3+converted);outcome='WORKFLOW PATCH APPLIED';break;}
     case 'maui':g.block+=5;deal(g,4,false,false);outcome='MULTIPLATFORM SUPPORT';break;
     case 'llm':{
       if(g.evidence>0){g.evidence--;deal(g,14,false,false);outcome='GROUNDED INFERENCE';}
@@ -277,7 +277,7 @@ export function play(run:Run,index:number):Run {
     case 'chart':g.block+=3;g.evidence=Math.min(6,g.evidence+2);g.misfiled=0;outcome='RECORD CORRECTED';break;
     case 'stabilize':g.hp=Math.min(g.maxHp,g.hp+6);g.block+=4;outcome='PATIENT STABILIZED';break;
     case 'research':g.evidence=Math.min(6,g.evidence+3);draw(g,1);outcome='CLAIM PEER REVIEWED';break;
-    case 'risk':g.block+=5;if(next.kind==='attack')g.foeInterrupted?g.block+=0:g.block+=4;outcome='PREVENTIVE CONTROL';break;
+    case 'risk':g.block+=4;g.riskScreened=Math.min(2,g.riskScreened+2);outcome='FUTURE ATTACK RISK REDUCED';break;
   }
   g.lastCard=id;
   pushMessage(g,outcome);
@@ -291,7 +291,9 @@ export function endTurn(run:Run):Run {
   let damage=0;
   if(!g.foeInterrupted){
     if(intent.kind==='attack'){
-      damage=Math.max(0,intent.amount-g.block);
+      const mitigated=Math.max(0,intent.amount-(g.riskScreened>0?4:0));
+      if(g.riskScreened>0)g.riskScreened--;
+      damage=Math.max(0,mitigated-g.block);
       g.hp=Math.max(0,g.hp-damage);
     }else if(intent.kind==='guard')g.foeBlock+=intent.amount;
     else if(intent.kind==='misfile')g.misfiled+=intent.amount;

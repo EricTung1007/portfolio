@@ -1,5 +1,5 @@
 ---
-title: "Two Operators, One Mac: The Engineering of Background Computer Use"
+title: "Beyond the Cursor: Building Agents That Can Actually Finish Work"
 date: "2026-11-20"
 category: "Minerva's Den"
 tags: ["Computer Use", "macOS", "Agent Systems", "Accessibility", "Open Source"]
@@ -144,10 +144,80 @@ A sensible first deployment uses a single local model process, one MCP desktop d
 
 The next useful experiment is not another screenshot demo. It is a collision test: while a person continuously types in one app, the agent edits a different app, opens a dialog, saves an artifact and verifies the saved content. Repeat with the target window obscured, with the screen locked, and with two agent sessions targeting the same app. Measure successful completion and human interruption, not merely whether the tool returned `ok`.
 
-## The desktop is becoming a shared resource
+## From a desktop driver to a reliable agent
 
-Background computer use is a genuine change in how agents can fit into daily work. The operating system already knows far more about its windows and controls than a screenshot alone can reveal. Projects such as Cua Driver, computer-use-mcp, OpenComputerUse and computer-harness are turning that information into reusable interfaces for language-model agents.
+Desktop access is one capability in a larger execution system. A coding agent and a general-purpose agent share the same fundamental loop: observe the current state, choose an action, invoke a tool, and inspect the result. Their reliability differs because of the environments around that loop.
 
-The strongest designs are not those that promise to click absolutely anything. They define exactly which actions are background-safe, isolate concurrent sessions, recognize stale observations and verify effects. Cua Driver is the broad integration platform; computer-use-mcp provides an especially instructive concurrency design; OpenComputerUse makes session ownership explicit; computer-harness demonstrates how small the implementation can be when the trust boundary is understood.
+A coding agent usually has a structured workspace, version-controlled files, language servers, shell commands, tests and diffs. It can compare an intended patch with a concrete artifact. A generic desktop agent encounters ambiguous controls, hidden application state and effects that may be difficult to reverse. Adding a desktop MCP server to a coding agent does not automatically transfer the coding agent's verification advantages to GUI work.
 
-The real destination is a computer on which **human and agent are both legitimate operators**, each with clear control of their own work. That requires less theatrical cursor movement and more operating-system engineering.
+The practical architectural unit is a **task transaction** with a declared target, permitted actions, expected output and independent evidence of completion:
+
+```text
+Task request
+  -> scope resources and permissions
+  -> observe current state
+  -> plan a bounded next action
+  -> execute with an idempotency or conflict guard
+  -> verify the resulting artifact
+  -> commit success or classify failure
+```
+
+The loop should have explicit terminal states such as `completed`, `blocked_on_permission`, `conflict`, `verification_failed` and `cancelled`. Otherwise an agent can mistake a failed tool call for progress and repeat the same action indefinitely. This is the practical meaning of an *implicit state machine*: the states exist in the program's behavior whether or not its author has named them.
+
+### Graphs, loops and hooks have different jobs
+
+A graph describes dependencies between work units. A loop handles uncertain progress inside one unit. A hook enforces a cross-cutting rule at a lifecycle boundary. Mixing these concerns creates unnecessary complexity. For example, a hook that silently reopens an unfinished task can conflict with a scheduler that has already declared the task cancelled. Conversely, a graph with dozens of nodes cannot compensate for a missing verification step.
+
+A small reliable agent needs fewer orchestration mechanisms than many frameworks advertise:
+
+| Mechanism | Use it for | Avoid using it for |
+| --- | --- | --- |
+| Dependency graph | Independent subtasks, parallelism, explicit prerequisites | Every elementary tool call |
+| Observe-act-verify loop | Uncertain interfaces and incremental progress | Retrying a known permanent failure |
+| Lifecycle hook | Permission checks, logging, mandatory validation | Hidden task planning or surprise state transitions |
+| Checkpoint | Durable resume after interruption | Replacing final output verification |
+| Resource lease | Preventing concurrent writes to a shared target | Guaranteeing semantic correctness |
+
+The lesson is not to eliminate graphs or hooks. It is to make each state transition observable and give one component responsibility for declaring the task complete.
+
+## Local inference changes the bottleneck, not the contract
+
+A 32 GB unified-memory Mac can run useful quantized language models locally, but an agent's end-to-end reliability cannot be inferred from parameter count or token throughput alone. In an interactive chat, a wrong answer can be corrected in the next turn. In a long unattended task, one mistaken file edit, stale UI reference or unbounded retry can contaminate the entire result.
+
+Three measurements should be kept separate: **model capability** on an independently defined evaluation, **runtime performance** on the actual machine, and **task completion** under the real tool and permission configuration. Vendor benchmark scores are evidence about the first; tokens per second measure part of the second; neither proves the third.
+
+The [MLX framework](https://github.com/ml-explore/mlx) provides array computation for Apple silicon, and [MLX LM](https://github.com/ml-explore/mlx-lm) provides language-model inference and fine-tuning utilities. Quantization reduces weight storage, but peak memory also includes KV cache, activations, runtime buffers and other applications. A model that fits at startup may still exhaust available memory when the context grows. Context length is therefore an operational capacity constraint, not merely a configuration number.
+
+Research into methods such as [TurboQuant](https://arxiv.org/search/?query=TurboQuant&searchtype=all) is relevant because KV-cache compression can change the memory cost of long contexts. But a paper's reported compression or accuracy results should not be treated as proof that a specific oMLX build supports the technique or that a particular 32 GB machine can sustain a target context. The integration path, supported kernels and measured peak memory must all exist before such a claim becomes a deployment recommendation.
+
+For an unattended local agent, prioritize the **verified completion rate per unit of compute** over raw generation speed. A slower model that produces correct patches and passes tests without repeated intervention may be cheaper than a fast model that repeatedly restarts work. Record failure categories, tool-call count, elapsed time and peak memory alongside tokens per second. Without those measurements, choosing between dense and mixture-of-experts architectures is mostly speculation about a proxy metric.
+
+## Tool design is also an economic decision
+
+Cloud agents face another constraint: each observation, screenshot and tool result consumes context or billable tokens. A long transcript of full desktop screenshots can be much more expensive than a compact accessibility tree or a targeted diff. The right optimization is to **reduce unnecessary observations without hiding evidence needed for verification**.
+
+A sensible routing policy assigns routine classification and short extraction to a less expensive model, while reserving stronger reasoning for ambiguous plans, difficult debugging and final review. Yet routing itself introduces overhead and new failure paths. If a smaller model cannot reliably select the correct UI element, its low per-token price may be overwhelmed by retries and recovery.
+
+Likewise, a skill is not an independent intelligence. It packages instructions and sometimes scripts or tool conventions. A hook can enforce a validation step; an MCP server can expose a new capability; a scheduler can resume work; a model router can select inference providers. None of these individually guarantees an autonomous system. They become useful when their responsibilities are explicit and their outputs can be checked.
+
+The best optimization sequence is therefore: minimize irrelevant tool output, reuse stable observations when safe, use deterministic code for deterministic work, route model calls only where quality remains adequate, and retain an independent completion check. Token savings that remove the last check are false economy.
+
+## What a dependable personal workstation should actually do
+
+The preceding layers suggest a concrete design for an agent that shares a Mac with its operator:
+
+1. Give every task a scoped workspace, resource owner and completion artifact.
+2. Prefer filesystem or application APIs over GUI automation when both can accomplish the same action.
+3. Use semantic accessibility actions before coordinate clicks, with a strict policy for foreground fallbacks.
+4. Serialize mutations against shared apps or documents, and detect stale observations.
+5. Check outputs through tests, file inspection or application state, not the agent's own declaration.
+6. Persist checkpoints and classify blockers instead of looping forever.
+7. Track task success, interference and resource usage in the same evaluation.
+
+This also establishes a clear dividing line between *automation* and *delegation*. Automation can execute a sequence. Delegation requires the system to recognize when the sequence no longer matches reality, recover within its authority and present an inspectable result.
+
+## Conclusion: autonomy is an engineering property
+
+Computer-use drivers make previously inaccessible applications available to agents. Local models can reduce inference dependence on cloud services. Skills, hooks and graphs can organize execution. But dependable autonomy emerges only when those components agree on state, ownership, failure and evidence.
+
+The strongest workstation agent is not the one with the most tools or the fastest model. It is the one that can finish a meaningful task, prove what changed and leave the human's computer usable throughout.

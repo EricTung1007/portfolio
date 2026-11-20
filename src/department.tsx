@@ -196,6 +196,7 @@ export function Department({language,onNavigate}:{language:Language;onNavigate:(
             <span>{copy(language,'BLOCK','護盾')} {run.block}</span>
             <span>{copy(language,'ENEMY ARMOR','敵方護甲')} {run.foeBlock}</span>
             {run.foeExposed>0&&<span>{copy(language,'EXPOSED','弱點')} {run.foeExposed}</span>}
+            {run.riskScreened>0&&<span>{copy(language,'RISK SCREEN','風險控管')} {run.riskScreened}</span>}
             {run.misfiled>0&&<span className="dm-misfiled">MISFILED {run.misfiled}</span>}
           </div>
           <div className="dm-combo-guide">{copy(language,'CARE → EVIDENCE → CODE: EACH EVIDENCE ADDS +2 TO A CODE HIT','護理 → 證據 → 程式攻擊：每點證據可讓程式攻擊 +2 傷害')}</div>

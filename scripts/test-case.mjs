@@ -84,6 +84,19 @@ function atHand(run,...cards){return {...run,hand:cards,drawPile:[],discard:[],e
   eq(g.block,4,'handoff carries protection forward');
 }
 {
+  let g=startFight(startAppeal(reject(createRun(0,202),'NURSE')),'gatekeeper');
+  g=atHand(g,'risk');g=play(g,0);
+  eq(g.riskScreened,2,'risk screening protects against two future attacks');
+  const hp=g.hp;g=endTurn(g);
+  eq(g.hp,hp,'first screened attack is mitigated by block and prevention');
+  eq(g.riskScreened,1,'one attack prevention charge remains');
+  g=atHand(g);g=endTurn(g); // enemy guards, should not consume a screening charge
+  eq(g.riskScreened,1,'risk screen persists through non-attacking intent');
+  g=atHand(g);const hp2=g.hp;g=endTurn(g); // 11 damage reduced to 7
+  eq(g.hp,hp2-7,'second screened attack reduces its damage by four');
+  eq(g.riskScreened,0,'risk screen consumed after two actual attacks');
+}
+{
   let g=startFight(startAppeal(reject(createRun(0,103),'NURSE')),'auditor');
   g=atHand(g,'chart');g.misfiled=2;
   g=play(g,0);

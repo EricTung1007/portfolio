@@ -3,6 +3,7 @@ import { getPosts } from './posts.js';
 import { terminalRecord, type TerminalFile } from './terminal-files.js';
 import { isDrawerUnlocked, unlockDrawer, drawerNote } from './secret.js';
 import { readTableCard, saveTableCard, guestbookUrl, siteQrSvg } from './visitor-card.js';
+import { SYSTEM_BRAND_UPPER } from './browser-capability.js';
 import './retro.css';
 
 export type SiteLanguage = 'en' | 'zh';
@@ -73,8 +74,8 @@ export function BootSequence({onDone,language}:{onDone:()=>void;language:SiteLan
     const id=window.setInterval(()=>setStep(p=>Math.min(p+1,4)),260);
     return ()=>window.clearInterval(id);
   },[onDone]);
-  return <div className="retro-boot" role="dialog" aria-modal="true" aria-label="ERIC.EXE boot sequence" onKeyDown={e=>{if(e.key==='Escape'||e.key==='Enter')onDone();}}>
-    <div className="retro-boot-screen"><span>ERIC.EXE / SYSTEM INITIALIZATION</span><h1>ERIC.EXE</h1>
+  return <div className="retro-boot" role="dialog" aria-modal="true" aria-label={`${SYSTEM_BRAND_UPPER} boot sequence`} onKeyDown={e=>{if(e.key==='Escape'||e.key==='Enter')onDone();}}>
+    <div className="retro-boot-screen"><span>{SYSTEM_BRAND_UPPER} / SYSTEM INITIALIZATION</span><h1>{SYSTEM_BRAND_UPPER}</h1>
       {['INITIALIZING WORKSPACE','MOUNTING PROJECT ARCHIVE','LOADING MINERVA NODE','STARTING INFORMATION DESK','VISITOR SESSION READY'].slice(0,step+1).map((s,i)=><p key={s}>{s}<b>{i===4?'READY':'OK'}</b></p>)}
       <button type="button" onClick={onDone}>{labels(language,'SKIP / ENTER WORKSTATION','略過／進入工作站')} ↵</button>
     </div>
@@ -86,7 +87,7 @@ export function InteractiveDesk({language,onOpen,visitor}:{language:SiteLanguage
   const items:{id:DeskTarget;icon:string;en:string;zh:string;detail:string}[]=[
     {id:'chat',icon:'▣',en:'INFORMATION DESK',zh:'資訊台',detail:'ASK ERIC'},
     {id:'weekly',icon:'▤',en:'THE WEEKLY',zh:'個人週刊',detail:'LATEST EDITION'},
-    {id:'terminal',icon:'>_',en:'TERMINAL',zh:'終端機',detail:'ERIC.EXE'},
+    {id:'terminal',icon:'>_',en:'TERMINAL',zh:'終端機',detail:SYSTEM_BRAND_UPPER},
     {id:'portfolio',icon:'▥',en:'FILE CABINET',zh:'檔案櫃',detail:'PROJECTS / CV'},
     {id:'achievements',icon:'✦',en:'STAMPS',zh:'成就簿',detail:'VISITOR LEDGER'},
     {id:'punch',icon:'▦',en:'CARD PUNCH',zh:'打孔卡機',detail:'12-ROW CARD'},
@@ -97,7 +98,7 @@ export function InteractiveDesk({language,onOpen,visitor}:{language:SiteLanguage
     {id:'guestbook',icon:'✉',en:'GUESTBOOK',zh:'訪客簽到簿',detail:'SIGNED ENTRIES'},
   ];
   return <section className="retro-desktop" aria-label="Interactive workstation desktop">
-    <div className="retro-desk-header"><span>ERIC.EXE / PERSONAL WORKSTATION</span><span>MINERVA NODE 001 · 32GB</span></div>
+    <div className="retro-desk-header"><span>{SYSTEM_BRAND_UPPER} / PERSONAL WORKSTATION</span><span>MINERVA NODE 001 · 32GB</span></div>
     <div className="retro-desk-intro"><p>EST. 2026 / THE CENTRAL BUREAU</p><h2>{labels(language,'Welcome to the desk.','歡迎來到資訊台。')}</h2><span>{labels(language,'Select an object to explore the workstation.','選擇桌上的物件，探索這個工作站。')}</span></div>
     <div className="retro-desk-surface">{items.map(item=><button key={item.id} className={'retro-object retro-object-'+item.id} onClick={()=>{visitor.visit(item.id);onOpen(item.id);}}>
       <span className="retro-object-icon" aria-hidden="true">{item.icon}</span><span className="retro-object-label">{labels(language,item.en,item.zh)}</span><small>{item.detail}</small></button>)}</div>
@@ -214,11 +215,11 @@ export function TerminalWindow({language,visitor,navigate,onTheme,onLanguage,onC
   const doAutocomplete=()=>{if(choices.length){setEntry(choices[Math.min(selected,choices.length-1)]);setSelected(0);}};
   return <div className="terminal-modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget)onClose();}}>
     <section className="terminal-machine" role="dialog" aria-modal="true" aria-label={labels(language,'Vintage terminal','復古終端機')}>
-      <div className="terminal-machine-head"><span>ERIC.EXE</span>
+      <div className="terminal-machine-head"><span>{SYSTEM_BRAND_UPPER}</span>
         <button type="button" onClick={onClose} aria-label={labels(language,'Close terminal','關閉終端機')}>×</button></div>
       <div className="terminal-crt-frame">
         {booting ? <div className="terminal-boot" aria-live="polite">
-          <h2>ERIC.EXE</h2>
+          <h2>{SYSTEM_BRAND_UPPER}</h2>
           {['POWERING VACUUM TUBES','MOUNTING PERSONNEL RECORDS','INDEXING ERICTUNG’S WEEKLY','CONNECTING TO MARK I RECORDER','MESSAGE SLOT READY','SYSTEM ONLINE'].slice(0,bootStep+1).map((line,i)=>
             <p key={line}>{line}<b>{i===5?'READY':'OK'}</b></p>)}
           <button type="button" onClick={finishBoot}>{labels(language,'SKIP BOOT / ENTER ↵','略過開機 / 進入 ↵')}</button>
@@ -308,7 +309,7 @@ export function punchSvg(visitor:VisitorData,alias:string,role:string,interest:s
  const subtitle=golden?'GOLDEN VISITOR CARD · ACCESS CODE 0451':'VISITOR MESSAGE / PUNCH CARD';
  const messageLine=encode(message.replace(/\s+/g,' ').slice(0,66));
  const qr=siteQrSvg(902,451,4);
- return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 650" width="1100" height="650"><rect width="1100" height="650" fill="${fill}"/><rect x="14" y="14" width="1072" height="622" rx="8" fill="none" stroke="${edge}" stroke-width="4"/><text x="40" y="62" font-size="30" font-weight="bold" font-family="Georgia,serif" fill="#473522">MINERVA'S DEN / ${subtitle}</text><text x="42" y="88" font-size="14" font-family="monospace" fill="#604f3a">ERIC.EXE · PERSONAL WORKSTATION · 12 ROWS / 40 COLUMNS</text><text x="42" y="112" font-size="13" font-family="monospace" fill="#604f3a">ALIAS: ${encode(alias.slice(0,28))} / CLASS: ${encode(role)} / INTEREST: ${encode(interest)}</text>${grid}${cols}${holes}<line x1="40" x2="1060" y1="421" y2="421" stroke="#887358"/><text x="42" y="448" font-size="16" font-family="Georgia,serif" fill="#45311d">MESSAGE: ${messageLine}</text><text x="43" y="490" font-size="15" font-family="monospace" fill="#604f3a">SCAN TO RETURN TO THE DESK</text><text x="43" y="514" font-size="13" font-family="monospace" fill="#604f3a">erictung1007.github.io</text>${qr}<line x1="40" x2="1060" y1="616" y2="616" stroke="#887358"/><text x="42" y="638" font-size="12" font-family="monospace" fill="#604f3a">ARCHIVE VISIT ${String(visitor.achievements.length).padStart(2,'0')} STAMPS · ${String(visitor.posts.length).padStart(2,'0')} ARTICLES · LOCAL KEEPSAKE</text></svg>`;
+ return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 650" width="1100" height="650"><rect width="1100" height="650" fill="${fill}"/><rect x="14" y="14" width="1072" height="622" rx="8" fill="none" stroke="${edge}" stroke-width="4"/><text x="40" y="62" font-size="30" font-weight="bold" font-family="Georgia,serif" fill="#473522">MINERVA'S DEN / ${subtitle}</text><text x="42" y="88" font-size="14" font-family="monospace" fill="#604f3a">${SYSTEM_BRAND_UPPER} · PERSONAL WORKSTATION · 12 ROWS / 40 COLUMNS</text><text x="42" y="112" font-size="13" font-family="monospace" fill="#604f3a">ALIAS: ${encode(alias.slice(0,28))} / CLASS: ${encode(role)} / INTEREST: ${encode(interest)}</text>${grid}${cols}${holes}<line x1="40" x2="1060" y1="421" y2="421" stroke="#887358"/><text x="42" y="448" font-size="16" font-family="Georgia,serif" fill="#45311d">MESSAGE: ${messageLine}</text><text x="43" y="490" font-size="15" font-family="monospace" fill="#604f3a">SCAN TO RETURN TO THE DESK</text><text x="43" y="514" font-size="13" font-family="monospace" fill="#604f3a">erictung1007.github.io</text>${qr}<line x1="40" x2="1060" y1="616" y2="616" stroke="#887358"/><text x="42" y="638" font-size="12" font-family="monospace" fill="#604f3a">ARCHIVE VISIT ${String(visitor.achievements.length).padStart(2,'0')} STAMPS · ${String(visitor.posts.length).padStart(2,'0')} ARTICLES · LOCAL KEEPSAKE</text></svg>`;
 }
 export function PunchCard({language,visitor,onClose}:{language:SiteLanguage;visitor:VisitorActions;onClose:()=>void}) {
   const [initial] = useState(readTableCard);

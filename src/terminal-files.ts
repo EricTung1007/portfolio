@@ -1,3 +1,4 @@
+import { SYSTEM_BRAND_UPPER } from './browser-capability.js';
 import { knowledge } from './data.js';
 import { getPosts } from './posts.js';
 
@@ -69,7 +70,7 @@ export function terminalRecord(file:TerminalFile,lang:'en'|'zh'):TerminalRecord 
    '',
    l('The locked drawer needs a four-digit code.','鎖上的抽屜需要四位數密碼。')]}
   ;
-  default:return {heading:'ERIC.EXE',caption:'SYSTEM/READY',
+  default:return {heading:SYSTEM_BRAND_UPPER,caption:'SYSTEM/READY',
    lines:[l('Personnel files, articles and messages are available.','人事檔案、文章與訪客留言都已開放。')]}
  }
 }

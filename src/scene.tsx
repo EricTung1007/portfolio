@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { readTableCard, clearTableCard, type TableCard } from './visitor-card.js';
 import { getPosts } from './posts.js';
 import type { SiteLanguage, VisitorActions } from './retro.js';
+import { SYSTEM_BRAND_UPPER } from './browser-capability.js';
 import './scene.css';
 
 type DeskAction = 'terminal'|'chat'|'weekly'|'cabinet'|'punch'|'portfolio'|'guestbook';
@@ -83,7 +84,7 @@ export function StudyScene({language,visitor,onOpen,terminal}:{
             <div className="study-terminal-shell">
               <div className="study-terminal-bezel">
                 <div className="study-terminal-screen">
-                  <strong>ERIC.EXE</strong>
+                  <strong>{SYSTEM_BRAND_UPPER}</strong>
                 </div>
               </div>
               <div className="study-terminal-vents"/>

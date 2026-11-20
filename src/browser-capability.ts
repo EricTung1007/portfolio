@@ -28,6 +28,9 @@ export function getSystemBrand(): string {
     default: return 'Eric.exe';
   }
 }
+/** Module-level so every surface (desk monitor, boot screens, terminal) shows the same device-specific name. */
+export const SYSTEM_BRAND = getSystemBrand();
+export const SYSTEM_BRAND_UPPER = SYSTEM_BRAND.toUpperCase();
 export async function inspectBrowserCapability(): Promise<BrowserCapability> {
   if (typeof navigator === 'undefined' || !('gpu' in navigator)) {
     return { gpuAvailable: false, supportsF16: false, note: 'No WebGPU available in this browser.' };

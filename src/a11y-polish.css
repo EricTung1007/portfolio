@@ -1,0 +1,39 @@
+/* Accessibility + legibility pass. Loaded last so it wins over earlier sheets. */
+
+/* Visible keyboard focus everywhere (index.css removes outlines on .field only). */
+:where(a,button,input,textarea,select,[tabindex]):focus-visible {
+  outline: 2px solid var(--accent, #3b82f6);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+.study-object:focus-visible { outline-offset: 5px; }
+
+/* 44px touch targets for the top bar and the desk shortcuts. */
+.topbar a,.topbar button { min-height: 44px; min-width: 44px; display: inline-flex; align-items: center; justify-content: center; }
+.topbar .language-switch { padding: 0; }
+.topbar .language-switch button { min-height: 44px; min-width: 44px; padding: 0 12px; }
+.topbar .theme-toggle { width: 44px; height: 44px; }
+.topbar .wordmark { justify-content: flex-start; }
+.study-quicklinks a,.study-quicklinks button,.study-card-clear { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
+.study-card-clear { padding: 8px 12px; font-size: 11px; }
+
+/* Readable floor for any text a visitor has to read or click. */
+.study-paper small,.study-folder small,.study-folder-tab,.study-intercom-label,.study-intercom-light,.study-intercom strong,.study-paper-top {
+  font-size: max(11px, 1em);
+}
+.study-paper small,.study-folder small { font-size: clamp(11px,.85vw,12px); }
+.study-folder-tab { font-size: clamp(10px,.9vw,13px); max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.study-intercom-label { font-size: clamp(10px,.9vw,12px); }
+.study-intercom strong { margin-top: auto; padding-bottom: 8px; font-size: clamp(10px,1vw,14px); }
+.study-intercom-light { font-size: 11px; }
+@media (max-width: 800px) {
+  .study-folder-tab,.study-folder>span:nth-last-of-type(1) { font-size: 10px; }
+  .study-intercom-label,.study-intercom strong { font-size: 10px; }
+  .study-paper-top { font-size: 10px; }
+}
+@media (max-width: 650px) {
+  .topbar .theme-toggle { width: 44px; height: 44px; }
+  .topbar .language-switch button { padding: 0 9px; min-width: 40px; }
+  .topbar-direct-cv { font-size: 11px; }
+}
+.retro-toast button { min-width: 44px; min-height: 44px; font-size: 18px; }

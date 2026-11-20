@@ -21,11 +21,11 @@ export const CARD_ART_COUNT=Object.keys(CARD_ART).length;
 if(CARD_ART_COUNT!==128)throw Error('Expected 128 semantic card illustration specs, got '+CARD_ART_COUNT);
 
 const CORE_FX:Record<string,EffectKind[]>={
- python:['damage'],sql:['strip','expose'],api:['pierce'],debug:['expose','ddosed'],
+ python:['damage'],sql:['strip','expose'],api:['pierce'],debug:['damage','expose'],
  rag:['evidence','draw'],automation:['damage','damage'],abap:['strip','damage'],
  maui:['block','damage'],llm:['damage','evidence'],triage:['block'],
  assessment:['block','evidence'],handoff:['block','carry'],chart:['evidence','cleanse'],
- stabilize:['heal','block'],research:['evidence','draw'],risk:['block','carry'],
+ stabilize:['heal','block'],research:['evidence','draw'],risk:['block'],
  python_a:['damage'],python_b:['damage'],
  triage_a:['block'],triage_b:['block'],llm_a:['damage'],llm_b:['damage'],
 };

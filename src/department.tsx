@@ -227,7 +227,7 @@ export function Department({language,onNavigate,onLanguageChange}:{language:Lang
             {run.misfiled>0&&<span className="dm-misfiled">MISFILED {run.misfiled}</span>}
             {Object.entries(run.statuses).filter(([,value])=>value>0).map(([status,value])=><span className="dm-ailment" key={status}>{status.toUpperCase()} {value}</span>)}
             {Object.entries(run.foeStatuses).filter(([,value])=>value>0).map(([status,value])=><span className="dm-foe-ailment" key={status}>FOE {status.toUpperCase()} {value}</span>)}
-            <span>{copy(language,'FREE ACTIONS','零費行動')} {run.freePlayed}/2</span>}
+            <span>{copy(language,'FREE ACTIONS','零費行動')} {run.freePlayed}/2</span>
           </div>
           <div className="dm-combo-guide">{copy(language,'CARE → EVIDENCE → CODE: EACH EVIDENCE ADDS +2 TO A CODE HIT','護理 → 證據 → 程式攻擊：每點證據可讓程式攻擊 +2 傷害')}</div>
           <div className="dm-hand">

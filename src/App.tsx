@@ -12,6 +12,7 @@ import './motion.js';
 import './index.css';
 import './terminal-v2.css';
 import './mark1.css';
+import './editorial-refinement.css';
 
 type View = 'desktop' | 'terminal' | 'achievements' | 'punch' | 'chat' | 'portfolio' | 'weekly' | ArchiveView | `post:${string}`;
 type Language = 'en' | 'zh';
@@ -66,15 +67,10 @@ function Hero({ setView, language }: { setView: (v: View) => void; language: Lan
   );
 }
 
-function WeeklyMasthead({ language }: { language: Language }) {
+function WeeklyMasthead({ compact = false }: { compact?: boolean }) {
   return (
-    <header className="weekly-masthead">
-      <div className="weekly-ornament">✦ &nbsp; INDEPENDENT NOTES & OBSERVATIONS &nbsp; ✦</div>
+    <header className={compact ? "weekly-masthead weekly-masthead-compact" : "weekly-masthead"}>
       <h1>EricTung's <em>Weekly</em></h1>
-      <div className="weekly-rule" aria-hidden="true"><span>EST. 2026</span><span>{language === 'en' ? 'IDEAS · TECHNOLOGY · LIFE' : '思想 · 科技 · 生活'}</span><span>VOL. 001</span></div>
-      <p>{language === 'en'
-        ? 'A small newspaper of ideas, experiments, field notes and everything worth writing down.'
-        : '一份記錄想法、實驗、研究筆記，以及日常值得留下之事的小報。'}</p>
     </header>
   );
 }
@@ -83,9 +79,7 @@ function BlogList({ setView, language }: { setView: (v: View) => void; language:
   const featured = getPosts(language)[0];
   return (
     <section className="section weekly-teaser" id="writing">
-      <div className="weekly-teaser-kicker">{language === 'en' ? 'FROM THE EDITORIAL DESK' : '編輯室來信'}</div>
       <h2>EricTung's Weekly</h2>
-      <p>{language === 'en' ? 'Ideas, research, experiments, and notes from beyond the code.' : '程式以外，關於研究、實驗、生活與想法的記錄。'}</p>
       {featured && <a className="weekly-teaser-feature" href={`#/writing/${encodeURIComponent(featured.slug)}`} onClick={e => { e.preventDefault(); setView(`post:${featured.slug}`); }}>
         <span>{language === 'en' ? 'LATEST EDITION' : '最新刊載'} · {featured.date}</span>
         <strong>{featured.title}</strong>
@@ -110,16 +104,14 @@ function WeeklyPage({ setView, language }: { setView: (v: View) => void; languag
   const totalPages=Math.max(1,Math.ceil(selected.length/pageSize));
   const currentPage=Math.min(page,totalPages-1);
   const visible=selected.slice(currentPage*pageSize,(currentPage+1)*pageSize);
-  const lead=visible[0];
   return (
     <main className="weekly-paper">
-      <WeeklyMasthead language={language} />
+      <WeeklyMasthead />
       <nav className="weekly-sections" aria-label={language === 'en' ? 'Newspaper sections' : '報紙欄目'}>
         {sections.map(cat => <button type="button" key={cat} aria-pressed={cat === section} className={cat === section ? 'active' : ''}
           onClick={() => { setSection(cat); setPage(0); }}>{cat === 'All' ? (language === 'en' ? 'ALL STORIES' : '全部文章') : cat}</button>)}
       </nav>
-      <div className="retro-weekly-index"><span>ARCHIVE / {entries.length} STORIES · {years.length-1} YEARS</span><label>{language === 'en' ? 'EDITION YEAR' : '發行年份'} <select value={archiveYear} onChange={e=>{setArchiveYear(e.target.value);setPage(0);}}>{years.map(y=><option key={y} value={y}>{y==='All'?(language==='en'?'All years':'所有年份'):y}</option>)}</select></label></div>
-      {lead && <div className="retro-weekly-no">{language==='en'?'FRONT PAGE / FEATURED STORY':'頭版焦點'} · {lead.date}</div>}
+      <div className="retro-weekly-index"><select aria-label={language==='en'?'Filter by year':'依年份篩選'} value={archiveYear} onChange={e=>{setArchiveYear(e.target.value);setPage(0);}}>{years.map(y=><option key={y} value={y}>{y==='All'?(language==='en'?'All years':'所有年份'):y}</option>)}</select></div>
       {selected.length === 0 ? <p className="weekly-empty">{language === 'en' ? 'No stories in this section yet.' : '這個欄目暫時沒有文章。'}</p> :
         <div className="weekly-grid">
           {visible.map((post, i) => (
@@ -128,9 +120,7 @@ function WeeklyPage({ setView, language }: { setView: (v: View) => void; languag
               <a href={`#/writing/${encodeURIComponent(post.slug)}`} onClick={e => { e.preventDefault(); setView(`post:${post.slug}`); }}>
                 <h2>{post.title}</h2>
                 <p>{post.excerpt}</p>
-                <span className="weekly-story-read">{language === 'en' ? 'CONTINUE READING →' : '繼續閱讀 →'}</span>
               </a>
-              <div className="weekly-story-tags">{post.tags.join(' · ')}</div>
               {language === 'zh' && !post.translated && <div className="weekly-original-note">EN ORIGINAL · {language === 'zh' ? '尚無繁中譯稿' : ''}</div>}
             </article>
           ))}
@@ -141,17 +131,16 @@ function WeeklyPage({ setView, language }: { setView: (v: View) => void; languag
         <button type="button" onClick={()=>{setExpandedIssue(v=>!v);setPage(0);}}>{expandedIssue?(language==='en'?'FOLD EDITION':'摺回報紙'):(language==='en'?'UNFOLD ALL':'展開全部')}</button>
         <button type="button" disabled={currentPage===totalPages-1||expandedIssue} onClick={()=>{setPage(Math.min(totalPages-1,currentPage+1));window.scrollTo({top:0,behavior:'smooth'});}}>{language==='en'?'NEXT PAGE →':'下一頁 →'}</button>
       </nav>
-      <footer className="weekly-colophon">{language === 'en' ? 'Composed and published from Eric’s own editorial desk.' : '由 Eric 的個人編輯室編排發行。'}</footer>
     </main>
   );
 }
 
 function BlogPost({ slug, theme, setView, language }: { slug: string; theme: string; setView: (v: View) => void; language: Language }) {
   const post = getPost(slug, language);
-  if (!post) return <main className="weekly-paper"><WeeklyMasthead language={language} /><p className="weekly-empty">{language === 'en' ? 'Article not found.' : '找不到文章。'}</p></main>;
+  if (!post) return <main className="weekly-paper"><WeeklyMasthead /><p className="weekly-empty">{language === 'en' ? 'Article not found.' : '找不到文章。'}</p></main>;
   return (
     <main className="weekly-paper weekly-reading">
-      <WeeklyMasthead language={language} />
+      <WeeklyMasthead compact />
       <article className="weekly-article">
         <a className="weekly-back" href="#/weekly" onClick={e => { e.preventDefault(); setView('weekly'); }}>{language === 'en' ? '← BACK TO THE EDITION' : '← 返回週刊'}</a>
         <div className="weekly-article-category">{post.category} / {post.date} <span className="weekly-ink-stamp">{post.stamp}</span></div>
@@ -215,13 +204,8 @@ function Portfolio({ theme, setView, language }: { theme: string; setView: (v: V
       {/* writing */}
       <BlogList setView={setView} language={language} />
 
-      {/* cta */}
-      <section className="cta">
-        <h2>{language === 'en' ? "Let's build something that works." : '一起打造真正可用的系統。'}</h2>
-        <div className="cta-actions">
-          <a className="btn btn-primary" href={LINKS.email}>{language === 'en' ? 'Email me' : '聯絡我'}</a>
-          <a className="btn btn-ghost" href={`${import.meta.env.BASE_URL}${language === 'zh' ? 'CV_zh_TW.pdf' : 'CV.pdf'}`} download>{language === 'en' ? 'Download CV' : '下載履歷'}</a>
-        </div>
+      <section className="cta" aria-label={language === 'en' ? 'Contact Eric' : '聯絡 Eric'}>
+        <a className="btn btn-primary" href={LINKS.email}>{language === 'en' ? 'Contact Eric ↗' : '聯絡 Eric ↗'}</a>
       </section>
     </main>
   );
@@ -285,8 +269,8 @@ export default function App() {
     <>
       <div className="topbar">
         <a className="wordmark" href="#/desktop" onClick={(e) => { e.preventDefault(); setView('desktop'); }} title="OS-inspired name, not an installer">{systemBrand}</a>
-        <div className="topbar-actions"><a className="topbar-direct-cv" href={`${import.meta.env.BASE_URL}cv.html?lang=${language}`} target="_blank" rel="noopener noreferrer">{language==='en'?'CV / RESUME':'履歷 PDF'} ↗</a><button className="retro-nav" type="button" onClick={()=>setView('desktop')}>{language==='en'?'DESKTOP':'桌面'}</button>
-          <a className="topbar-weekly" href="#/weekly" onClick={e => { e.preventDefault(); setView('weekly'); }}>{language === 'en' ? 'THE WEEKLY' : '個人週刊'}</a>
+        <div className="topbar-actions"><a className="topbar-direct-cv" href={`${import.meta.env.BASE_URL}cv.html?lang=${language}`} target="_blank" rel="noopener noreferrer">{language==='en'?'CV':'履歷'} ↗</a><button className="retro-nav" type="button" onClick={()=>setView('desktop')}>{language==='en'?'DESKTOP':'桌面'}</button>
+          <a className="topbar-weekly" href="#/weekly" onClick={e => { e.preventDefault(); setView('weekly'); }}>{language === 'en' ? 'WEEKLY' : '週刊'}</a>
           <div className="language-switch" role="group" aria-label="Language">
             <button type="button" className={language === 'en' ? 'selected' : ''} onClick={() => setLanguage('en')} aria-pressed={language === 'en'}>EN</button>
             <button type="button" className={language === 'zh' ? 'selected' : ''} onClick={() => setLanguage('zh')} aria-pressed={language === 'zh'}>繁中</button>
@@ -311,11 +295,7 @@ export default function App() {
       ) : isChat ? (
         <main className="chat-layout desk-first-layout">
           <section className="desk-cabinet desk-workstation" aria-label={language === 'en' ? 'Eric’s information desk' : 'Eric 的資訊台'}>
-            <div className="desk-cabinet-top">
-              <span className="desk-cabinet-label">EST. 2026 · {systemBrand.toUpperCase()} · INFORMATION BUREAU</span>
-              <span className={`desk-pilot ${deskBusy ? 'working' : ''}`} aria-label={deskBusy ? 'Working' : 'Ready'} />
-            </div>
-            <div className="desk-work-surface">
+                <div className="desk-work-surface">
               <div className="desk-display">
                 <div className="mark1-device" aria-label={language === 'en' ? 'MARK I answering machine' : 'MARK I 答錄機'}>
                   <div className="mark1-head"><span>MINERVA · MARK I</span><i className={deskBusy ? 'active' : ''}/></div>
@@ -326,18 +306,14 @@ export default function App() {
                   <div className="mark1-controls">
                     <span>POWER <i/></span><span>AMPLIFIER <i/></span><span>RECORD <i/></span>
                   </div>
-                  <div className="mark1-brand">THE INFORMATION RECORDER · SERIES 01</div>
                 </div>
                 {(deskReply || deskBusy) && <div className="mark1-speech" role="status">
-                  <span className="mark1-speech-label">{deskBusy ? (language==='en'?'TRANSMITTING…':'傳送中…') : 'MARK I / MESSAGE'}</span>
                   <p>{deskBusy ? '···' : deskReply.slice(0,190)}{!deskBusy&&deskReply.length>190?'…':''}</p>
                 </div>}
-                <div className="desk-nameplate">{language === 'en' ? 'THE INFORMATION DESK' : '個人資訊台'}</div>
                 <button className="desk-drawer-handle" type="button" aria-expanded={drawerOpen}
                   aria-controls="desk-file-drawer" onClick={() => setDrawerOpen(v => !v)}>
                   <span aria-hidden="true">▤</span> {language === 'en' ? (drawerOpen ? 'CLOSE THE DRAWER' : 'OPEN THE DRAWER') : (drawerOpen ? '收起檔案抽屜' : '打開檔案抽屜')}
                 </button>
-                <span className="desk-desk-caption">{language === 'en' ? 'AUTHENTIC RECORDS · NO INVENTED BIOGRAPHY' : '真實檔案 · 不虛構個人資料'}</span>
               </div>
               <div className="chat-main">
                 <ChatPanel language={language} onGenerationStart={() => setDeskBusy(true)} onGenerationEnd={() => setDeskBusy(false)} onAnswer={setDeskReply} />
@@ -353,7 +329,6 @@ export default function App() {
               </div>
             )}
           </section>
-          <p className="desk-privacy-note">{language === 'en' ? 'Verified questions are answered from published records without loading an AI model. Optional WebGPU processing stays in your browser.' : '已確認的履歷問題直接從公開資料回答，不必載入 AI 模型。可選的 WebGPU 推論留在瀏覽器內。'}</p>
         </main>
       ) : (
         <>
@@ -366,7 +341,7 @@ export default function App() {
             <Portfolio theme={theme} setView={setView} language={language} />
           )}
           <footer className="footer">
-            <p>© 2026 Eric Tung · Built with React, WebGPU, and a lot of coffee.</p>
+            <p>© 2026 Eric Tung</p>
             <SocialButtons />
           </footer>
         </>

@@ -423,3 +423,31 @@
 .dm-manual a{display:inline-block;margin-top:12px;color:#f0dca1;text-decoration:underline}
 @media(max-width:650px){.dm-catalog-list{grid-template-columns:repeat(2,minmax(0,1fr));max-height:48vh}.dm-catalog-entry{padding:9px}.dm-catalog-entry>div{display:block}.dm-directive{font-size:9px}}
 @media(max-width:390px){.dm-catalog-list{grid-template-columns:1fr}}
+
+/* Iconography is specific to the real action, while effect strips are computed
+   from actual play rules. Cards remain readable on narrow mobile screens. */
+.dm-card-art{display:block;width:100%;height:auto;min-height:62px;max-height:88px;aspect-ratio:160/86;
+ margin:3px 0 8px;border:2px solid #34483a;image-rendering:pixelated;shape-rendering:crispEdges;background:#2c443b}
+.dm-card strong{min-height:34px}
+.dm-catalog-entry .dm-card-art{max-width:220px;min-height:0;margin:2px 0 10px}
+.dm-card:focus-visible .dm-card-art{outline:2px solid #e6d89f;outline-offset:2px}
+.dm-upgrade{border:4px solid #1b2420;margin-top:16px;padding:clamp(14px,2.5vw,28px);
+ background:#222e27;box-shadow:5px 5px 0 #111a16}
+.dm-upgrade h2{margin:20px 0 10px;color:#e5d8b0;font-size:22px}
+.dm-upgrade>p{font-size:12px;line-height:1.65;color:#b6c6b6;margin-bottom:18px}
+.dm-upgrade-choices{max-height:550px;overflow-y:auto;display:grid;gap:14px}
+.dm-upgrade-row{border:2px solid #6b816c;padding:12px;background:#2d3a30}
+.dm-upgrade-base{font-size:11px;font-weight:900;color:#dbcfa9;padding:0 0 10px}
+.dm-upgrade-cards{display:flex;flex-wrap:wrap;gap:10px}
+.dm-upgrade-cards .dm-card{width:min(100%,186px);min-height:0}
+.dm-upgrade .dm-skip button{margin-top:14px}
+@media(max-width:650px){
+  .dm-card-art{max-height:76px;margin-bottom:6px}
+  .dm-upgrade-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+  .dm-upgrade-cards .dm-card{width:100%}
+  .dm-upgrade-choices{max-height:60vh}
+}
+@media(max-width:390px){
+  .dm-card-art{max-height:66px}
+  .dm-catalog-entry .dm-card-art{max-width:100%}
+}

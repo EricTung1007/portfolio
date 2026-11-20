@@ -93,7 +93,7 @@ export function Department({language,onNavigate}:{language:Language;onNavigate:(
   const canMove=run.phase==='maze';
 
   return <main className="dm" id="department">
-    <div className="dm-frame">
+    <div className={'dm-frame dm-progress-'+Math.min(5,progress(run))}>
       <header className="dm-top">
         <button className="dm-logo" onClick={()=>{if(window.confirm(copy(language,'Start a new application? Current run will be lost.','重新申請？目前遊戲進度將被清除。')))restart();}}>D.O.C. <span>§0451</span></button>
         <div className="dm-top-links">
@@ -240,6 +240,11 @@ export function Department({language,onNavigate}:{language:Language;onNavigate:(
         <div className="dm-end-code">{run.phase==='clear'?'ERR_409':'ERR_404'}</div>
         <h1>{run.phase==='clear'?copy(language,'UNCLASSIFIABLE','無法分類'):copy(language,'APPLICATION TERMINATED','申請已終止')}</h1>
         <div className="dm-end-seal">{run.phase==='clear'?'APPROVED':'REJECTED'}</div>
+        {run.phase==='clear'&&<div className="dm-broken-form" aria-label={copy(language,'Classification field erased','職業分類欄位已被刪除')}>
+          <div><span>PERSONNEL RECORD / ERIC TUNG</span><span>FILE 0451</span></div>
+          <p>{copy(language,'OCCUPATION','職業類別')}: <s>ONE CATEGORY REQUIRED</s></p>
+          <strong>ERR: FIELD_NOT_FOUND</strong>
+        </div>}
         <p>{run.phase==='clear'?copy(language,'Section 0451 has been invalidated. The occupation field has been removed.','第 0451 條已被撤銷。「職業類別」欄位已自系統移除。'):
           copy(language,'Appeals may be refiled. All records remain public.','可以重新提出申訴。所有作品紀錄仍可查閱。')}</p>
         <div className="dm-end-actions">

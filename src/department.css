@@ -466,3 +466,9 @@
  background:#eee0ba;font:900 12px/1.5 ui-monospace,monospace}
 .dm-hearing .dm-event-actions button{font-size:12px;line-height:1.6}
 @media(max-width:650px){.dm-hearing-exhibits{grid-template-columns:1fr}}
+
+/* Explicit consent to spend game Evidence; a tactical choice, not a hidden tax. */
+.dm-evidence-toggle{font:900 10px ui-monospace,monospace;padding:5px 7px;border:2px solid #ac9d74;
+ background:#8c754b;color:#fff0bf;cursor:pointer}
+.dm-evidence-toggle.hold{background:#2b5661;color:#dbf0f2;border-color:#95bec4}
+.dm-evidence-toggle:focus-visible{outline:2px solid #f1dca8;outline-offset:2px}

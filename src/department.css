@@ -451,3 +451,18 @@
   .dm-card-art{max-height:66px}
   .dm-catalog-entry .dm-card-art{max-width:100%}
 }
+
+/* Final administrative hearing: argument from source documents, never trivia. */
+.dm-hearing{border:4px solid #293329;background:#bab397;color:#263127;
+ margin-top:16px;padding:clamp(16px,3vw,30px);box-shadow:6px 6px #171f1a}
+.dm-hearing h2{font:900 clamp(20px,4vw,30px)/1.15 ui-monospace,monospace;margin:22px 0 12px;color:#363328}
+.dm-hearing>p{max-width:75ch;font:700 12px/1.7 ui-monospace,monospace;margin:0 0 20px}
+.dm-hearing-exhibits{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.dm-hearing-exhibits>div{border:3px solid #666c56;background:#d1c8a7;padding:12px}
+.dm-hearing-exhibits strong{font:900 11px/1.5 ui-monospace,monospace}
+.dm-hearing-exhibits p{font:700 11px/1.6 ui-monospace,monospace;margin:8px 0}
+.dm-hearing-exhibits a{text-decoration:underline;color:#41594e;font:900 10px ui-monospace,monospace}
+.dm-hearing-rule{border-left:7px solid #9e4f46;padding:12px;margin:16px 0;
+ background:#eee0ba;font:900 12px/1.5 ui-monospace,monospace}
+.dm-hearing .dm-event-actions button{font-size:12px;line-height:1.6}
+@media(max-width:650px){.dm-hearing-exhibits{grid-template-columns:1fr}}

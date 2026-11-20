@@ -115,6 +115,13 @@ export const EVENT_TEXT: Record<EventId,{name:[string,string];story:[string,stri
 export function loc(x:number,y:number){return x+','+y;}
 export function wall(x:number,y:number){return MAP[y]?.[x] === '#' || MAP[y]?.[x] == null;}
 export function name(language:Language, values:[string,string]){return values[language==='en'?0:1];}
+// Mix similar user seeds first: adjacent run IDs must not share the same directive.
+function mixSeed(seed:number):number {
+  let x=(seed^(seed>>>16))>>>0;
+  x=Math.imul(x,0x7feb352d);x^=x>>>15;
+  x=Math.imul(x,0x846ca68b);x^=x>>>16;
+  return x>>>0;
+}
 function rand(state:Run,max:number):number {
   state.rng = (Math.imul(state.rng,1664525)+1013904223)>>>0;
   return Math.floor(state.rng / 4294967296 * max);
@@ -126,7 +133,7 @@ function shuffle(state:Run,items:CardId[]):CardId[] {
 }
 export function createRun(runs=0,seed=((Date.now()+runs*101)|0)):Run {
   const g:Run={
-    phase:'review', role:'',denials:0,seed,rng:seed>>>0,runs,
+    phase:'review', role:'',denials:0,seed,rng:mixSeed(seed),runs,
     directive:'degree_priority',variants:{gatekeeper:0,auditor:0,engine:0},eventSites:{...EVENTS},
     statuses:emptyAilments(),foeStatuses:emptyAilments(),findings:0,freePlayed:0,
     cabinets:{},openedCabinets:[],

@@ -1,4 +1,4 @@
-import { MAP, DIRS, DIR_NAMES, type Run } from './case-engine.js';
+import { mapForRun, DIR_NAMES, type Run } from './case-engine.js';
 
 const TILE_COLORS=[
   ['#303b34','#556353','#7e8b70','#a2a885'],
@@ -45,6 +45,7 @@ function colorForMarker(symbol:string){
 export function renderCorridor(canvas:HTMLCanvasElement,g:Run){
   const ctx=canvas.getContext('2d');if(!ctx)return;
   const W=320,H=200;
+  const MAP=mapForRun(g);
   ctx.imageSmoothingEnabled=false;
   ctx.fillStyle='#202b2d';ctx.fillRect(0,0,W,H/2);
   ctx.fillStyle='#353b32';ctx.fillRect(0,H/2,W,H/2);

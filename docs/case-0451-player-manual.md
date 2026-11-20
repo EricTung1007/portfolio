@@ -10,7 +10,7 @@ The Department of Occupational Classification allows one occupation per person. 
 - **Opening / 開場：** Select ENGINEER, NURSE or OTHER. All are denied for different bureaucratic reasons. FILE APPEAL starts the run. CLOSE FILE gives up, producing an alternate ending without blocking the portfolio.
 - **Movement / 移動：** W / ↑ advance; S / ↓ step back; A / ← turn left; D / → turn right; M toggles the fog-of-war map. Touch directional buttons are provided.
 - **In battle / 戰鬥：** Read the next named enemy intent. Click a card or press 1–8 to use it; Enter ends the turn. You normally start with 3 Energy and draw five cards. You may use at most two 0-Energy cards in one turn. Cards are *your actions*, not summoned units.
-- **Win condition / 通關條件：** Register two *real* project dossiers (A and H), defeat the Degree Gatekeeper and Compliance Auditor, then approach the central X terminal and defeat the Classification Engine. Each dossier and each of the first two victories now also offers a three-card procedure draft or a skip. This expands the opportunities to construct a deck.
+- **Win condition / 通關條件：** Register two *real* project dossiers (A and H), defeat the Degree Gatekeeper and Compliance Auditor, then reach the central X terminal. Compare the two real projects with the classification rule at the final hearing and defeat the Classification Engine. Each dossier and each of the first two victories now also offers a three-card procedure draft or a skip. This expands the opportunities to construct a deck.
 - **Optional information / 補充資訊：** MANUAL in the header explains rules; CARDS opens the complete 112-card searchable action archive.
 
 ## 3. Combat resources / 戰鬥資源
@@ -51,9 +51,9 @@ Each seed determines multiple independent variations:
 You can restart to obtain a different case. All three layout variations are handcrafted; this is intentionally not an arbitrary procedural dungeon.
 
 ## 6. Deckbuilding / 行動卡構築
-The archive contains **112 actions**: 16 original cards and 96 additional cards based on Python, SQL, APIs, Git/Docker, RAG, local inference and evaluation, clinical assessment, nursing documentation, risk prevention, health-information systems and research. These are fictional actions inspired by **skills mentioned in the real CV**; cards do not assert new employment achievements.
+The archive contains **112 base actions plus 16 authored upgrade variants**: 16 original cards and 96 additional cards based on Python, SQL, APIs, Git/Docker, RAG, local inference and evaluation, clinical assessment, nursing documentation, risk prevention, health-information systems and research. These are fictional actions inspired by **skills mentioned in the real CV**; cards do not assert new employment achievements.
 
-Each non-final officer victory, each registered dossier and the optional draft cabinet present up to three random options. You may take exactly one or skip. Event decisions may also award cards, remove one basic Python, or restore HP. The entire card library can be searched in the game; not all cards appear in one run.
+Each non-final officer victory, each registered dossier and the optional draft cabinet present up to three random options. Each dossier draft is followed by a **single-copy two-way amendment**: choose one eligible base card and select its A or B upgrade, or decline. Upgrading Python, SQL, REST, RAG, Assessment, Triage, Handoff or Local LLM only changes the chosen instance. You may take exactly one or skip. Event decisions may also award cards, remove one basic Python, or restore HP. The entire card library can be searched in the game; not all cards appear in one run.
 
 **Practical tips / 操作建議**
 - Build Evidence with CARE or research, then spend it on CODE to take down procedural shields.
@@ -63,8 +63,8 @@ Each non-final officer victory, each registered dossier and the optional draft c
 - Taking a new card is optional. Avoid diluting a coherent deck.
 
 ## 7. The endings / 分歧結局
-- **True ending: RULE §0451 INVALIDATED / 分類規則撤銷.** Defeat the Engine after recording at least two procedural findings via evidence-focused event decisions. The compulsory one-occupation requirement is deleted from the fictional bureau.
-- **Standard ending: EXCEPTION GRANTED / 核准特例.** Defeat the Engine without enough findings. The applicant wins an exception, but the regulation survives.
+- **True ending: RULE §0451 INVALIDATED / 分類規則撤銷.** At the final hearing, correctly cite the contradiction between the two verified cross-domain projects and the compulsory one-category rule, then defeat the Engine. Other findings provide battle advantage, but are not a hidden mandatory quota.
+- **Standard ending: EXCEPTION GRANTED / 核准特例.** Defeat the Engine after relying on the degree or requesting only a personal exception, rather than contesting the invalid classification rule. The applicant wins but the regulation survives.
 - **Withdrawn ending: FILE CLOSED / 案件歸檔.** Choose CLOSE FILE after the opening rejection. This is a voluntary bureaucratic compromise.
 - **Failure ending: APPLICATION TERMINATED / 申訴駁回.** HP reaches zero. You can restart; real project links remain accessible.
 
@@ -73,3 +73,7 @@ Each non-final officer victory, each registered dossier and the optional draft c
 
 ## 9. Accessibility & known limitations / 無障礙與限制
 The game uses a pixelated 320×200 raycast corridor, readable HTML text, keyboard/touch controls, descriptive ARIA labels and reduced-motion CSS. Saves are browser-local. Full playthrough, 375px mobile layout, screen-reader testing, reload recovery and human card balance testing are required before merging. CI success is not evidence of a fun human experience. The PR and this v3 branch are **not production**.
+
+## 10. Why each card looks the way it does / 卡面語意
+Every action is illustrated with a hand-assigned pixel-art subject associated with its real skill domain (for example, SQL database rows, a patient-monitor waveform for VITAL MONITOR, a clipboard for SOAP, network nodes for API and a debugger symbol for BREAKPOINT). The colored glyphs on the right are drawn from the card's **actual mechanics**, not decorative category tags. The archive renders all 112 actions and 16 upgrade variants. Each art subject and effect correspondence is checked by automated rendering assertions.
+每張牌都對應具體的技能主題像素圖，旁邊的符號依照實際卡牌效果產生。卡牌不能只有名稱與數值不同，卻搭配無關畫面；所有 128 種牌面皆納入自動化圖像資料檢查。

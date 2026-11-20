@@ -24,6 +24,7 @@ export type Run = {
   phase: Phase; role: string; denials: number; seed: number; rng: number; runs: number;
   directive:Directive; variants:Record<EnemyId,number>; eventSites:Record<string,EventId>;
   statuses:AilmentSet; foeStatuses:AilmentSet; findings:number; freePlayed:number;
+  cabinets:Record<string,CabinetPrize>; openedCabinets:string[];
   x: number; y: number; dir: Direction; visited: string[]; steps: number;
   hp: number; maxHp: number; block: number; carry: number; energy: number; evidence: number;
   deck: CardId[]; drawPile: CardId[]; discard: CardId[]; hand: CardId[]; turn: number;
@@ -92,6 +93,8 @@ export { EXTRA_EFFECTS, EXTRA_CARD_IDS } from './case-roguelite-cards.js';
 export const BASE_DECK: CardId[] = ['python','python','sql','api','rag','triage','triage','assessment','handoff','chart'];
 const REWARD_POOL: CardId[] = ['automation','abap','maui','llm','stabilize','research','risk','debug','rag','api','assessment','chart',...EXTRA_CARD_IDS];
 export const EVENTS: Record<string,EventId> = {'5,5':'reference','11,7':'printer','3,9':'rest'};
+export const CABINET_SITES=['5,3','11,5','11,11'] as const;
+export type CabinetPrize='draft'|'recovery'|'repair';
 export const EVENT_TEXT: Record<EventId,{name:[string,string];story:[string,string];options:[[string,string],[string,string]]}> = {
   reference:{
     name:['THE REFERENCE DESK','參考資料室'],
@@ -126,6 +129,7 @@ export function createRun(runs=0,seed=((Date.now()+runs*101)|0)):Run {
     phase:'review', role:'',denials:0,seed,rng:seed>>>0,runs,
     directive:'degree_priority',variants:{gatekeeper:0,auditor:0,engine:0},eventSites:{...EVENTS},
     statuses:emptyAilments(),foeStatuses:emptyAilments(),findings:0,freePlayed:0,
+    cabinets:{},openedCabinets:[],
     x:1,y:1,dir:2,visited:['1,1'],steps:0,
     hp:42,maxHp:42,block:0,carry:0,energy:3,evidence:0,
     deck:[...BASE_DECK],drawPile:[],discard:[],hand:[],turn:1,
@@ -138,6 +142,8 @@ export function createRun(runs=0,seed=((Date.now()+runs*101)|0)):Run {
   g.variants={gatekeeper:rand(g,2),auditor:rand(g,2),engine:rand(g,2)};
   const sites=Object.keys(EVENTS),variants=shuffle(g,Object.values(EVENTS));
   g.eventSites=Object.fromEntries(sites.map((site,i)=>[site,variants[i]])) as Record<string,EventId>;
+  const cabinetPrizes=shuffle(g,['draft','recovery','repair']) as CabinetPrize[];
+  g.cabinets=Object.fromEntries(CABINET_SITES.map((site,i)=>[site,cabinetPrizes[i]])) as Record<string,CabinetPrize>;
   return g;
 }
 function clone(g:Run):Run {
@@ -145,7 +151,8 @@ function clone(g:Run):Run {
     hand:[...g.hand],visited:[...g.visited],defeated:[...g.defeated],dossiers:[...g.dossiers],
     events:[...g.events],reward:[...g.reward],history:[...g.history],
     statuses:{...g.statuses},foeStatuses:{...g.foeStatuses},
-    variants:{...g.variants},eventSites:{...g.eventSites}};
+    variants:{...g.variants},eventSites:{...g.eventSites},
+    cabinets:{...g.cabinets},openedCabinets:[...g.openedCabinets]};
 }
 function pushMessage(g:Run,text:string) {g.message=text;g.history=[...g.history.slice(-3),text];}
 function draw(g:Run,count:number) {
@@ -210,6 +217,21 @@ export function move(run:Run,command:'left'|'right'|'forward'|'back'):Run {
   g.x=nx;g.y=ny;g.steps++;
   const k=loc(nx,ny);if(!g.visited.includes(k))g.visited.push(k);
   const cell=MAP[ny][nx];
+  const prize=g.cabinets[k];
+  if(prize&&!g.openedCabinets.includes(k)){
+    g.openedCabinets.push(k);
+    if(prize==='draft'){
+      prepareReward(g);g.phase='reward';
+      pushMessage(g,'UNCLAIMED PROCEDURE · SELECT A CARD');
+    } else if(prize==='recovery'){
+      g.hp=Math.min(g.maxHp,g.hp+8);
+      pushMessage(g,'OFFICE BREAK ROOM · HP +8');
+    } else {
+      cleanse(g,3);
+      pushMessage(g,'MISSING FORMS FOUND · AILMENTS CLEARED');
+    }
+    return g;
+  }
   if(cell==='E'){
     const foe:EnemyId=k==='1,11'?'gatekeeper':'auditor';
     if(!g.defeated.includes(foe))return startFight(g,foe);

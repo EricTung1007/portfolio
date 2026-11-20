@@ -197,7 +197,8 @@ export function intentFor(foe:EnemyId,turn:number,variant=0):Intent {
   if(!variant)return original;
   const status:Partial<Record<EnemyId,Ailment>>={gatekeeper:'wounded',auditor:'bleeding',engine:'infected'};
   // Familiar, fully telegraphed damage patterns; randomized versions add legible ailments.
-  return original.kind==='attack'?{...original,status:status[foe]}:original;
+  if(original.kind!=='attack')return original;
+  return {...original,status:foe==='engine'&&turn%4===0?'ddosed':status[foe]};
 }
 export function startFight(run:Run,foe:EnemyId):Run {
   const g=clone(run);g.phase='battle';g.foe=foe;g.foeHp=ENEMIES[foe].hp;
@@ -415,7 +416,8 @@ export function endTurn(run:Run):Run {
     }else if(intent.kind==='guard')g.foeBlock+=intent.amount;
     else if(intent.kind==='misfile')g.misfiled+=intent.amount;
   }
-  g.hp=Math.max(0,g.hp-g.statuses.bleeding*2-g.statuses.infected);
+  const dotDamage=g.statuses.bleeding*2+g.statuses.infected;
+  g.hp=Math.max(0,g.hp-dotDamage);
   g.statuses.bleeding=Math.max(0,g.statuses.bleeding-1);
   if(g.directive==='audit_overload'&&g.turn%4===0)g.misfiled++;
   if(g.hp<=0){g.phase='dead';pushMessage(g,'APPLICATION TERMINATED · RETRY AVAILABLE');return g;}
@@ -427,7 +429,7 @@ export function endTurn(run:Run):Run {
   g.statuses.ddosed=Math.max(0,g.statuses.ddosed-1);
   pushMessage(g,interrupted?'PROCEDURE INTERRUPTED':damage?'HP -'+damage:
     intent.kind==='guard'?'ENEMY ARMOR +'+intent.amount:
-    intent.kind==='misfile'?'MISFILED · ENERGY -1 PER STACK':'ATTACK BLOCKED');
+    intent.kind==='misfile'?'MISFILED · ENERGY -1 PER STACK':dotDamage?'STATUS DAMAGE -'+dotDamage:'ATTACK BLOCKED');
   return g;
 }
 export function chooseReward(run:Run,id:CardId|null):Run {

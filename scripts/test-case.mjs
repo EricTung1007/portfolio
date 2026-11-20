@@ -50,13 +50,15 @@ function atHand(run,...cards){return {...run,hand:cards,drawPile:[],discard:[],e
   eq(g.hand.length,5,'draw five starting cards');
   eq(g.foeHp,ENEMIES.gatekeeper.hp,'correct enemy HP');
   eq(intentFor('gatekeeper',1).amount,7,'telegraphed attack');
+  const initialEvidence=g.evidence;
   g=atHand(g,'assessment','api');
   g=play(g,0);
-  eq(g.evidence,1,'assessment creates evidence');
+  eq(g.evidence,Math.min(6,initialEvidence+1),'assessment creates evidence');
   eq(g.block,5,'assessment creates clinical protection');
+  const spent=Math.min(2,g.evidence);
   g=play(g,0);
-  eq(g.evidence,0,'REST consumes evidence');
-  eq(g.foeHp,ENEMIES.gatekeeper.hp-(7+2),'REST pierces armor plus evidence damage');
+  eq(g.evidence,Math.min(6,initialEvidence+1)-spent,'REST consumes available evidence');
+  eq(g.foeHp,ENEMIES.gatekeeper.hp-(7+2*spent),'REST pierces armor plus evidence damage');
 }
 {
   let g=startFight(startAppeal(reject(createRun(0,101),'ENGINEER')),'gatekeeper');

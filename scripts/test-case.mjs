@@ -103,9 +103,10 @@ function atHand(run,...cards){return {...run,hand:cards,drawPile:[],discard:[],e
 {
   let g=startFight(startAppeal(reject(createRun(0,103),'NURSE')),'auditor');
   g=atHand(g,'chart');g.misfiled=2;
+  const beforeEvidence=g.evidence;
   g=play(g,0);
   eq(g.misfiled,0,'SOAP correction removes inaccurate classification');
-  eq(g.evidence,2,'SOAP adds documented evidence');
+  eq(g.evidence,Math.min(6,beforeEvidence+2),'SOAP adds documented evidence');
 }
 {
   let g=startFight(startAppeal(reject(createRun(0,104),'OTHER')),'auditor');

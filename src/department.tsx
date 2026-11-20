@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  CARDS, CARD_COUNT, CARD_UPGRADE_COUNT, UPGRADE_CHOICES, upgradeableIndices, chooseUpgrade, DIRECTIVES, DIR_NAMES, DIRS, DOSSIERS, ENEMIES, EVENT_TEXT, mapForRun, 
+  CARDS, CARD_COUNT, CARD_UPGRADE_COUNT, UPGRADE_CHOICES, upgradeableIndices, chooseUpgrade, resolveHearing, DIRECTIVES, DIR_NAMES, DIRS, DOSSIERS, ENEMIES, EVENT_TEXT, mapForRun, 
   chooseReward, createRun, endTurn, intentFor, move, name, play, progress,
   reclassify, recordFile, reject, resolveEvent, startAppeal, acceptClassification,
   type CardId, type Language, type Run,
@@ -21,9 +21,9 @@ function load():Run {
       const data=JSON.parse(cached) as Run;
       if(data && typeof data.seed==='number' && Array.isArray(data.deck) &&
         Array.isArray(data.visited) && Array.isArray(data.defeated) &&
-        data.statuses && data.foeStatuses && Number.isInteger(data.upgradePending) && Number.isInteger(data.nextTurnDraw) && data.directive in DIRECTIVES &&
+        data.statuses && data.foeStatuses && Number.isInteger(data.upgradePending) && Number.isInteger(data.nextTurnDraw) && ['pending','validated','dismissed'].includes(data.hearingResult) && data.directive in DIRECTIVES &&
         data.eventSites && Number.isInteger(data.mapVariant) && data.mapVariant>=0 && data.mapVariant<3 && data.variants && data.cabinets && Array.isArray(data.openedCabinets) && typeof data.findings==='number' &&
-        ['review','denied','maze','battle','reward','record','event','upgrade','dead','clear','settled'].includes(data.phase))return data;
+        ['review','denied','maze','battle','reward','record','event','upgrade','dead','clear','settled','hearing'].includes(data.phase))return data;
     }
   }catch{/* untrusted or unavailable local storage */}
   return createRun();
@@ -69,7 +69,7 @@ export function Department({language,onNavigate,onLanguageChange}:{language:Lang
   const change=useCallback((action:'left'|'right'|'forward'|'back')=>setRun(g=>move(g,action)),[]);
   useEffect(()=>{try{localStorage.setItem(STORAGE,JSON.stringify(run));}catch{/* optional save */}},[run]);
   useEffect(()=>{
-    if(canvas.current && ['maze','battle','reward','record','event','upgrade'].includes(run.phase))renderCorridor(canvas.current,run);
+    if(canvas.current && ['maze','battle','reward','record','event','upgrade','hearing'].includes(run.phase))renderCorridor(canvas.current,run);
   },[run]);
   useEffect(()=>{
     const handle=(event:KeyboardEvent)=>{
@@ -95,7 +95,7 @@ export function Department({language,onNavigate,onLanguageChange}:{language:Lang
   const restart=()=>{setRun(g=>createRun(g.runs+1));setShowMap(false);setShowRules(false);setShowCatalog(false);};
   const currentFoe=run.foe?ENEMIES[run.foe]:null;
   const currentIntent=run.foe?intentFor(run.foe,run.turn,run.variants[run.foe]):null;
-  const inDungeon=['maze','battle','reward','record','event','upgrade'].includes(run.phase);
+  const inDungeon=['maze','battle','reward','record','event','upgrade','hearing'].includes(run.phase);
   const document=run.record==='A'?DOSSIERS.A:DOSSIERS.H;
   const canMove=run.phase==='maze';
 
@@ -119,7 +119,7 @@ export function Department({language,onNavigate,onLanguageChange}:{language:Lang
         <p>{copy(language,'MOVE: WASD / arrows, M: map, 1-8: action cards, Enter: end turn. Touch controls are available.','移動：WASD／方向鍵；M：地圖；1–8：行動卡；Enter：結束回合。支援觸控。')}</p>
         <p>{copy(language,'Each turn: 3 Energy, 5 cards. CARE protects and gathers Evidence; CODE uses Evidence to strengthen attacks. Enemy intent is always shown. Up to two free (0 Energy) cards per turn.','每回合 3 行動力、抽 5 張。CARE 防護與搜集證據；CODE 可消耗證據強化攻擊。敵人行動提前預告；每回合最多打出兩張 0 費卡。')}</p>
         <p>{copy(language,'STATUS: WOUNDED reduces new block by 2 per stack. BLEEDING costs 2 HP per stack at turn end and decays. INFECTED costs 1 HP per stack per turn and reduces healing. DDOSED reduces next-turn draws. On enemies, bleeding/infection deal damage; wounded weakens attacks; DDOSED cancels the next non-attack action.','狀態：創傷每層減少 2 點新增護盾；流血每層於回合結束失去 2 HP 並逐層消退；感染每層持續損失 1 HP 並降低治療；遭阻斷會減少下回合抽牌。施加於敵人的流血與感染造成持續傷害，創傷降低攻擊，遭阻斷可取消下一次非攻擊行動。')}</p>
-        <p>{copy(language,'RANDOM CASE: each run changes its maze shortcuts, directive, enemy variants, event locations, hidden optional cabinets, draws and rewards. Find optional procedural contradictions for the strongest ending.','隨機案件：每局會改變迷宮捷徑、特別條款、敵人變體、事件位置、可選檔案櫃、抽牌及獎勵。調查程序矛盾可取得更完整的結局。')}</p>
+        <p>{copy(language,'RANDOM CASE: each run changes its maze shortcuts, directive, enemy variants, event locations, hidden optional cabinets, draws and rewards. At the final hearing, compare both real projects with the bureau rule to challenge its validity.','隨機案件：每局會改變迷宮捷徑、特別條款、敵人變體、事件位置、可選檔案櫃、抽牌及獎勵。在最終聽證會比對真實專案與分類條款，提出有根據的異議才能改變裁定。')}</p>
         <a href="https://github.com/EricTung1007/portfolio/blob/feat/case-0451-v3-roguelite/docs/case-0451-player-manual.md" target="_blank" rel="noreferrer">{copy(language,'Full player manual','完整玩家手冊')}</a>
       </section>}
       {showCatalog&&<section className="dm-catalog" aria-label={copy(language,'Action card library','行動卡圖鑑')}>
@@ -248,6 +248,21 @@ export function Department({language,onNavigate,onLanguageChange}:{language:Lang
             {run.reward.map(id=><CardButton key={id} id={id} language={language} onClick={()=>setRun(g=>chooseReward(g,id))}/>)}
           </div>
           <div className="dm-skip"><button type="button" onClick={()=>setRun(g=>chooseReward(g,null))}>{copy(language,'KEEP DECK AS IS','維持現有牌組')}</button></div>
+        </section>}
+        {run.phase==='hearing'&&<section className="dm-hearing" aria-label={copy(language,'Final administrative hearing','最終行政聽證會')}>
+          <div className="dm-record-head"><span>HEARING 0451 · {copy(language,'FINAL OBJECTION','最終異議')}</span><span>RULE §0451</span></div>
+          <h2>{copy(language,'ONE SUBJECT. ONE OCCUPATION.','一人，只能有一種職業。')}</h2>
+          <p>{copy(language,'The central terminal accepts that both records are authentic. It does not accept that they belong to the same person. Select the claim that the evidence actually supports.','中央終端承認兩份紀錄都是真的，卻不接受它們屬於同一個人。請根據文件內容提出可成立的異議。')}</p>
+          <div className="dm-hearing-exhibits">
+            <div><strong>EXHIBIT 01 · {DOSSIERS.A.title}</strong><p>{copy(language,'Prenatal education, clinical knowledge, FAISS retrieval, LINE and locally hosted AI.','產前衛教、臨床知識、FAISS 檢索、LINE 與本地 AI。')}</p><a href={DOSSIERS.A.link} target="_blank" rel="noreferrer">{copy(language,'SOURCE','原始資料')} ↗</a></div>
+            <div><strong>EXHIBIT 02 · {DOSSIERS.H.title}</strong><p>{copy(language,'Clinical documentation workflows implemented with Node.js, Express, SQLite, React and AI assistance.','以 Node.js、Express、SQLite、React 及 AI 輔助實作臨床紀錄工作流程。')}</p><a href={DOSSIERS.H.link} target="_blank" rel="noreferrer">{copy(language,'SOURCE','原始資料')} ↗</a></div>
+          </div>
+          <div className="dm-hearing-rule">{copy(language,'MANDATORY RULE: A valid record must contain exactly one occupational category.','強制條款：有效的紀錄必須且只能包含一個職業類別。')}</div>
+          <div className="dm-event-actions">
+            <button type="button" onClick={()=>setRun(g=>resolveHearing(g,0))}>{copy(language,'01 · Degree category overrides every verified project.','01 · 學位分類應優先於所有已核實的實作成果。')}</button>
+            <button type="button" onClick={()=>setRun(g=>resolveHearing(g,1))}>{copy(language,'02 · Both verified projects combine clinical AND software expertise; a compulsory single-category field omits verified facts.','02 · 兩份已核實的專案結合臨床與軟體專業；強制單一分類會遺漏已核實的事實。')}</button>
+            <button type="button" onClick={()=>setRun(g=>resolveHearing(g,2))}>{copy(language,'03 · Grant one applicant an exception; keep the mandatory rule for everyone else.','03 · 為這位申請人核發特例，其他人仍須遵守強制分類。')}</button>
+          </div>
         </section>}
         {run.phase==='upgrade'&&<section className="dm-upgrade" aria-label={copy(language,'Amend one action','修訂一張行動卡')}>
           <div className="dm-record-head"><span>FORM 0451-U · {copy(language,'PROCEDURE AMENDMENT','行動卡修訂')}</span><span>{copy(language,'SINGLE COPY ONLY','僅修改指定的一張')}</span></div>

@@ -53,7 +53,7 @@ export function StudyScene({language,visitor,onOpen,terminal}:{
             <span className="study-paper-rule"/>
             <span className="study-paper-headline">{latest?.title??'Notes from the Workshop'}</span>
           </button>
-          <a className="study-object study-folder" href={`${import.meta.env.BASE_URL}CV.pdf`} target="_blank" rel="noopener noreferrer" onClick={markCvViewed} aria-label={copy(language,'Open resume PDF','開啟履歷 PDF')}>
+          <a className="study-object study-folder" href={`${import.meta.env.BASE_URL}cv.html?lang=${language}`} target="_blank" rel="noopener noreferrer" onClick={markCvViewed} aria-label={copy(language,'Open resume','開啟履歷')}>
             <span className="study-folder-tab">PERSONNEL FILE</span>
             <span className="study-folder-crest">ET</span>
             <strong>ERIC TUNG</strong>

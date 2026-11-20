@@ -171,7 +171,7 @@ function Portfolio({ theme, setView, language }: { theme: string; setView: (v: V
           <div className="fact"><dt>{language === 'en' ? 'Education' : '教育背景'}</dt><dd>{education.map((e) => `${e.institution}, ${e.degree}`).join(' · ')}</dd></div>
           <div className="fact"><dt>{language === 'en' ? 'Publications' : '學術發表'}</dt><dd>{(publications ?? []).map((p) => `${p.journal} ${p.year}`).join(' · ')}</dd></div>
           <div className="fact"><dt>{language === 'en' ? 'Focus' : '技術方向'}</dt><dd>{(skills.ai_tools ?? []).slice(0, 5).join(', ')}</dd></div>
-          <div className="fact"><dt>{language === 'en' ? 'Download' : '下載'}</dt><dd><a href={`${import.meta.env.BASE_URL}CV.pdf`} download>CV (PDF)</a></dd></div>
+          <div className="fact"><dt>{language === 'en' ? 'Download' : '下載'}</dt><dd><a href={`${import.meta.env.BASE_URL}CV.pdf`} download>English PDF</a> · <a href={`${import.meta.env.BASE_URL}CV_zh_TW.pdf`} download>繁體中文 PDF</a> · <a href={`${import.meta.env.BASE_URL}cv.html?lang=${language}`} target="_blank" rel="noopener noreferrer">{language === 'en' ? 'Preview' : '線上預覽'}</a></dd></div>
         </dl>
       </section>
 
@@ -269,7 +269,8 @@ export default function App() {
     <>
       <div className="topbar">
         <a className="wordmark" href="#/desktop" onClick={(e) => { e.preventDefault(); setView('desktop'); }} title="OS-inspired name, not an installer">{systemBrand}</a>
-        <div className="topbar-actions"><a className="topbar-direct-cv" href={`${import.meta.env.BASE_URL}CV.pdf`} target="_blank" rel="noopener noreferrer">{language==='en'?'CV':'履歷'} ↗</a>          <a className="topbar-weekly" href="#/weekly" onClick={e => { e.preventDefault(); setView('weekly'); }}>{language === 'en' ? 'WEEKLY' : '週刊'}</a>
+        <div className="topbar-actions"><a className="topbar-direct-cv" href={`${import.meta.env.BASE_URL}cv.html?lang=${language}`} target="_blank" rel="noopener noreferrer">{language==='en'?'CV':'履歷'} ↗</a><button className="retro-nav" type="button" onClick={()=>setView('desktop')}>{language==='en'?'DESKTOP':'桌面'}</button>
+          <a className="topbar-weekly" href="#/weekly" onClick={e => { e.preventDefault(); setView('weekly'); }}>{language === 'en' ? 'WEEKLY' : '週刊'}</a>
           <div className="language-switch" role="group" aria-label="Language">
             <button type="button" className={language === 'en' ? 'selected' : ''} onClick={() => setLanguage('en')} aria-pressed={language === 'en'}>EN</button>
             <button type="button" className={language === 'zh' ? 'selected' : ''} onClick={() => setLanguage('zh')} aria-pressed={language === 'zh'}>繁中</button>

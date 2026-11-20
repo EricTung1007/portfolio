@@ -5,7 +5,7 @@ const game = await import(pathToFileURL('/tmp/case0451-engine.mjs').href);
 const {
   BASE_DECK,CARDS,CARD_COUNT,CARD_UPGRADE_COUNT,UPGRADE_CHOICES,upgradeableIndices,chooseUpgrade,DIRECTIVES,ENEMIES,MAP,MAP_VARIANT_COUNT,mapForRun,EVENTS,
   createRun,reject,startAppeal,reclassify,acceptClassification,move,recordFile,resolveEvent,
-  intentFor,startFight,play,endTurn,chooseReward,
+  intentFor,startFight,play,endTurn,chooseReward,resolveHearing,
 } = game;
 let checks=0;
 function expect(condition,message) {assert.ok(condition,message);checks++;}
@@ -155,7 +155,10 @@ function atHand(run,...cards){return {...run,hand:cards,drawPile:[],discard:[],e
   eq(g.phase,'maze','central door rejects incomplete evidence');
   g={...g,x:3,y:3,dir:1,dossiers:['A','H'],defeated:['gatekeeper','auditor']};
   g=move(g,'forward');
-  eq(g.phase,'battle','complete dossier unlocks final boss');
+  eq(g.phase,'hearing','complete dossier unlocks final evidence hearing');
+  g=resolveHearing(g,1);
+  eq(g.phase,'battle','supported objection starts the final boss');
+  eq(g.hearingResult,'validated','true argument is recorded as the hearing outcome');
   eq(g.foe,'engine','actual classification engine encounter');
   g=atHand(g,'api');g.foeHp=3;g=play(g,0);
   eq(g.phase,'clear','defeating final boss wins the appeal');
@@ -223,9 +226,9 @@ function atHand(run,...cards){return {...run,hand:cards,drawPile:[],discard:[],e
   let g=startFight(startAppeal(start),'engine');
   g=atHand(g,'api');g.foeHp=3;g.findings=0;g=play(g,0);
   eq(g.ending,'EXCEPTION GRANTED','standard victory requires no optional findings');
-  g=startFight(startAppeal(start),'engine');g=atHand(g,'api');g.foeHp=3;g.findings=2;
+  g=startFight(startAppeal(start),'engine');g=atHand(g,'api');g.foeHp=3;g.findings=2;g.hearingResult='validated';
   g=play(g,0);
-  eq(g.ending,'RULE §0451 INVALIDATED','two findings unlock rule-invalidating ending');
+  eq(g.ending,'RULE §0451 INVALIDATED','supported hearing unlocks rule-invalidating ending');
 }
 {
   let g=startAppeal(reject(createRun(0,908),'OTHER'));
@@ -289,6 +292,19 @@ function atHand(run,...cards){return {...run,hand:cards,drawPile:[],discard:[],e
   const g=chooseUpgrade(startAppeal(reject(createRun(0,915),'OTHER')),-1,null);
   eq(g.phase,'maze','upgrade action is inert outside upgrade phase');
   expect(Object.keys(UPGRADE_CHOICES).length===8,'eight eligible base cards');
+}
+{
+  let g=startAppeal(reject(createRun(0,1902),'NURSE'));
+  g={...g,phase:'hearing',dossiers:['A','H'],defeated:['gatekeeper','auditor'],findings:2};
+  let wrong=resolveHearing(g,0);
+  eq(wrong.phase,'battle','unsupported objection still enters battle');
+  eq(wrong.hearingResult,'dismissed','unsupported appeal does not invalidate regulation');
+  expect(wrong.foeBlock>=5,'unsupported appeal incurs procedural armor');
+  let right=resolveHearing(g,1);
+  eq(right.hearingResult,'validated','project contradiction supports invalidation');
+  expect(right.foeExposed>=2,'successful hearing exposes classification engine');
+  expect(right.evidence>=1,'documented source becomes usable battle Evidence');
+  eq(resolveHearing(right,1),right,'hearing cannot be farmed from combat');
 }
 console.log('CASE 0451: '+checks+' gameplay assertions passed.');
 

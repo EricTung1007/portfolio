@@ -41,13 +41,14 @@ The attacks of variant officers may apply ailments if their attacks inflict HP d
 
 ## 5. Randomized case rules / 隨機案件規則
 Each seed determines multiple independent variations:
-1. One of four case directives: Degree Priority (enemies start armored), Evidence First (extra starting Evidence), Audit Overload (every fourth enemy turn adds MISFILED), or Night Shift (combat healing reduced).
-2. Each officer's standard or status-bearing attack variant, fully telegraphed.
-3. Three story-event assignments, shuffled among the pre-authored event sites.
-4. Three optional **C**abinets in dead-end rooms, containing a randomized assignment of one extra three-card draft, one HP recovery and one ailment repair. Each is single-use; optional rooms reward exploration rather than blocking the main route.
-5. Card draw/shuffle order and rewards (rewards try to offer CODE, CARE and CROSS choices).
+1. One of three hand-authored maze layouts with optional shortcut openings. The mandatory goals remain accessible in all variants. The game does not yet generate arbitrary corridors.
+2. One of four case directives: Degree Priority (enemies start armored), Evidence First (extra starting Evidence), Audit Overload (every fourth enemy turn adds MISFILED), or Night Shift (combat healing reduced).
+3. Each officer's standard or status-bearing attack variant, fully telegraphed.
+4. Three story-event assignments, shuffled among the pre-authored event sites.
+5. Three optional **C**abinets in dead-end rooms, containing a randomized assignment of one extra three-card draft, one HP recovery and one ailment repair. Each is single-use; optional rooms reward exploration rather than blocking the main route.
+6. Card draw/shuffle order and rewards (rewards try to offer CODE, CARE and CROSS choices).
 
-You can restart to obtain a different case. The main map remains handcrafted; this is intentionally not yet a procedural dungeon.
+You can restart to obtain a different case. All three layout variations are handcrafted; this is intentionally not an arbitrary procedural dungeon.
 
 ## 6. Deckbuilding / 行動卡構築
 The archive contains **112 actions**: 16 original cards and 96 additional cards based on Python, SQL, APIs, Git/Docker, RAG, local inference and evaluation, clinical assessment, nursing documentation, risk prevention, health-information systems and research. These are fictional actions inspired by **skills mentioned in the real CV**; cards do not assert new employment achievements.

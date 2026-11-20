@@ -46,6 +46,9 @@ try{
  await page.goto(ORIGIN+'#/portfolio',{waitUntil:'networkidle'});
  check((await page.locator('.dm').count())===0,'portfolio deep link loads independently');
  await page.goto(ORIGIN+'#/department',{waitUntil:'networkidle'});
+ // Preserve/resume is tested separately. Reset the run to inspect the initial form.
+ await page.evaluate(key=>localStorage.removeItem(key),saveKey);
+ await page.reload({waitUntil:'networkidle'});
  await page.locator('.dm-language').click();
  check((await page.locator('.dm-paper-head').innerText()).includes('人事登錄表'),'game language toggle uses Traditional Chinese');
  await page.evaluate(()=>localStorage.setItem('eric_language','en'));

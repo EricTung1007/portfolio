@@ -19,4 +19,6 @@ jobs:
         run: ./node_modules/.bin/esbuild src/case-engine.ts --bundle --platform=node --format=esm --outfile=/tmp/case0451-engine.mjs
       - name: Test gameplay invariants and paths
         run: node scripts/test-case.mjs
+      - name: Simulate combat balance
+        run: node scripts/balance-case.mjs
       - run: npm run build

@@ -1,6 +1,6 @@
 import { pathToFileURL } from 'node:url';
 const game=await import(pathToFileURL('/tmp/case0451-engine.mjs').href);
-const {MAP,DIRS,CARDS,EXTRA_EFFECTS,createRun,reject,startAppeal,move,recordFile,resolveEvent,play,endTurn,chooseReward,intentFor,resolveHearing}=game;
+const {MAP,DIRS,CARDS,EXTRA_EFFECTS,createRun,reject,startAppeal,move,recordFile,resolveEvent,play,endTurn,chooseReward,chooseUpgrade,upgradeableIndices,intentFor,resolveHearing}=game;
 const N=120;
 function shortestPath(){
   const start=[1,1], goal='4,3';
@@ -59,7 +59,13 @@ function score(g,id){
 function pickReward(g,planned){
  const order=['research','llm','prompt_eval','med_reconciliation','rag','stabilize','api','maui'];
  const choice=planned?order.find(x=>g.reward.includes(x))||g.reward.reduce((a,b)=>score(g,a)>score(g,b)?a:b):g.reward[0];
- return chooseReward(g,choice??null);
+  let next=chooseReward(g,choice??null);
+  if(next.phase==='upgrade'){
+    const candidates=upgradeableIndices(next);
+    const ix=candidates.find(i=>next.deck[i]==='python')??candidates[0];
+    next=chooseUpgrade(next,ix??-1,planned&&ix!=null?'B':null);
+  }
+  return next;
 }
 function resolveCaseEvent(g,planned){
  const id=g.event;

@@ -148,8 +148,8 @@ export function intentFor(foe:EnemyId,turn:number):Intent {
     gatekeeper:[{kind:'attack',amount:7,name:['REJECT STAMP','退件印章']},{kind:'guard',amount:7,name:['DIPLOMA SHIELD','學歷盾牌']},{kind:'attack',amount:11,name:['INVALIDATE','資格撤銷']}],
     auditor:[{kind:'guard',amount:9,name:['AUDIT TRAIL','稽核護甲']},{kind:'attack',amount:9,name:['REDACTION','遮蔽紀錄']},{kind:'misfile',amount:1,name:['MISFILE RECORD','誤分類紀錄']},{kind:'attack',amount:12,name:['SANCTION','程序處分']}],
     engine:[{kind:'attack',amount:12,name:['FORCED CLASSIFICATION','強制分類']},{kind:'misfile',amount:1,name:['ERASE CATEGORY','抹除類別']},{kind:'guard',amount:11,name:['SYSTEM POLICY','制度防護']},{kind:'attack',amount:16,name:['FINAL VERDICT','最終裁決']}],
-  } as const satisfies Record<EnemyId,readonly Intent[]>;
-  return pattern[foe][(turn-1)%pattern[foe].length] as Intent;
+  } as Record<EnemyId, Intent[]>;
+  return pattern[foe][(turn-1)%pattern[foe].length];
 }
 export function startFight(run:Run,foe:EnemyId):Run {
   const g=clone(run);g.phase='battle';g.foe=foe;g.foeHp=ENEMIES[foe].hp;

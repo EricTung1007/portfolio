@@ -21,7 +21,7 @@ jobs:
         run: node scripts/test-case.mjs
       - name: Verify authored 128 card illustrations match actual effects
         run: |
-          ./node_modules/.bin/esbuild src/case-card-art.tsx --bundle --platform=node --format=esm --outfile=/tmp/case0451-card-art.mjs --external:react --external:react/jsx-runtime
+          ./node_modules/.bin/esbuild src/case-card-art.tsx --bundle --platform=node --format=esm --outfile=/tmp/case0451-card-art.mjs
           node scripts/test-card-art.mjs
       - name: Simulate combat balance
         run: node scripts/balance-case.mjs

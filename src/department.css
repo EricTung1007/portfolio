@@ -402,3 +402,24 @@
 .dm-broken-form s{color:#914c3f;text-decoration-thickness:3px;}
 .dm-broken-form strong{display:inline-block;color:#a0443b;border:3px dashed #a0443b;padding:4px 8px;}
 @media(max-width:650px){.dm-broken-form{font-size:11px;padding:16px;}}
+
+
+/* CASE 0451 v3: legible statuses, card archive, language and directive. */
+.dm-catalog{padding:18px clamp(12px,3vw,28px);background:#1d2a24;border-bottom:4px solid #ad8066;color:#ded9b8}
+.dm-catalog-title{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+.dm-catalog-title button{background:#d0c5a5;color:#27332a;border:2px solid #6b7a66;padding:7px 12px;font:700 12px ui-monospace,monospace}
+.dm-catalog input{width:100%;max-width:620px;padding:12px;background:#d6cdab;color:#222b25;border:3px solid #71826d;font:700 13px ui-monospace,monospace;margin-bottom:12px}
+.dm-catalog-list{max-height:min(65vh,530px);overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;padding:3px}
+.dm-catalog-entry{background:#354539;border:2px solid #73856d;padding:12px}
+.dm-catalog-entry>div{display:flex;justify-content:space-between;align-items:start;gap:7px}
+.dm-catalog-entry strong{color:#e8debe;font-size:12px}
+.dm-catalog-entry span{font-size:9px;color:#d5b778;white-space:nowrap}
+.dm-catalog-entry p{margin:10px 0;font-size:11px}
+.dm-catalog-entry small{color:#b7c4ae;font-size:10px}
+.dm-ailment{background:#512c2b;color:#ffd4b8;padding:2px 5px;border:1px solid #ae7364}
+.dm-foe-ailment{background:#343653;color:#d2e2fd;padding:2px 5px;border:1px solid #8f9cac}
+.dm-directive{background:#7d663e;color:#ffedbc;padding:5px 8px;border:1px solid #beaa76;font-size:10px}
+.dm-case-notice{font-size:11px;line-height:1.6;color:#48513e;margin:12px 0;padding:11px;border:1px dashed #818973;background:#c4bfa5}
+.dm-manual a{display:inline-block;margin-top:12px;color:#f0dca1;text-decoration:underline}
+@media(max-width:650px){.dm-catalog-list{grid-template-columns:repeat(2,minmax(0,1fr));max-height:48vh}.dm-catalog-entry{padding:9px}.dm-catalog-entry>div{display:block}.dm-directive{font-size:9px}}
+@media(max-width:390px){.dm-catalog-list{grid-template-columns:1fr}}

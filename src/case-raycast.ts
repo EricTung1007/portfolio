@@ -38,6 +38,7 @@ function getTextures(){
 function colorForMarker(symbol:string){
   if(symbol==='E')return '#c25e4c';
   if(symbol==='X')return '#cfb374';
+  if(symbol==='C')return '#d8cb9c';
   if(symbol==='?')return '#8fbbc5';
   return '#c8cfa9';
 }
@@ -83,6 +84,11 @@ export function renderCorridor(canvas:HTMLCanvasElement,g:Run){
     if((kind==='A'||kind==='H')&&g.dossiers.includes(kind))return;
     if('EAHX'.includes(kind)){markers.push({x,y,type:kind,dist:Math.hypot(x-g.x,y-g.y)});}
   }));
+  Object.keys(g.cabinets).forEach(k=>{
+    if(g.openedCabinets.includes(k))return;
+    const [x,y]=k.split(',').map(Number);
+    markers.push({x,y,type:'C',dist:Math.hypot(x-g.x,y-g.y)});
+  });
   Object.keys(g.eventSites).forEach(k=>{
     const ev=g.eventSites[k];
     if(g.events.includes(ev))return;

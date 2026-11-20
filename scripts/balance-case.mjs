@@ -1,6 +1,6 @@
 import { pathToFileURL } from 'node:url';
 const game=await import(pathToFileURL('/tmp/case0451-engine.mjs').href);
-const {MAP,DIRS,CARDS,EXTRA_EFFECTS,createRun,reject,startAppeal,move,recordFile,resolveEvent,play,endTurn,chooseReward,intentFor}=game;
+const {MAP,DIRS,CARDS,EXTRA_EFFECTS,createRun,reject,startAppeal,move,recordFile,resolveEvent,play,endTurn,chooseReward,intentFor,resolveHearing}=game;
 const N=120;
 function shortestPath(){
   const start=[1,1], goal='4,3';
@@ -79,6 +79,7 @@ function simulate(seed,role,planned){
   for(let k=0;g.dir!==dir && k<4;k++)g=move(g,'right');
   g=move(g,'forward');
   if(g.phase==='event')g=resolveCaseEvent(g,planned);
+  if(g.phase==='hearing')g=resolveHearing(g,planned?1:2);
   if(g.phase==='record')g=recordFile(g);
   if(g.phase==='battle'){
    let maxTurns=30;

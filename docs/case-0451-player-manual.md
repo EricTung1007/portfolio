@@ -21,7 +21,7 @@ The Department of Occupational Classification allows one occupation per person. 
 | Energy | Normally 3 each turn; MISFILED reduces the next turn's Energy, minimum 1. 原則每回合 3，誤分類會降低下一回合可用量。 |
 | Block | Reduces incoming ATTACK damage and normally expires at turn end. 護盾吸收攻擊，通常回合結束歸零。 |
 | Carry | Handoff sets block for the next turn. 交班可延續下回合護盾。 |
-| Evidence | Maximum 6. CARE, research and retrieval create Evidence. Typical CODE attacks automatically spend up to 2 for +2 damage per Evidence. 證據最多 6，程式攻擊通常自動消耗最多 2 點，每點增加 2 傷害。 |
+| Evidence | Maximum 6. CARE, research and retrieval create Evidence. Typical CODE attacks spend up to 2 for +2 damage per Evidence while AUTO is enabled. Press E or select HOLD to save Evidence for a later attack; a card with an explicitly stated Evidence cost still pays its own cost. 證據最多 6，程式攻擊通常自動消耗最多 2 點，每點增加 2 傷害。 |
 | Exposed | CODE hits can consume it for bonus damage; Breakpoint can interrupt exposed opponents. 弱點揭露可增傷，並支援中斷。 |
 | Enemy Armor | Blocks normal damage; REST and piercing attacks bypass it. 敵方護甲抵銷普通傷害，穿甲攻擊可忽略。 |
 | MISFILED | Reduces future Energy; SOAP Note and selected cleansing cards can correct it. 誤分類降低下回合行動力，可透過修正卡解除。 |

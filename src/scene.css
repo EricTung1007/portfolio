@@ -215,3 +215,34 @@
  .study-quicklinks a:first-child{grid-column:1;}
  .study-punch-saved strong{font-size:clamp(9px,2vw,13px);}
 }
+
+
+/* A playable case file is on the desk, even when the visitor bookmarks #/desktop. */
+.study-docket {
+  left:42%;top:48%;width:19%;height:19%;
+  padding:13px 8px;
+  display:flex;flex-direction:column;align-items:center;justify-content:space-between;
+  gap:4px;text-decoration:none;text-align:center;
+  transform:rotate(-5deg);
+  border:2px solid #553d32;
+  border-radius:0;
+  color:#34251d;
+  background:repeating-linear-gradient(0deg,#ddc9a4 0 6px,#d6c39e 6px 8px);
+  box-shadow:6px 8px 0 #33221d8a;
+  z-index:4;
+}
+.study-docket:hover {transform:rotate(-4deg) translateY(-10px);}
+.study-docket-number {font:800 clamp(9px,.85vw,12px) ui-monospace,monospace;letter-spacing:.05em;}
+.study-docket strong {font:900 clamp(15px,1.75vw,26px) ui-monospace,monospace;line-height:1.1;}
+.study-docket-stamp {font:900 clamp(9px,1vw,13px) ui-monospace,monospace;color:#7f342e;border:3px solid #7f342e;padding:3px 5px;transform:rotate(-3deg);}
+.topbar .topbar-case {font:700 12px ui-monospace,monospace;letter-spacing:.02em;color:var(--ink);padding:9px 11px;border:2px solid #9a423c;background:#e6c5af;cursor:pointer;border-radius:2px;white-space:nowrap;}
+.topbar .topbar-case:hover {background:#f5d3bd;color:#6c302a;}
+@media(max-width:800px){
+ .study-docket {position:relative;inset:auto;grid-column:1/-1;min-height:110px!important;width:100%!important;height:auto!important;transform:none!important;order:0;}
+ .study-docket:hover{transform:translateY(-3px)!important;}
+ .study-docket strong{font-size:25px;}
+ .study-docket-stamp{font-size:12px;}
+}
+@media(max-width:650px){
+ .topbar .topbar-case {font-size:10px;padding:7px 8px;min-height:36px;}
+}

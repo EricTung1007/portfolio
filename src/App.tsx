@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Department } from './department.js';
 import { ChatPanel } from './components/ChatPanel.js';
 import { Giscus } from './components/Giscus.js';
 import { knowledge } from './data.js';
@@ -14,7 +15,7 @@ import './terminal-v2.css';
 import './mark1.css';
 import './editorial-refinement.css';
 
-type View = 'desktop' | 'terminal' | 'achievements' | 'punch' | 'chat' | 'portfolio' | 'weekly' | ArchiveView | `post:${string}`;
+type View = 'department' | 'desktop' | 'terminal' | 'achievements' | 'punch' | 'chat' | 'portfolio' | 'weekly' | ArchiveView | `post:${string}`;
 type Language = 'en' | 'zh';
 
 const LINKS = {
@@ -214,6 +215,7 @@ function Portfolio({ theme, setView, language }: { theme: string; setView: (v: V
 export default function App() {
   const viewFromHash = (): View => {
     const hash = window.location.hash;
+    if (hash === '' || hash === '#/' || hash === '#/department') return 'department';
     if (hash === '#/chat') return 'chat';
     if (hash === '#/terminal') return 'terminal';
     if (hash === '#/achievements') return 'achievements';
@@ -225,7 +227,7 @@ export default function App() {
       try { return `post:${decodeURIComponent(hash.slice('#/writing/'.length))}`; }
       catch { return 'portfolio'; }
     }
-    return 'desktop';
+    return 'department';
   };
   const [view, setViewRaw] = useState<View>(viewFromHash);
   useEffect(() => {
@@ -264,6 +266,8 @@ export default function App() {
   const isDesktop=view==='desktop'||view==='terminal';
   const isUtility=view==='achievements'||view==='punch';
   const isPost = view.startsWith('post:');
+
+  if (view === 'department') return <Department language={language} onNavigate={target => setView(target)} />;
 
   return (
     <>

@@ -104,6 +104,6 @@ export function CardArt({id}:{id:string}){
      <text x="14" y="9" fill="#e2dec4" fontSize="6.4" fontWeight="bold" fontFamily="monospace">{effect.slice(0,6).toUpperCase()}</text>
    </g>)}
    <rect x="5" y="73" width="65" height="8" fill="#23352c"/>
-   <text x="9" y="79" fontSize="5.8" fill="#d8cba5" fontFamily="monospace">{id.slice(0,16).replaceAll('_',' ').toUpperCase()}</text>
+   <text x="9" y="79" fontSize="5.8" fill="#d8cba5" fontFamily="monospace">{id.slice(0,16).replace(/_/g,' ').toUpperCase()}</text>
  </svg>;
 }

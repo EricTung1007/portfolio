@@ -32,3 +32,12 @@ jobs:
       - name: Simulate combat balance
         run: node scripts/balance-case.mjs
       - run: npm run build
+      - name: Install Chromium for non-human browser QA
+        run: |
+          npm install --no-save --package-lock=false playwright@1.57.0
+          npx playwright install --with-deps chromium
+      - name: Exercise real browser UI on desktop and 375px mobile
+        run: |
+          npm run preview -- --host 127.0.0.1 --port 4173 >/tmp/case0451-preview.log 2>&1 &
+          node scripts/test-browser.mjs
+

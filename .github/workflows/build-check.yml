@@ -19,6 +19,8 @@ jobs:
         run: ./node_modules/.bin/esbuild src/case-engine.ts --bundle --platform=node --format=esm --outfile=/tmp/case0451-engine.mjs
       - name: Test gameplay invariants and paths
         run: node scripts/test-case.mjs
+      - name: Fuzz 128 executable cards and deterministic case setups
+        run: node scripts/test-fuzz.mjs
       - name: Verify authored 128 card illustrations match actual effects
         run: |
           ./node_modules/.bin/esbuild src/case-card-art.tsx --bundle --platform=node --format=esm --outfile=/tmp/case0451-card-art.mjs

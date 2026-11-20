@@ -4,7 +4,7 @@ import { UPGRADE_CARDS, UPGRADE_EFFECTS, UPGRADE_CHOICES, UPGRADE_COUNT } from '
 
 export type Language = 'en' | 'zh';
 export type Direction = 0 | 1 | 2 | 3;
-export type Phase = 'review' | 'denied' | 'maze' | 'battle' | 'reward' | 'record' | 'event' | 'dead' | 'clear' | 'settled' | 'upgrade';
+export type Phase = 'review' | 'denied' | 'maze' | 'battle' | 'reward' | 'record' | 'event' | 'dead' | 'clear' | 'settled' | 'upgrade' | 'hearing';
 export type CardCategory = 'code' | 'care' | 'hybrid';
 export type CardId = string;
 export type Ailment = 'wounded'|'bleeding'|'infected'|'ddosed';
@@ -27,6 +27,7 @@ export type Run = {
   statuses:AilmentSet; foeStatuses:AilmentSet; findings:number; freePlayed:number;
   cabinets:Record<string,CabinetPrize>; openedCabinets:string[];
   upgradePending:number; nextTurnDraw:number;
+  hearingResult:'pending'|'validated'|'dismissed';
   x: number; y: number; dir: Direction; visited: string[]; steps: number;
   hp: number; maxHp: number; block: number; carry: number; energy: number; evidence: number;
   deck: CardId[]; drawPile: CardId[]; discard: CardId[]; hand: CardId[]; turn: number;
@@ -152,7 +153,7 @@ export function createRun(runs=0,seed=((Date.now()+runs*101)|0)):Run {
     phase:'review', role:'',denials:0,seed,rng:mixSeed(seed),runs,
     directive:'degree_priority',mapVariant:0,variants:{gatekeeper:0,auditor:0,engine:0},eventSites:{...EVENTS},
     statuses:emptyAilments(),foeStatuses:emptyAilments(),findings:0,freePlayed:0,
-    cabinets:{},openedCabinets:[],upgradePending:0,nextTurnDraw:0,
+    cabinets:{},openedCabinets:[],upgradePending:0,nextTurnDraw:0,hearingResult:'pending',
     x:1,y:1,dir:2,visited:['1,1'],steps:0,
     hp:42,maxHp:42,block:0,carry:0,energy:3,evidence:0,
     deck:[...BASE_DECK],drawPile:[],discard:[],hand:[],turn:1,
@@ -263,8 +264,11 @@ export function move(run:Run,command:'left'|'right'|'forward'|'back'):Run {
   }
   if((cell==='A'||cell==='H')&&!g.dossiers.includes(cell)){g.phase='record';g.record=cell;return g;}
   if(cell==='X'){
-    if(challengeFinal(g))return startFight(g,'engine');
-    pushMessage(g,'FINAL DOOR LOCKED · 2 DOSSIERS + 2 INSPECTORS');
+    if(challengeFinal(g)){
+      g.phase='hearing';pushMessage(g,'FILE 0451 · FINAL ADMINISTRATIVE HEARING');return g;
+    }
+    // Approachable terminal, not yet actionable. No hidden prerequisite.
+    pushMessage(g,'FINAL TERMINAL INACTIVE · VERIFY 2 DOSSIERS AND 2 RULINGS');
   }
   const ev=g.eventSites[k];
   if(ev&&!g.events.includes(ev)){g.phase='event';g.event=ev;return g;}
@@ -332,7 +336,7 @@ function finishFight(g:Run){
   g.statuses.wounded=Math.max(0,g.statuses.wounded-1);
   g.statuses.infected=Math.max(0,g.statuses.infected-1);
   if(g.foe==='engine'){
-    g.phase='clear';g.ending=g.findings>=2?'RULE §0451 INVALIDATED':'EXCEPTION GRANTED';g.reward=[];
+    g.phase='clear';g.ending=g.hearingResult==='validated'?'RULE §0451 INVALIDATED':'EXCEPTION GRANTED';g.reward=[];
     pushMessage(g,'CLASSIFICATION ENGINE OVERRIDDEN');
     return;
   }
@@ -469,6 +473,25 @@ export function chooseReward(run:Run,id:CardId|null):Run {
   const g=clone(run);if(id)g.deck.push(id);
   g.phase=g.upgradePending>0?'upgrade':'maze';g.hand=[];g.discard=[];g.drawPile=[];g.block=0;g.carry=0;g.evidence=0;
   pushMessage(g,id?'NEW PROCEDURE FILED · '+CARDS[id].name[0]:'REWARD DECLINED');
+  return g;
+}
+export function resolveHearing(run:Run,choice:0|1|2):Run {
+  if(run.phase!=='hearing')return run;
+  const accepted=choice===1;
+  const evaluated=clone(run);
+  evaluated.hearingResult=accepted?'validated':'dismissed';
+  const g=startFight(evaluated,'engine');
+  if(accepted){
+    // Showing two real cross-disciplinary projects defeats the "one category" premise.
+    g.foeExposed=Math.min(5,2+Math.min(2,g.findings));
+    g.foeBlock=Math.max(0,g.foeBlock-5);
+    g.evidence=Math.min(6,g.evidence+1+Math.min(2,g.findings));
+    pushMessage(g,'HEARING: CONTRADICTION ENTERED INTO RECORD');
+  }else{
+    // A private exemption or relying on the degree leaves the invalid rule intact.
+    g.foeBlock+=choice===0?5:3;
+    pushMessage(g,'HEARING: PROCEDURAL EXCEPTION ONLY');
+  }
   return g;
 }
 export function chooseUpgrade(run:Run,index:number,branch:'A'|'B'|null):Run {

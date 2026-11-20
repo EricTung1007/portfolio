@@ -3,7 +3,7 @@ import { pathToFileURL } from 'node:url';
 
 const game = await import(pathToFileURL('/tmp/case0451-engine.mjs').href);
 const {
-  BASE_DECK,CARDS,CARD_COUNT,DIRECTIVES,ENEMIES,MAP,MAP_VARIANT_COUNT,mapForRun,EVENTS,
+  BASE_DECK,CARDS,CARD_COUNT,CARD_UPGRADE_COUNT,UPGRADE_CHOICES,upgradeableIndices,chooseUpgrade,DIRECTIVES,ENEMIES,MAP,MAP_VARIANT_COUNT,mapForRun,EVENTS,
   createRun,reject,startAppeal,reclassify,acceptClassification,move,recordFile,resolveEvent,
   intentFor,startFight,play,endTurn,chooseReward,
 } = game;
@@ -17,7 +17,8 @@ function atHand(run,...cards){return {...run,hand:cards,drawPile:[],discard:[],e
   eq(start.phase,'review','begins on inspection form');
   eq(start.deck.length,BASE_DECK.length,'starter deck count');
   eq(CARD_COUNT,112,'112 CV-grounded action cards');
-  eq(Object.keys(CARDS).length,112,'card dictionary count');
+  eq(Object.keys(CARDS).length,128,'112 actions plus 16 upgrade versions');
+  eq(CARD_UPGRADE_COUNT,16,'eight authored cards have two upgrades each');
   expect(Object.values(CARDS).every(c=>Number.isInteger(c.cost)&&c.cost>=0&&c.cost<=2),'all cards cost 0..2 energy');
   expect(Object.values(CARDS).every(c=>c.name.length===2&&c.text.length===2&&c.origin.length===2),'cards are bilingual and CV-sourced');
   const rejected=reject(start,'ENGINEER');
@@ -141,6 +142,14 @@ function atHand(run,...cards){return {...run,hand:cards,drawPile:[],discard:[],e
   expect(g.dossiers.includes('A'),'record registered');
   eq(g.phase,'reward','dossier grants an action-card draft');
   g=chooseReward(g,null);
+  eq(g.phase,'upgrade','filing a verified project opens per-card amendment');
+  const target=upgradeableIndices(g).find(index=>g.deck[index]==='python');
+  expect(target!=null,'a starting Python copy can be upgraded');
+  const otherCopies=g.deck.filter(id=>id==='python').length;
+  g=chooseUpgrade(g,target,'A');
+  eq(g.phase,'maze','upgrading returns to dungeon');
+  eq(g.deck[target],'python_a','targeted Python copy changed');
+  eq(g.deck.filter(id=>id==='python').length,otherCopies-1,'one duplicate remains unchanged');
   g={...g,x:3,y:3,dir:1};
   g=move(g,'forward');
   eq(g.phase,'maze','central door rejects incomplete evidence');
@@ -176,7 +185,7 @@ function atHand(run,...cards){return {...run,hand:cards,drawPile:[],discard:[],e
 }
 {
   let g=startFight(startAppeal(reject(createRun(0,351),'OTHER')),'auditor');
-  g=atHand(g,'test_harness','network_quarantine','audit_query');
+  g=atHand(g,'audit_query','schema_migration','policy_diff');g.energy=5;
   g=play(g,0);g=play(g,0);g=play(g,0);
   expect(g.foeStatuses.bleeding>0,'authored card can apply enemy bleeding');
   expect(g.foeStatuses.infected>0,'authored card can apply enemy infection');
@@ -249,6 +258,37 @@ function atHand(run,...cards){return {...run,hand:cards,drawPile:[],discard:[],e
       expect(visited.has(key),'variant '+variant+' reaches '+key);
     }
   }
+}
+{
+  const base=startAppeal(reject(createRun(0,911),'OTHER'));
+  let g=startFight(base,'gatekeeper');
+  g=atHand(g,'python_a','python_b');g.energy=1;
+  const before=g.foeHp;
+  g=play(g,0);
+  expect(g.foeHp<before,'quick scripted card resolves as a valid action');
+  eq(g.energy,1,'quick script costs zero');
+  const after=g.foeHp;g=play(g,0);
+  expect(g.foeHp<after,'batch script resolves separately');
+  eq(g.energy,0,'batch script consumes one energy');
+}
+{
+  let g=startFight(startAppeal(reject(createRun(0,913),'OTHER')),'gatekeeper');
+  g.foeExposed=2;g=atHand(g,'debug');
+  g=play(g,0);
+  eq(g.foeExposed,1,'breakpoint consumes exactly one exposed charge on interrupt');
+  expect(g.foeInterrupted,'breakpoint still interrupts an exposed foe');
+}
+{
+  let g=startFight(startAppeal(reject(createRun(0,914),'OTHER')),'gatekeeper');
+  g.foeStatuses.wounded=2;
+  g=atHand(g,'api');const hp=g.foeHp;
+  g=play(g,0);
+  eq(g.foeHp,hp-7,'wounded weakens enemy attack without unlisted bonus to own damage');
+}
+{
+  const g=chooseUpgrade(startAppeal(reject(createRun(0,915),'OTHER')),-1,null);
+  eq(g.phase,'maze','upgrade action is inert outside upgrade phase');
+  expect(Object.keys(UPGRADE_CHOICES).length===8,'eight eligible base cards');
 }
 console.log('CASE 0451: '+checks+' gameplay assertions passed.');
 

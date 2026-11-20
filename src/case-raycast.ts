@@ -1,4 +1,4 @@
-import { MAP, EVENTS, DIRS, DIR_NAMES, type Run } from './case-engine.js';
+import { MAP, DIRS, DIR_NAMES, type Run } from './case-engine.js';
 
 const TILE_COLORS=[
   ['#303b34','#556353','#7e8b70','#a2a885'],
@@ -83,8 +83,8 @@ export function renderCorridor(canvas:HTMLCanvasElement,g:Run){
     if((kind==='A'||kind==='H')&&g.dossiers.includes(kind))return;
     if('EAHX'.includes(kind)){markers.push({x,y,type:kind,dist:Math.hypot(x-g.x,y-g.y)});}
   }));
-  Object.keys(EVENTS).forEach(k=>{
-    const ev=EVENTS[k];
+  Object.keys(g.eventSites).forEach(k=>{
+    const ev=g.eventSites[k];
     if(g.events.includes(ev))return;
     const [x,y]=k.split(',').map(Number);
     markers.push({x,y,type:'?',dist:Math.hypot(x-g.x,y-g.y)});

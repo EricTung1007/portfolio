@@ -26,7 +26,7 @@ export type Run = {
   directive:Directive; mapVariant:number; variants:Record<EnemyId,number>; eventSites:Record<string,EventId>;
   statuses:AilmentSet; foeStatuses:AilmentSet; findings:number; freePlayed:number;
   cabinets:Record<string,CabinetPrize>; openedCabinets:string[];
-  upgradePending:number; nextTurnDraw:number;
+  upgradePending:number; nextTurnDraw:number; useEvidence:boolean;
   hearingResult:'pending'|'validated'|'dismissed';
   x: number; y: number; dir: Direction; visited: string[]; steps: number;
   hp: number; maxHp: number; block: number; carry: number; energy: number; evidence: number;
@@ -153,7 +153,7 @@ export function createRun(runs=0,seed=((Date.now()+runs*101)|0)):Run {
     phase:'review', role:'',denials:0,seed,rng:mixSeed(seed),runs,
     directive:'degree_priority',mapVariant:0,variants:{gatekeeper:0,auditor:0,engine:0},eventSites:{...EVENTS},
     statuses:emptyAilments(),foeStatuses:emptyAilments(),findings:0,freePlayed:0,
-    cabinets:{},openedCabinets:[],upgradePending:0,nextTurnDraw:0,hearingResult:'pending',
+    cabinets:{},openedCabinets:[],upgradePending:0,nextTurnDraw:0,useEvidence:true,hearingResult:'pending',
     x:1,y:1,dir:2,visited:['1,1'],steps:0,
     hp:42,maxHp:42,block:0,carry:0,energy:3,evidence:0,
     deck:[...BASE_DECK],drawPile:[],discard:[],hand:[],turn:1,
@@ -222,7 +222,7 @@ export function startFight(run:Run,foe:EnemyId):Run {
   const g=clone(run);g.phase='battle';g.foe=foe;g.foeHp=ENEMIES[foe].hp;
   g.foeBlock=0;g.foeExposed=0;g.foeInterrupted=false;g.riskScreened=0;g.misfiled=0;g.turn=1;
   g.energy=3;g.evidence=(g.role==='ENGINEER'?1:0)+(g.directive==='evidence_first'?1:0);
-  g.block=0;g.carry=0;g.lastCard='';g.freePlayed=0;g.foeStatuses=emptyAilments();g.nextTurnDraw=0;
+  g.block=0;g.carry=0;g.lastCard='';g.freePlayed=0;g.foeStatuses=emptyAilments();g.nextTurnDraw=0;g.useEvidence=true;
   if(g.directive==='degree_priority')g.foeBlock=5;
   g.hand=[];g.discard=[];g.drawPile=shuffle(g,g.deck);draw(g,5);
   pushMessage(g,'INSPECTION BEGINS · '+ENEMIES[foe].name[0]);
@@ -308,7 +308,7 @@ function cleanse(g:Run,amount:number){
 }
 function deal(g:Run,base:number,ignoreArmor=false,code=true) {
   let amount=base;
-  if(code && g.evidence>0){
+  if(code && g.useEvidence && g.evidence>0){
     const used=Math.min(2,g.evidence);g.evidence-=used;amount+=2*used;
   }
   if(code && g.foeExposed>0){amount+=2;g.foeExposed--;}
@@ -343,6 +343,13 @@ function finishFight(g:Run){
   g.phase='reward';
   prepareReward(g);
   pushMessage(g,'INSPECTION PASSED · NURSING PASSIVE: +5 HP');
+}
+export function toggleEvidence(run:Run):Run {
+  if(run.phase!=='battle')return run;
+  const g=clone(run);
+  g.useEvidence=!g.useEvidence;
+  pushMessage(g,g.useEvidence?'EVIDENCE SPENDING ENABLED':'EVIDENCE RESERVED FOR LATER');
+  return g;
 }
 export function play(run:Run,index:number):Run {
   if(run.phase!=='battle'||index<0||index>=run.hand.length)return run;

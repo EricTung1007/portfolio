@@ -78,7 +78,7 @@ export default function Portfolio({ onBack, data }: PortfolioProps) {
                 ))}
               </div>
               <a href={p.link} target="_blank" rel="noopener noreferrer" className="inline-block text-sm text-[var(--accent)] hover:opacity-70 transition-opacity">
-                View on GitHub →
+                {p.link.includes('apps.apple.com/') ? 'View on App Store' : 'View on GitHub'} →
               </a>
             </article>
           ))}

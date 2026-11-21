@@ -51,11 +51,13 @@ The engineering implication is precise. More retained text is not automatically 
 
 A lightweight design can store concise, reviewable experimental records rather than an unlimited transcript. A record might contain:
 
-    hypothesis: "Seasonality features may help hourly demand forecasts"
-    evidence: "experiment-id; validation split; baseline delta"
-    scope: "hourly energy series with repeated daily patterns"
-    countercheck: "compare against a nonseasonal baseline"
-    status: "candidate insight, not general rule"
+```yaml
+hypothesis: "Seasonality features may help hourly demand forecasts"
+evidence: "experiment-id; validation split; baseline delta"
+scope: "hourly energy series with repeated daily patterns"
+countercheck: "compare against a nonseasonal baseline"
+status: "candidate insight, not general rule"
+```
 
 This is a proposed engineering pattern, **not** a measured result of the study or an Ouroboros implementation. Each new experiment should retrieve only relevant records, verify their applicability on the current training/development data, and preserve an untouched held-out evaluation for selection. Compare a fresh-session baseline to a persistent-session condition under equal compute budgets. Measure *time to first valid artifact*, *best candidate over time*, and *selected final result* separately. Otherwise an agent can appear to "learn" merely because it remembers working code.
 

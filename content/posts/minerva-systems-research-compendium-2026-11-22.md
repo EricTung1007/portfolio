@@ -158,7 +158,7 @@ The [Pi extension documentation](https://github.com/earendil-works/pi/blob/main/
 
 An iPhone client usually does **not** run the same coding-agent process locally. It sends requests to a service running on the computer, shows messages and approvals, and may subscribe to status events. In this architecture, Tailscale solves reachability and private networking, while the agent's HTTP/WebSocket/RPC server owns session semantics. Neither component automatically gives the iPhone **push notifications while the app is suspended**.
 
-[OpenCode Mobile's remote-access guide](https://www.getopencode.app/docs/remote-access/) documents a direct OpenCode 2 server at \`127.0.0.1:4096\` for local access, with optional Cloud Link service for remote access in some app distributions. The [community OpenCode Mobile connection guide](https://opencode-mobile.github.io/opencode-mobile-docs/connecting/) describes QR, LAN and host/password connection modes. These are **distinct mobile-client projects**; their paid relay, local pairing and push behavior must not be conflated with the upstream OpenCode server. A remote relay is a distribution-specific feature, not a general requirement imposed by OpenCode itself.
+[OpenCode Mobile's remote-access guide](https://www.getopencode.app/docs/remote-access/) documents a direct OpenCode 2 server at `127.0.0.1:4096` for local access, with optional Cloud Link service for remote access in some app distributions. The [community OpenCode Mobile connection guide](https://opencode-mobile.github.io/opencode-mobile-docs/connecting/) describes QR, LAN and host/password connection modes. These are **distinct mobile-client projects**; their paid relay, local pairing and push behavior must not be conflated with the upstream OpenCode server. A remote relay is a distribution-specific feature, not a general requirement imposed by OpenCode itself.
 
 A Pi setup can deliver a comparable *remote interaction* model through [Pi Web](https://github.com/agegr/pi-web) exposed on a local interface and reached over Tailscale. A native iOS wrapper or PWA can render that interface. Push, however, requires an additional notification pathway: a standards-based web-push subscription and push-service integration, an APNs-enabled native app, or a messaging bridge (for example, a bot or server that sends through its channel's notification infrastructure). Pi does not gain APNs simply because a web UI opens on an iPhone. Conversely, OpenCode's mobile clients are not necessarily dependent on a vendor relay for LAN or private-VPN access.
 
@@ -180,13 +180,13 @@ This defines a useful two-stage integration. Stage one is an **event bridge** th
 
 [Cloudflare's Code Mode architecture](https://blog.cloudflare.com/code-mode-mcp/) reduces tool-schema overhead by presenting the model with a programmable API surface and letting it compose multiple operations into a single JavaScript execution. The [MCP server guide](https://developers.cloudflare.com/agents/model-context-protocol/guides/build-codemode-mcp-server/) documents executing generated code within an isolated Worker rather than advertising every upstream operation as a separate top-level model tool.
 
-Instead of a model repeatedly selecting \`find_file\`, \`read_file\`, \`parse\`, \`search_again\`, and \`summarize\` in separate inference turns, a Code Mode expression can orchestrate several tool invocations with loops and conditions. This can reduce prompt tokens and tool-call round trips, especially where a local model struggles with huge tool schemas. It does **not** reduce the number of external requests or the actual cost of their work by definition. And generated code is dangerous without a scoped sandbox, bounded CPU/memory, tool allowlist, per-action authorization and output limits.
+Instead of a model repeatedly selecting `find_file`, `read_file`, `parse`, `search_again`, and `summarize` in separate inference turns, a Code Mode expression can orchestrate several tool invocations with loops and conditions. This can reduce prompt tokens and tool-call round trips, especially where a local model struggles with huge tool schemas. It does **not** reduce the number of external requests or the actual cost of their work by definition. And generated code is dangerous without a scoped sandbox, bounded CPU/memory, tool allowlist, per-action authorization and output limits.
 
-A small Python script with \`OpenAI().responses.create()\` and \`subprocess.run(shell=True)\` is indeed a *minimal agent-shaped harness*: ask for a command, approve, execute, return stdout and stderr. It is not, by itself, a robust autonomous agent. The danger is not only that the model makes a bad choice; the shell joins arguments, handles redirection, expands variables and permits arbitrary chained operations in ways a one-command English description cannot constrain. User confirmation helps, but does not transform a command string into a security boundary.
+A small Python script with `OpenAI().responses.create()` and `subprocess.run(shell=True)` is indeed a *minimal agent-shaped harness*: ask for a command, approve, execute, return stdout and stderr. It is not, by itself, a robust autonomous agent. The danger is not only that the model makes a bad choice; the shell joins arguments, handles redirection, expands variables and permits arbitrary chained operations in ways a one-command English description cannot constrain. User confirmation helps, but does not transform a command string into a security boundary.
 
 The smallest reasonable evolution uses structured operations instead of raw shell strings:
 
-\`\`\`python
+```python
 # Illustrative control boundary, not a full secure sandbox.
 ALLOWED = {"git", "rg", "python3"}
 argv = proposed_command  # JSON list of literal arguments
@@ -196,17 +196,17 @@ result = subprocess.run(
     argv, shell=False, cwd=approved_worktree,
     capture_output=True, text=True, timeout=30,
 )
-\`\`\`
+```
 
-Even this still needs an allowlist per subcommand, filesystem isolation and policy for destructive effects; \`python3\` itself can execute arbitrary code. For untrusted tasks, place execution in a real sandbox or a dedicated low-privilege process. A durable harness additionally needs maximum steps, persisted observations, retry/idempotency rules, test validation and a clear stopping condition. Those behaviors exist because language models can loop or overestimate completion, regardless of the elegance of their prompt.
+Even this still needs an allowlist per subcommand, filesystem isolation and policy for destructive effects; `python3` itself can execute arbitrary code. For untrusted tasks, place execution in a real sandbox or a dedicated low-privilege process. A durable harness additionally needs maximum steps, persisted observations, retry/idempotency rules, test validation and a clear stopping condition. Those behaviors exist because language models can loop or overestimate completion, regardless of the elegance of their prompt.
 
-**Verdict:** Code Mode is especially relevant to a local 27B model when many small tool calls would waste context. Put the code interpreter behind a narrow capability boundary. Avoid mistaking one approval prompt in a \`shell=True\` demo for operational safety.
+**Verdict:** Code Mode is especially relevant to a local 27B model when many small tool calls would waste context. Put the code interpreter behind a narrow capability boundary. Avoid mistaking one approval prompt in a `shell=True` demo for operational safety.
 
 ### Graph, loop and harness engineering describe different design levers
 
 The terms are easy to turn into slogans; the underlying mechanisms are concrete.
 
-**Graph engineering** defines the dependencies and allowable transitions between work items. A research graph might include \`discover → fetch → compare → verify → publish\`, with branches for missing sources, repeated queries and failed CI. A graph makes cancellation, independent parallel work and partial recovery explicit. The output of one node should be structured, with source IDs and validation state, so downstream nodes do not rely on informal prose alone.
+**Graph engineering** defines the dependencies and allowable transitions between work items. A research graph might include `discover → fetch → compare → verify → publish`, with branches for missing sources, repeated queries and failed CI. A graph makes cancellation, independent parallel work and partial recovery explicit. The output of one node should be structured, with source IDs and validation state, so downstream nodes do not rely on informal prose alone.
 
 **Loop engineering** determines the local decision cycle inside a node: observe, select action, execute, inspect outcome, retry or stop. It controls context compaction, tool-output clipping, error classification, attempt budgets, model/tool feedback and progress checks. A poorly designed loop can spend thirty turns rewriting the same search query even if the overall graph is correct.
 
@@ -223,11 +223,11 @@ For a local agentic-RAG workflow, a pragmatic implementation keeps search query 
 
 ### Firecrawl Local cannot replace a metasearch engine
 
-The [Firecrawl Local README](https://github.com/firecrawl/firecrawl/blob/main/apps/local/README.md) distinguishes its Rust-based \`scrape\`, \`crawl\`, \`map\` and batch extraction from its \`search\` command, which is handed to **Firecrawl Cloud**. The [November 18 release announcement](https://www.firecrawl.dev/changelog/firecrawl-local) describes a **37× scraper speed improvement** and **230× lower idle memory, about 11 MB**, relative to its *previous self-hosted Firecrawl stack*. That is a vendor benchmark against a specific predecessor, not a speed comparison with search engines or an end-to-end agent.
+The [Firecrawl Local README](https://github.com/firecrawl/firecrawl/blob/main/apps/local/README.md) distinguishes its Rust-based `scrape`, `crawl`, `map` and batch extraction from its `search` command, which is handed to **Firecrawl Cloud**. The [November 18 release announcement](https://www.firecrawl.dev/changelog/firecrawl-local) describes a **37× scraper speed improvement** and **230× lower idle memory, about 11 MB**, relative to its *previous self-hosted Firecrawl stack*. That is a vendor benchmark against a specific predecessor, not a speed comparison with search engines or an end-to-end agent.
 
 [SearXNG](https://github.com/searxng/searxng), by contrast, aggregates external search results through engine-specific adapters. Its [JSON search API](https://docs.searxng.org/dev/search_api.html) can feed candidates to an agent if enabled in the instance configuration. It does not provide Firecrawl's general single-URL Markdown normalization or full-site crawling API. One is a discovery surface; the other is an extraction surface.
 
-The operational distinction also affects privacy. Firecrawl Local defaults to \`FIRECRAWL_CLOUD=auto\`, meaning that search, some blocked-page fallback requests and certain data providers can reach the cloud. Set \`FIRECRAWL_CLOUD=off\` when that is unacceptable, and use its documented \`--public-only\` protection for untrusted agent-accessible URLs. A binary being installed locally does not mean all remote services are disabled.
+The operational distinction also affects privacy. Firecrawl Local defaults to `FIRECRAWL_CLOUD=auto`, meaning that search, some blocked-page fallback requests and certain data providers can reach the cloud. Set `FIRECRAWL_CLOUD=off` when that is unacceptable, and use its documented `--public-only` protection for untrusted agent-accessible URLs. A binary being installed locally does not mean all remote services are disabled.
 
 A previously published [deep-dive on Firecrawl Local versus SearXNG](#/writing/firecrawl-local-vs-searxng-2026-11-22) examines route coverage, API and private-network safeguards. The system consequence is straightforward: let metasearch propose URLs, let a scraper acquire the selected document, and let the agent explicitly check evidence rather than treating retrieval as an answer.
 
@@ -269,7 +269,7 @@ For an engineering publication, a safe completion contract is stronger: every nu
 
 The published [model card](https://huggingface.co/apple/FastFrames-L) gives a concrete 35.4 ms **per-frame component profile for FastFrames-S on one GPU with a full KV cache**: about 16.1 + 16.2 ms for two DiT calls, 2.2 ms for KV refinement and 0.9 ms for pixel decoding. That sums to a theoretical component rate near 28 frames/s; it is not an end-to-end UI video throughput figure, and it is **not a measurement of FastFrames-L**. The sample generation configuration outputs 832×480, 81 frames at 16 fps.
 
-The supported installation environment is specifically **Linux x86-64 with an NVIDIA GPU and a CUDA 12.8-compatible driver**; the documentation's latency command for \`ff-l\` uses **eight GPUs**. An Apple-authored checkpoint should not be inferred to have a tested Apple Silicon Metal path from its branding. Porting a 14B diffusion architecture and its custom kernels to MLX is a genuine engineering project involving operator coverage, stateful cache and memory profiling, not merely changing an import statement.
+The supported installation environment is specifically **Linux x86-64 with an NVIDIA GPU and a CUDA 12.8-compatible driver**; the documentation's latency command for `ff-l` uses **eight GPUs**. An Apple-authored checkpoint should not be inferred to have a tested Apple Silicon Metal path from its branding. Porting a 14B diffusion architecture and its custom kernels to MLX is a genuine engineering project involving operator coverage, stateful cache and memory profiling, not merely changing an import statement.
 
 **Verdict:** FastFrames is relevant to low-latency generated interactive worlds and video pipelines. It is not currently substantiated as a practical inference workload for a 32 GB base M4 workstation in the original documented implementation. The 35.4 ms statistic belongs to the small variant under specific GPU assumptions.
 

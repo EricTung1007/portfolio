@@ -217,3 +217,125 @@ These levers are not alternatives. The graph asks **what can happen and in which
 For a local agentic-RAG workflow, a pragmatic implementation keeps search query revision in a bounded loop, persists individual evidence objects with URLs and timestamps, and lets the graph revisit only unsupported claims. No extra "CEO agent" is required for that. The evidence-coverage test is more useful than sending the entire research history back to the model each iteration.
 
 **Verdict:** prioritize harness and evidence-verification correctness before adding a large orchestration graph. Add graph structure when a task has genuine branching, parallelism or recovery requirements. Use smaller loops with explicit budgets and stop signals instead of unattended self-repetition.
+
+
+## 3. Search and RAG: what the index knows, what the page says
+
+### Firecrawl Local cannot replace a metasearch engine
+
+The [Firecrawl Local README](https://github.com/firecrawl/firecrawl/blob/main/apps/local/README.md) distinguishes its Rust-based \`scrape\`, \`crawl\`, \`map\` and batch extraction from its \`search\` command, which is handed to **Firecrawl Cloud**. The [November 18 release announcement](https://www.firecrawl.dev/changelog/firecrawl-local) describes a **37× scraper speed improvement** and **230× lower idle memory, about 11 MB**, relative to its *previous self-hosted Firecrawl stack*. That is a vendor benchmark against a specific predecessor, not a speed comparison with search engines or an end-to-end agent.
+
+[SearXNG](https://github.com/searxng/searxng), by contrast, aggregates external search results through engine-specific adapters. Its [JSON search API](https://docs.searxng.org/dev/search_api.html) can feed candidates to an agent if enabled in the instance configuration. It does not provide Firecrawl's general single-URL Markdown normalization or full-site crawling API. One is a discovery surface; the other is an extraction surface.
+
+The operational distinction also affects privacy. Firecrawl Local defaults to \`FIRECRAWL_CLOUD=auto\`, meaning that search, some blocked-page fallback requests and certain data providers can reach the cloud. Set \`FIRECRAWL_CLOUD=off\` when that is unacceptable, and use its documented \`--public-only\` protection for untrusted agent-accessible URLs. A binary being installed locally does not mean all remote services are disabled.
+
+A previously published [deep-dive on Firecrawl Local versus SearXNG](#/writing/firecrawl-local-vs-searxng-2026-11-22) examines route coverage, API and private-network safeguards. The system consequence is straightforward: let metasearch propose URLs, let a scraper acquire the selected document, and let the agent explicitly check evidence rather than treating retrieval as an answer.
+
+**Verdict:** Firecrawl Local can improve selected document acquisition and cleaning; it is not a substitute for SearXNG. Do not install it simply to "search Google locally". Install it when verified extraction failures or site-crawling needs justify the extra component.
+
+### SAG2 is embedding-free, not index-free
+
+The [SAG Wiki architecture](https://github.com/Zleap-AI/SAG-Wiki/blob/main/docs-site/content/docs/architecture.en.mdx) and [SAG2 method](https://github.com/Zleap-AI/SAG-Wiki/blob/main/docs-site/content/docs/sag2.en.mdx) use an important alternative to vector indexing. The local application **does create a full-text index**. It does **not** compute embedding vectors or call an LLM to summarize every document during ingestion. At query time, BM25-like lexical retrieval selects passages, and a Joint Evidence Verification (JEV) stage judges whether each passage can support the question. Evidence can supply expansion terms for further retrieval rounds. Original file paths and source locations remain attached to results.
+
+This refutes the common claim that SAG2 "does not preprocess or index documents at all". Index creation, tokenization and statistics still cost time and disk space. The system avoids the *embedding model and offline semantic extraction* stage, which can be a material reduction in ingestion complexity. At the same time, lexical candidate generation can miss evidence with little vocabulary overlap; query expansion and evidence judgment mitigate that risk, but they are not free.
+
+The project's [benchmark reproduction repo](https://github.com/Zleap-AI/SAG-Benchmark) makes an essential distinction between indexing time, retrieval and full agentic answering. The documented local-index benchmark excludes some file import and validation overhead and does not clear OS file caches; comparing its number against an embedding-RAG pipeline with completely different measured phases would overstate the conclusion. The JEV component returns **judgments and ranked passages**, while an external answer model still writes the final response. So "SAG2 replaces RAG" is technically inaccurate: it is one retrieval method usable *inside* a RAG system.
+
+| Phase | Conventional embedding RAG | SAG2 / SAG Wiki |
+| --- | --- | --- |
+| Ingestion | Chunk, encode vectors, store embeddings | Parse original files, tokenize, build local full-text index |
+| Candidate recall | Vector similarity, possibly hybrid | Lexical/BM25-style recall |
+| Relevance filtering | Optional reranker or LLM | JEV evidence assessment |
+| Multi-hop | Query rewrite, graph or agent loop | Evidence-driven term expansion and repeated retrieval |
+| Final prose | Answer LLM | Answer LLM; JEV does not write it |
+
+**Verdict:** SAG2 is compelling when local file collections change frequently and the cost or dependency of vector embedding is undesirable. Its actual advantage should be measured against hybrid lexical/vector retrieval on the same evidence questions, with the complete ingest/search/answer pipeline timed. Keep an explicit no-answer path and source-citation checks either way.
+
+## 4. Research tools are deliverable generators, not guarantees of insight
+
+### PaperOrchestra writes a manuscript; it cannot establish that the science is true
+
+Google Cloud AI Research's [PaperOrchestra](https://github.com/google-research/paper-orchestra) connects an outline agent, literature-review agent, section writers, refinement and plotting into a pipeline that accepts research ideas and experiment logs and produces LaTeX manuscripts. Its repository includes source code, automated review/evaluation scripts, configuration and template integration. This is a real orchestration architecture, not a claim that an LLM discovered a novel result.
+
+Five responsibilities are useful to separate. The outline agent converts raw materials into section requirements; the literature agent searches and prioritizes candidate references; the writing agents draft sections; refinement critiques and rewrites; plotting produces visual artifacts from supplied data. If those agents share one unverified bibliography or hallucinated result, specialization will only propagate the error through more polished text. A PDF compiling successfully is a layout test, not a citation-validity or experimental-reproducibility test.
+
+For an engineering publication, a safe completion contract is stronger: every numeric result links back to the experiment artifact; citations resolve to genuine papers and support the claim made; figures have inspectable input data and generation code; and a reviewer can compare the narrative with logs before publication. PaperOrchestra is best viewed as a manuscript production pipeline fed by verified evidence, not a replacement for study design or literature judgment.
+
+**Verdict:** use multi-agent paper writing when experiments and claims are already trustworthy and converting them into a consistent manuscript is the bottleneck. Adding more writing agents before verifying the underlying evidence produces better typesetting, not better research.
+
+### FastFrames-L: 14B video generation at interactive latency does not mean 14B on a Mac mini
+
+[Apple FastFrames-L](https://huggingface.co/apple/FastFrames-L) is a **14B autoregressive, two-step video diffusion model**, not an LLM, an image encoder for RAG, or a drop-in video processor for agents. It starts from Wan2.1-14B and distills a causal two-step generator, then trains a pixel decoder and KV-refinement network. The companion FastFrames-S is **1.3B**. Both target 480p generation with reduced per-frame latency.
+
+The published [model card](https://huggingface.co/apple/FastFrames-L) gives a concrete 35.4 ms **per-frame component profile for FastFrames-S on one GPU with a full KV cache**: about 16.1 + 16.2 ms for two DiT calls, 2.2 ms for KV refinement and 0.9 ms for pixel decoding. That sums to a theoretical component rate near 28 frames/s; it is not an end-to-end UI video throughput figure, and it is **not a measurement of FastFrames-L**. The sample generation configuration outputs 832×480, 81 frames at 16 fps.
+
+The supported installation environment is specifically **Linux x86-64 with an NVIDIA GPU and a CUDA 12.8-compatible driver**; the documentation's latency command for \`ff-l\` uses **eight GPUs**. An Apple-authored checkpoint should not be inferred to have a tested Apple Silicon Metal path from its branding. Porting a 14B diffusion architecture and its custom kernels to MLX is a genuine engineering project involving operator coverage, stateful cache and memory profiling, not merely changing an import statement.
+
+**Verdict:** FastFrames is relevant to low-latency generated interactive worlds and video pipelines. It is not currently substantiated as a practical inference workload for a 32 GB base M4 workstation in the original documented implementation. The 35.4 ms statistic belongs to the small variant under specific GPU assumptions.
+
+### PyBot is a controlled argument about code versus learned weights
+
+Hugging Face's [PyBot](https://github.com/huggingface/pybot) is an unusually concrete counterexample to the assumption that every chatbot needs a neural model at runtime. The maintainers report that over **1,000 agents** generated more than **5,000 rule-based revisions**; the resulting program contains approximately **640,000 lines of Python** across **528 source files**, plus around 550,000 lines of tests. It contains pattern matching, knowledge tables, response templates, memory handling and an arbiter that chooses among candidate module replies. No learned model weights are loaded to answer a question.
+
+The published result is a **26% win rate** on the maintainers' **SmolTalkBench** setup, compared by an LLM judge with reference answers, described as similar to SmolLM-360M-Instruct on that evaluation. This does not imply that a rule system has attained 360M-model generalization, nor that an LLM evaluation judge can establish factual or adversarial reliability. PyBot still needs seconds to load its large Python source graph and about a second to answer in the repo's own description. Its apparent lack of model-weight inference is not a complete absence of computation or maintenance costs.
+
+The deeper engineering observation is that agents can *author a fixed behavioral program* rather than merely deliver text. This is promising for narrow, auditable extraction, formatting or decision-routing tasks where explicit rules can be tested. But a million lines of generated branches may become harder to validate than a small classifier and can fail abruptly outside covered patterns.
+
+**Verdict:** PyBot is a useful research artifact for agent-produced software and code-based inference, not evidence that trained language models are obsolete. It is worth examining the actual judge, rules and unseen-task behavior before making a substitution claim.
+
+## 5. Interfaces and experimental detours
+
+### Henge: can macOS boot on an iPhone, and can a person use it?
+
+[Henge](https://github.com/Leviidev/Henge) emulates macOS on iOS/iPadOS. Because ordinary iOS apps lack the virtualization interfaces required for a normal macOS guest, Henge implements an ARM64 JIT, virtual memory-management behavior, virtual hardware and graphics replay. The [architecture notes](https://github.com/Leviidev/Henge/blob/main/docs/architecture.md) explain how macOS images are installed and how its custom engine is packaged into the iOS app. Booting a login screen is a meaningful emulator milestone, but it is not equivalent to interactive workstation usability.
+
+The repository's demos and newer releases show real progress. Independent community issue reports also show the constraints. An [iPhone 14 report](https://github.com/Leviidev/Henge/issues/59) documents an installation terminated around 80% due to resource pressure; an [iPhone 12 Pro Max report](https://github.com/Leviidev/Henge/issues/13) identifies system memory exhaustion; an [M5 iPad Pro test report](https://github.com/Leviidev/Henge/issues/26) discusses graphics, mouse input and browser failures. These are individual hardware/version reports, not a comprehensive FPS survey, but they refute the idea that "macOS boots" implies full compatibility.
+
+A reliable emulator evaluation needs end-to-end task timings: install completion, boot, usable input, Finder interaction, page rendering, crash frequency, swap and memory pressure, and sustained thermal behavior. A 15-second lock-screen demo gives little information about Safari's usability or whether a normal application can finish work.
+
+**Verdict:** Henge is a technically significant emulator experiment and an impressive compatibility boundary, not yet a substantiated replacement for a Mac desktop on an iPhone. It should be assessed on real interactive workloads, not a single boot-time screenshot.
+
+### Umless: the useful part of local dictation is the repair pipeline
+
+[jatinbishla/Umless](https://github.com/jatinbishla/Umless) combines local automatic speech recognition with an optional text-polishing model and system text insertion. The distinction matters: ordinary speech-to-text attempts to transcribe every hesitation and correction; a dictation workflow for writing must preserve *intended meaning* while removing disfluencies. Its [architecture document](https://github.com/jatinbishla/Umless/blob/main/ARCHITECTURE.md) covers ASR, editing and insertion pathways, including platform-specific accessibility/input APIs. Third-party documentation lists approximate bundled model sizes of **678 MB Lite**, **1.9 GB Standard** and **3.5 GB Max** with differing language coverage. The tier sizes are distribution/storage measures, not quality or latency benchmarks.
+
+For a local AI workstation, the important interface is not another enormous LLM; it is whether the recognizer/polisher changes a technical term, code identifier or numerical value incorrectly. The text should remain editable, and a safe app should distinguish transcription from rewritten output. If it reads the focused window for contextual correction, that access is a real privacy capability to document, even when the models run locally. The macOS/Windows/Linux insertion paths have different permission and undo semantics.
+
+**Verdict:** on-device dictation is a valuable local interaction layer when it measurably reduces correction time without corrupting technical language. Published model size alone cannot establish better recognition; the right test corpus includes hesitations, names, mixed Chinese/English vocabulary and code terms.
+
+## 6. A complexity-theory detour: P = NP is not a simulation proof
+
+Nick Bostrom's [simulation argument](https://simulation-argument.com/simulation.pdf) is a conditional trilemma about civilizations reaching posthuman capability, their willingness to run large numbers of ancestor simulations, and the fraction of observers in those simulations. It is not a theorem that advanced computing must produce such civilizations or that a simulated universe must be physically exact at every quantum degree of freedom.
+
+The statement **P = NP**, if true, would imply polynomial-time algorithms for NP-complete *decision* problems under conventional complexity definitions. It does not automatically make every difficult physical simulation cheap. A polynomial can have an impractical exponent or constant; finding a decision witness differs from numerically solving long-time quantum dynamics to arbitrary precision; and many problems involving quantum states, precision, stochastic processes or higher complexity classes are not known to become tractable merely by identifying P and NP. Even polynomial algorithms for some optimizations do not generate energy, stable hardware, enough memory or a civilization's motivation to run simulations.
+
+The popular argument "P = NP, therefore billions of perfect universe simulations, therefore our probability of being simulated approaches one" silently assumes all of the following: efficient physical simulation, a huge number of actual simulated conscious observers, a defensible reference class, and a method to assign probabilities to our observer position. Neither P = NP nor a speculative count establishes those premises. The original simulation argument is valuable for analyzing the conditional, not for calculating a numerical posterior without evidence.
+
+**Verdict:** computational complexity may constrain the affordability of certain simulations, but the P-versus-NP question does not determine whether reality is simulated. The logical gap is an instructive example of why engineering extrapolations require their intermediate assumptions to be explicit.
+
+## 7. The resulting system design
+
+Across all these projects, the strongest conclusion is architectural. A local assistant can be improved by changing its model, its runtime, the tools exposed to it, the workflow around them, or the evidence it collects. Those changes are orthogonal enough that a single "best local agent" ranking is misleading.
+
+A defensible small-workstation baseline is:
+
+1. **Model service:** use a locally measured, compatible oMLX/MLX or llama.cpp endpoint. Record whether MTP, LoRA or a separate speculative drafter is active. A compact model may handle short routing; a larger model is reserved for synthesis and complex tool use.
+2. **Agent harness:** use Pi or OpenCode with explicit tool permissions, task IDs, bounded retry loops and per-task work directories. Select the runtime for the lifecycle controls that are needed, not brand familiarity.
+3. **Research tools:** SearXNG or another search backend finds sources. A simple fetcher retrieves ordinary pages; Firecrawl Local or a browser is a selective fallback. SAG2 or a tested hybrid index handles reusable local documents. Every final claim carries its evidence location.
+4. **Orchestration and UX:** preserve durable task state independently of the chat window. A phone connects through an authenticated network path; notifications are a separate event-delivery problem. Management dashboards consume real events rather than inventing worker states.
+5. **Verification:** compare results to the specific required task. Build/code tests are not research verification; benchmark scores are not factual reliability; successful LaTeX and video generation are not evidence of practical application quality.
+
+The key decision table is not a leaderboard but a list of problems and the best evidenced intervention:
+
+| Symptom | First layer to inspect | Evidence to demand |
+| --- | --- | --- |
+| Slow local answer generation | Runtime, quantization, drafts and cache | Matched token/sec + TTFT + memory at fixed context |
+| Repeated or incorrect tool calls | Harness, model/tool adaptation, permissions | Task success, tool traces, retries and regressions |
+| Searches miss facts | Discovery queries and retrieval index | Source recall and answer support on labeled cases |
+| Web pages lack usable content | Extraction/browser fallback | Page-specific successful content and failure provenance |
+| Agent cannot resume from iPhone | Server/auth/session UI and push transport | Reconnect, approval and notification delivery tests |
+| Workflow claims done without evidence | Verification and publishing gate | Actual artifacts, CI, deploy SHA and public URL |
+
+There is a second, less comfortable conclusion. Many of the products above share excellent **publisher-reported** results, but much less matched evidence for a base M4 with 32 GB. The answer is not to discard those results or to repeat "more research needed" after every paragraph. Their proper use is to identify a technical mechanism and a conditional choice, then keep the missing cross-hardware inference separate from the established fact.
+
+The practical opportunity for local agents is therefore not simply a faster 27B or a longer list of extensions. It is **verified work under bounded resources**: a system that knows what it searched, what it retrieved, what its model actually did, why a benchmark does or does not apply, and what was successfully delivered. That is the standard by which these tools deserve to be adopted.

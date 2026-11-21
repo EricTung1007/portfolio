@@ -19,7 +19,9 @@ A local research agent needs to answer two different questions: **which pages co
 
 SearXNG is a *metasearch engine*: its adapters query external search services and aggregate results. An agent can ask a self-hosted instance for JSON:
 
-    curl 'http://localhost:8080/search?q=site%3Agithub.com+agentic+rag&format=json'
+```bash
+curl 'http://localhost:8080/search?q=site%3Agithub.com+agentic+rag&format=json'
+```
 
 The hostname and port above are illustrative. [The official search API](https://docs.searxng.org/dev/search_api.html) supports GET/POST on `/` and `/search`, a `q` parameter, categories, language, pagination, and optional JSON/CSV/RSS output. **JSON is not guaranteed:** it must be enabled in `settings.yml`, and public instances often disable it. Search queries are forwarded to engines, so a Google-specific search operator need not behave identically on every backend. SearXNG handles discovery and ranking, not conversion of an arbitrary selected document into clean Markdown.
 
@@ -44,8 +46,10 @@ Firecrawl Local also has a less obvious privacy boundary. As its README states, 
 
 For a strict local extraction path:
 
-    cargo install firecrawl-local
-    FIRECRAWL_CLOUD=off firecrawl-local serve
+```bash
+cargo install firecrawl-local
+FIRECRAWL_CLOUD=off firecrawl-local serve
+```
 
 A Firecrawl SDK can then target `http://localhost:3002`; this service provides `POST /v2/scrape`, `/v2/map`, `/v2/crawl`, and batch scrape endpoints. The older v0/v1 API routes are not served. Crawl and batch jobs live in memory and expire after an hour; they are not a durable queue. Local `json` and `summary` extraction formats are skipped with warnings.
 
@@ -57,7 +61,9 @@ The [README's security section](https://github.com/firecrawl/firecrawl/blob/main
 
 For agents browsing untrusted sites, use the documented MCP restriction:
 
-    firecrawl-local mcp --public-only
+```bash
+firecrawl-local mcp --public-only
+```
 
 That does not make fetched pages trustworthy. Treat extracted text as data rather than authority to open another URL, execute a command or change application state. Firecrawl Local also applies link-local/cloud-metadata restrictions and browser-proxy safeguards described in its README. Browser rendering still carries actual browser resource cost and site-access constraints.
 

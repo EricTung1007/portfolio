@@ -102,11 +102,11 @@ def make(zh):
     skills=[
       ('程式語言','Python、SQL；具 JavaScript、C#、SAP ABAP、HTML/CSS 基礎實務能力'),
       ('後端與資料','REST API、MySQL、SQLite、預存程序、JWT 驗證；Node.js / Express 維護'),
-      ('AI 與工具','本地 LLM 推論、RAG、FAISS、Core ML、LM Studio、模型評估、Docker、Git、.NET MAUI')
+      ('AI 與工具','本地 LLM 推論、RAG、FAISS、Core ML、LM Studio、提示詞與模型評估、Docker、Git、.NET MAUI')
     ] if zh else [
       ('Languages','Python, SQL; JavaScript, C#, SAP ABAP, HTML/CSS (working familiarity)'),
       ('Backend / data','REST APIs, MySQL, SQLite, stored procedures, JWT; Node.js / Express maintenance'),
-      ('AI / tools','Local LLM inference, RAG, FAISS, Core ML, LM Studio, model evaluation, Docker, Git, .NET MAUI')]
+      ('AI / tools','Local LLM inference, RAG, FAISS, Core ML, LM Studio, prompt engineering, evaluation workflows, Docker, Git, .NET MAUI')]
     for title,detail in skills:
         p=para(d,after=2.4,line=1.14)
         run(p,title+':  ',9.4 if zh else 9.5,True,NAVY,'Noto Sans CJK TC' if zh else 'Lato')

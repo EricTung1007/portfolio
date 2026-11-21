@@ -19,7 +19,9 @@ sources:
 
 SearXNG 是「元搜尋引擎」（metasearch engine），透過各搜尋來源的轉接器送出查詢，再彙整結果。Agent 可以向自架實例要求 JSON：
 
-    curl 'http://localhost:8080/search?q=site%3Agithub.com+agentic+rag&format=json'
+```bash
+curl 'http://localhost:8080/search?q=site%3Agithub.com+agentic+rag&format=json'
+```
 
 上述主機與埠號只是示例。[官方搜尋 API](https://docs.searxng.org/dev/search_api.html) 在 `/` 和 `/search` 支援 GET/POST、必要的 `q` 查詢參數，以及類別、語言、分頁與選用的 JSON/CSV/RSS 輸出。但 **JSON 不保證可用**：管理員必須在 `settings.yml` 啟用，許多公開實例會關閉它。查詢語法也會送往外部引擎，因此 Google 支援的運算子不保證其他引擎有相同行為。SearXNG 負責找出候選來源，並沒有通用的「把任意網頁整理成乾淨 Markdown」介面。
 
@@ -44,8 +46,10 @@ Firecrawl Local 的工作剛好位於下一層。[官方 README](https://github.
 
 需要嚴格關閉 Cloud 時：
 
-    cargo install firecrawl-local
-    FIRECRAWL_CLOUD=off firecrawl-local serve
+```bash
+cargo install firecrawl-local
+FIRECRAWL_CLOUD=off firecrawl-local serve
+```
 
 之後 Firecrawl SDK 可連接 `http://localhost:3002`；本地服務提供 `POST /v2/scrape`、`/v2/map`、`/v2/crawl` 和批次擷取。它不提供舊版 v0/v1 路由。Crawl 與批次工作存放在記憶體，約一小時後到期，不是能跨程序復原的持久任務佇列。本地 `json`、`summary` 擷取格式會略過並提出警告。
 
@@ -57,7 +61,9 @@ MCP 模式透過 `firecrawl-local mcp` 啟動；README 記載它使用 `npx` 啟
 
 對不可信網站執行 MCP 時，官方提供：
 
-    firecrawl-local mcp --public-only
+```bash
+firecrawl-local mcp --public-only
+```
 
 這項限制並不能讓網頁文字自動變成可信指令。擷取結果應視為資料，不能直接授權 Agent 開啟內網網址、執行 shell 指令或修改應用程式。README 也記載對 link-local、雲端 metadata 位址及瀏覽器代理的限制。動態渲染依然需要實際瀏覽器資源，且會受到目標網站存取條件影響。
 

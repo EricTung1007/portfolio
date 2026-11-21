@@ -48,19 +48,19 @@ def rule(p):
     b.append(x); pr.append(b)
 
 def section(d,title,zh=False):
-    p=para(d, before=6.5 if zh else 11, after=4.2 if zh else 6.8, line=1,keep=True)
+    p=para(d, before=3.8 if zh else 11, after=2.6 if zh else 6.8, line=1,keep=True)
     run(p,title,size=10.1 if zh else 9.3,bold=True,color_=TEAL,font='Noto Sans CJK TC' if zh else 'Lato')
     rule(p)
 
 def bullet(d,text,zh=False):
-    p=para(d,after=1.5 if zh else 2.9,line=1.12 if zh else 1.15)
+    p=para(d,after=0.8 if zh else 2.9,line=1.08 if zh else 1.15)
     p.paragraph_format.left_indent=Inches(.14)
     p.paragraph_format.first_line_indent=Inches(-.12)
     run(p,'•  ',9.3 if zh else 9.2,color_=TEAL)
-    run(p,text,9.3 if zh else 9.6,font='Noto Sans CJK TC' if zh else 'Lato')
+    run(p,text,9.15 if zh else 9.6,font='Noto Sans CJK TC' if zh else 'Lato')
 
 def job(d,title,date,notes,zh=False):
-    p=para(d,before=3.1 if zh else 5.1,after=2.1 if zh else 2.5,line=1.06,keep=True)
+    p=para(d,before=1.9 if zh else 5.1,after=1.3 if zh else 2.5,line=1.06,keep=True)
     p.paragraph_format.tab_stops.add_tab_stop(Inches(6.9),WD_TAB_ALIGNMENT.RIGHT)
     run(p,title,9.65 if zh else 9.7,True,NAVY,'Noto Sans CJK TC' if zh else 'Lato')
     run(p,'\t'+date,8.6,color_=SLATE)
@@ -68,7 +68,7 @@ def job(d,title,date,notes,zh=False):
 
 def project(d,title,date,notes,url,zh=False):
     job(d,title,date,notes,zh)
-    p=para(d,before=1,after=3,line=1)
+    p=para(d,before=1,after=1 if zh else 3,line=1)
     p.paragraph_format.left_indent=Inches(.14)
     run(p,'程式碼  ' if zh else 'Code  ',8.4,color_=SLATE)
     link(p,url.replace('https://github.com/','github.com/'),url,8.4)
@@ -76,7 +76,7 @@ def project(d,title,date,notes,url,zh=False):
 def make(zh):
     d=Document(); sec=d.sections[0]
     sec.page_width=Inches(8.2677); sec.page_height=Inches(11.6929)
-    sec.top_margin=Inches(.55); sec.bottom_margin=Inches(.49)
+    sec.top_margin=Inches(.48); sec.bottom_margin=Inches(.42)
     sec.left_margin=Inches(.68); sec.right_margin=Inches(.68)
     sec.header_distance=Inches(.22); sec.footer_distance=Inches(.25)
     normal=d.styles['Normal']
@@ -108,7 +108,7 @@ def make(zh):
       ('Backend / data','REST APIs, MySQL, SQLite, stored procedures, JWT; Node.js / Express maintenance'),
       ('AI / tools','Local LLM inference, RAG, FAISS, Core ML, LM Studio, prompt engineering, evaluation workflows, Docker, Git, .NET MAUI')]
     for title,detail in skills:
-        p=para(d,after=2.4,line=1.14)
+        p=para(d,after=1.2 if zh else 2.4,line=1.07 if zh else 1.14)
         run(p,title+':  ',9.4 if zh else 9.5,True,NAVY,'Noto Sans CJK TC' if zh else 'Lato')
         run(p,detail,9.6,font='Noto Sans CJK TC' if zh else 'Lato')
     section(d,'軟體工程經歷' if zh else 'ENGINEERING EXPERIENCE',zh)
@@ -131,7 +131,7 @@ def make(zh):
       ('AI-Driven Prenatal Education Chatbot','2024 - 2025',['Built a bilingual RAG chatbot using local Gemma 3 4B, FAISS, Flask and LINE.','Grounded responses in official maternal-health content to reduce hallucination risk.'],'https://github.com/EricTung1007/NTU-Nursing-Line-Bot'),
       ('Low-Cost Long-Term Care Health Information System','2026',['Maintained a Node.js / Express + SQLite prototype supporting medication records, vital signs, fall / pressure-injury assessments, clinical notes and JWT authentication.'],'https://github.com/EricTung1007/HIS')]
     # Independently published iOS application; keep the App Store URL clickable.
-    p=para(d,before=3.1 if zh else 5.1,after=2.1 if zh else 2.5,line=1.06,keep=True)
+    p=para(d,before=1.9 if zh else 5.1,after=1.3 if zh else 2.5,line=1.06,keep=True)
     p.paragraph_format.tab_stops.add_tab_stop(Inches(6.9),WD_TAB_ALIGNMENT.RIGHT)
     run(p,'八號球（Eight Ball）｜iOS 決策 App' if zh else 'Eight Ball | iOS Decision App',9.65 if zh else 9.7,True,NAVY,'Noto Sans CJK TC' if zh else 'Lato')
     run(p,'  ',8.4)
@@ -159,7 +159,7 @@ def make(zh):
       ('2026 Global Health Innovation Grand Challenge: ','1 of 8 grand finalist teams (48 submissions).'),
       ('2025 NTU Nursing International Forum: ','Prenatal AI chatbot poster.  TOEIC 925; GEPT High-Intermediate.')]
     for n,(label,value) in enumerate(details):
-        p=para(d,after=2 if n<2 else 0,line=1.12 if n<3 else 1.15)
+        p=para(d,after=1 if zh and n<2 else 2 if n<2 else 0,line=1.08 if zh else 1.12 if n<3 else 1.15)
         run(p,label,9.2 if n<2 else 9.05,True,NAVY,'Noto Sans CJK TC' if zh else 'Lato')
         run(p,value,9.4 if zh and n<2 else 9.1 if n<2 else 9.2 if zh else 9.05,font='Noto Sans CJK TC' if zh else 'Lato')
     return d

@@ -136,7 +136,7 @@ def make(zh):
     run(p,'八號球（Eight Ball）｜iOS 決策 App' if zh else 'Eight Ball | iOS Decision App',9.65 if zh else 9.7,True,NAVY,'Noto Sans CJK TC' if zh else 'Lato')
     run(p,'  ',8.4)
     link(p,'App Store','https://apps.apple.com/tw/app/%E5%85%AB%E8%99%9F%E7%90%83/id6827388818?l=en-GB',8.4)
-    run(p,'\\t2026',8.6,color_=SLATE)
+    run(p,chr(9)+'2026',8.6,color_=SLATE)
     bullet(d,'獨立開發並上架 iOS App，結合經典魔法八號球、Core ML 裝置端選項比較及決策日誌。' if zh else 'Independently developed and shipped an iOS app combining a classic Magic 8 Ball, Core ML on-device option comparison and decision journaling.',zh)
     for pr in projects: project(d,*pr,zh=zh)
     section(d,'研究論文' if zh else 'RESEARCH PUBLICATION',zh)

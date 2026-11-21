@@ -115,3 +115,105 @@ sources:
 一份足夠可重現的測速紀錄，至少要有：機器與 GPU 核心、macOS 與 Runtime Commit、模型及 Drafter SHA、量化、生成前 Context、Cache 狀態、輸出長度、Temperature/Seed、Draft 接受率、Prefill、TTFT（第一 Token 延遲）、Decode Tokens/s、尖峰記憶體、同時串流數量。否則「很快」只是經驗敘述，不能跨機器推估。
 
 **結論：**公開數據足以證明推測解碼在合適配置下可大幅改善速度，而且不同工作負載差距很大；它**尚不能**證明基礎 M4 的加速倍率，也不能推導 Inkling 一定比 Qwen 快。應測量真正啟用中的完整加速路徑。
+
+
+## 2. Agent 架構：可靠的循環，不只是寫好一段 Prompt
+
+### Pi、OpenCode、Oh My Pi、Pi Bot 是不同的產品
+
+終端機 Coding Agent 通常包含 LLM 決策迴圈、Session 狀態、工具登錄、執行權限、檔案系統，以及檢查執行結果的回饋路徑。主要差別是預設的整合方式，以及使用者能替換多少底層行為。
+
+[Pi](https://github.com/earendil-works/pi) 提供 Agent Runtime、CLI、SDK、RPC 及 Extension。[官方 Extension 範例](https://github.com/earendil-works/pi/tree/main/packages/coding-agent/examples/extensions) 可以看到工具登錄、事件 Hook、TUI 元件及 Agent 行為擴充。這適合希望維持核心簡單，再依需求加入功能的架構。不過最小的實際發行包仍然包含執行依賴，因此「輕量」應由執行中 Process 的記憶體來衡量，而非 README 看起來有多短。
+
+[OpenCode](https://github.com/anomalyco/opencode) 走向較完整的 Client/Server 結構，擁有自己的 Session、權限模型、終端機與圖形介面，外部 UI 也可透過服務端介面存取。兩者都能自訂工具，差別不是「只有 Pi 能寫 Extension」。Pi 特別強調可見、可替換的 Extension 和 Agent Loop；OpenCode 則預先整合更多多客戶端操作體驗。這會改變開發和維護工作量，但不能單憑架構判定哪個在相同 Coding Task 上成功率更高。
+
+[Oh My Pi（OMP）](https://github.com/can1357/oh-my-pi) 是**從 Pi 發展出的獨立、功能較豐富的 Coding Runtime**，不能簡化成官方 Pi 的一個插件。它包含內建 LSP、Subagent、診斷與擴充 SDK；可以參照 [SDK 文件](https://github.com/can1357/oh-my-pi/blob/main/docs/sdk.md)。優點是較多能力已直接整合，少了自行搭建 Extension 的工作；相對地，其維護範圍、設定與可變行為也更大。一個 OMP 版本的測速或記憶體數字，不能直接算到原版 Pi 身上。
+
+[luodaoyi/pi-bot](https://github.com/luodaoyi/pi-bot) 則是以 Pi Coding Agent 為底座、結合 Respire 記憶系統的 DeepSeek-Bot 移植專案。它是**建構在 Pi 上的 Bot 產品**，不是 Pi Coding Agent 本身，也不是原開發者推出的官方 iOS App。要比較 Pi Bot，就要分開檢視訊息平台、身分、長期記憶與權限，而非只看底層是否使用 Pi 的 Tool Loop。
+
+| 問題 | Pi | OpenCode | Oh My Pi | Pi Bot |
+| --- | --- | --- | --- | --- |
+| 主要定位 | 可擴充 Agent Runtime 與終端機 | 整合式 Agent 與多端 Server | 功能豐富的 Pi 衍生 Runtime | Pi 上的訊息／Bot 工作流 |
+| 主要自訂介面 | Extensions、Tools、SDK、RPC | Server API、插件、設定與客戶端 | 整合工具與擴充 SDK | 傳輸通道、狀態與記憶 |
+| 瀏覽器／iOS | 需要額外 Web／Remote Frontend | 原生 Server 路線及多個客戶端 | 需要 Frontend 或 Adapter | 取決於 Bot／Channel |
+| 主要代價 | Extension 組合與維護 | 服務、客戶端與權限複雜度 | 較大的內建功能和依賴範圍 | 容易混淆 Bot 與 Agent Runtime |
+
+這是**功能比較，不是 RAM 排名**。一則 Pi 問題討論紀錄，曾提到特定分支優化 Module Import，將 RSS 由 **150 MB 降至 130 MB**。這說明即使是看似簡單的 Node/TypeScript Runtime，也有不可忽略的載入成本，但並未提供同版本、同 Extension、同 Session 的 Pi/OpenCode/OMP RAM 實測。公平比較應使用同一模型服務端、同一對話負載，測量各自完整 Process Tree 的 Idle、工作中與 Peak Resident Memory。
+
+**結論：**如果重點在修改 Agent 的 Context、工具及生命週期，Pi 的組件化介面較直接；若重點是內建 Server 與多端操作，OpenCode 的完整工作流可能減少整合成本；若經常需要 OMP 已整合的能力，其較大的 Runtime 才有意義。Pi Bot 回答的是另一個問題：如何讓 Agent 成為具有通道與記憶的持續服務。
+
+### Pi Web、piclaw 和 Extension 生態：便利的 UI 不等於模型更會思考
+
+[agegr/pi-web](https://github.com/agegr/pi-web) 是 Pi 的瀏覽器介面，可顯示 Session、檔案、專案內容、Extension UI 與終端機操作。[package.json](https://github.com/agegr/pi-web/blob/main/package.json) 可確認它包含 Next.js、React、終端機元件及版本固定的 Pi 套件。因此，瀏覽器 Web Server 與前端的資源成本高於純 CLI 並不令人意外，但依賴清單本身不能提供可信的具體 RAM 差距。如果原本已有本地模型 API，使用 Pi Web 並不必然需要額外啟動第二個 LLM。
+
+[rcarmo/piclaw](https://github.com/rcarmo/piclaw) 超出單純 Viewer 的範圍，提供具持續性狀態、工作流程、Pi 相容擴充與容器部署選項的 Web 工作台。其 [MCP 文件](https://github.com/rcarmo/piclaw/blob/main/docs/mcp.md) 描述透過 Adapter 避免把所有 MCP Tool 都直接丟進基礎 Prompt。這會改變工具暴露及工作生命週期，但不會無條件提高模型本身的推理正確率。
+
+社群另外介紹過現成安裝套裝、狀態側欄和多步驟 Workflow Extension。要評估這些項目，至少需要對應到**真正存在且維護中的 Repo、版本與 API Contract**。只能閱讀 Session Log 的 UI 插件，不等於會啟動 Subagent 的執行插件；支援 Git Worktree 的協調工具，也不是一般 Terminal Multiplexer。若分享文章沒有保留原始 Repo URL，就不能將特定版本功能視為已獨立驗證。
+
+[Pi Extension 範例](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/examples/extensions/README.md) 提供正確分類方式：顯示型 Extension 改變事件呈現；工具型 Extension 增加可執行能力；執行型 Extension 管理子程序或 Session。先區分這三種用途，再決定是否堆疊套件。從可靠性角度看，移除一個可選的 Web UI，不能讓底層任務已完成的持久成果跟著消失。
+
+**結論：**只想遠端瀏覽或恢復 Pi Session，Pi Web 是適當選項；想直接把瀏覽器當作持續運作的完整工作台，piclaw 更符合定位。兩者都不是免費的推論效能升級，其價值應由新增生命週期能力和實際資源成本衡量。
+
+### iOS 存取：網路連通、Session 與 Push Notification 是三個獨立系統
+
+iPhone Client 通常**不會**在手機上執行完整 Coding Agent，而是連到電腦上的服務，發送指令、顯示輸出、處理權限確認並接收狀態事件。在此架構下，Tailscale 處理的是私有網路連通；Agent 的 HTTP、WebSocket 或 RPC Server 管理的是 Session 和執行內容。兩者都不會自動帶來**App 被系統暫停時仍能收到的推播通知**。
+
+[OpenCode Mobile 的遠端文件](https://www.getopencode.app/docs/remote-access/) 說明 OpenCode 2 可直接透過本機 Server 提供服務，也記載部分 App 版本有可選的付費 Cloud Link。[另一個社群 OpenCode Mobile 的連線說明](https://opencode-mobile.github.io/opencode-mobile-docs/connecting/) 則列出 QR、LAN、Host/Password 等方式。這些是**不同的行動客戶端專案**，不能把其中一個的 Relay、配對或推播機制直接當成 OpenCode 核心 Server 的必備功能。遠端 Relay 是個別發行版的服務選擇，不代表 OpenCode 必須依賴第三方中繼才能連線。
+
+Pi 同樣能透過 [Pi Web](https://github.com/agegr/pi-web) 搭配 Tailscale，提供相似的遠端互動體驗。原生 iOS Wrapper 或 PWA 可以顯示 Web UI。然而 Push 必須另建通知通道，例如 Web Push 訂閱與 Push Service、原生 App 的 APNs，或透過有推播基礎設施的訊息 Bot/Server 發送。**能在 Safari 開啟 Pi 頁面，不代表 Pi 就擁有 APNs。** 反過來說，OpenCode 的行動客戶端也不一定需要業者的 Relay，才能在 LAN 或私人 VPN 運作。
+
+通知權限也要獨立設計。推播內容應限制為「任務完成」「需要確認」等最小事件，以及 Task Reference，避免直接包含工具結果、程式碼祕密或終端機歷史。Agent Server、Tailscale 及 Client 都必須有明確的驗證機制；只是把網址藏起來並不算驗證。重新連線後，UI 應讀取持久任務狀態，不能因 Socket 中斷就判定執行成功。
+
+**結論：**對 Pi 和 OpenCode，Tailscale 加上已驗證身分的 Server 都能滿足私有遠端連線。瀏覽器介面相對容易，可靠背景通知需要額外的傳遞通道。任何「某 Harness 有 iOS App」的主張，都應附上特定 Client、維護者、是否官方、是否需要中繼及連線限制。
+
+### Paperclip：管理平面不會自動變成所有 Process 的即時監控
+
+[Paperclip](https://github.com/paperclipai/paperclip) 將 Agent 視為被管理的 Worker，提供任務、心跳、預算、審批、執行歷史和 Adapter。[Adapter 概覽](https://github.com/paperclipai/paperclip/blob/master/docs/adapters/overview.md) 與[使用文件](https://github.com/paperclipai/paperclip-docs/blob/main/docs/guides/org/adapters.md) 說明特定 Agent Runtime 是如何啟動或接入。[近期 Release](https://github.com/paperclipai/paperclip/blob/master/releases/v0.3.0.md) 也包含 Pi、OpenCode 的 Adapter，以及 Hermes Gateway 整合方向。
+
+若系統已經在外部啟動數個 Subagent，不能假定只要開啟 Paperclip，所有 Subagent 就會以正確狀態出現在 Dashboard。純讀取整合仍需要真實事件或轉接器，把每個 Worker 的 ID、Task、Session、最後活動、執行結果映射到 Paperclip 的資料模型。沒有心跳的 Process 可能是閒置、等待、斷線或已死亡，不能全部標成正常運作。管理平面還可能**要求 Agent 執行新任務**，這個權限與只讀監控不同。
+
+適當的整合可以分兩階段。第一階段建立**事件橋接器**，消費 Pi/OpenCode 既有的 Task Lifecycle Event，並以不可混淆的 Task ID 持續記錄，但不啟動任何工作。第二階段若確實需要，再透過 Adapter 加上工作派發、重試、審批與預算管理。如果只想看兩個本地 Worker 的狀態，簡單的 JSONL Event Feed 和普通 Dashboard 可能更便宜也更容易維護。
+
+**結論：**Paperclip 在完成整合後可以成為 Agent 管理和監控介面，但不是任意現存 Process 的零設定即時鏡像。應為真正的協調與治理需求使用它，而不是把它誤認為自動讀取一切的旁觀工具。
+
+### Code Mode 與最小可執行 Harness
+
+[Cloudflare 的 Code Mode](https://blog.cloudflare.com/code-mode-mcp/) 透過可程式化 API，讓模型在一次 JavaScript 執行中組合多個工具呼叫，藉此減少大型工具 Schema 直接佔據 Context 的成本。[MCP 指南](https://developers.cloudflare.com/agents/model-context-protocol/guides/build-codemode-mcp-server/) 記載在隔離 Worker 中執行生成的程式碼，而非將每個外部服務操作都變成獨立的模型 Tool。
+
+傳統方式可能讓模型連續選擇「搜尋檔案、讀檔、解析、再搜尋、摘要」並在每次 Tool Call 之後重新推論。Code Mode 可以把這些流程寫成含迴圈與條件判斷的程式，減少提示詞 Token 和模型、工具之間的往返。對 Local 27B 而言，這尤其可能減少處理大量工具描述所需的上下文。但它**不代表**外部 API 的實際呼叫量必然減少，也不保證自動得到更正確答案。生成程式碼必須限制執行環境、CPU/記憶體、允許的工具、每種操作授權和輸出大小。
+
+如果只用 Python 的 \`OpenAI().responses.create()\` 產生一條 Shell Command，再交給 \`subprocess.run(shell=True)\` 執行，確實可以形成**最小的 Agent 形狀**：請模型提議動作、由人核准、執行、收集 stdout/stderr。但它還不是可靠的自主 Agent。危險不只在模型選錯命令，還在 Shell 會處理變數展開、重新導向、連接多條命令等效果，而自然語言中的「一條命令」不能形成真正的限制。使用者按下確認固然有幫助，卻不會讓任意 Shell String 成為安全邊界。
+
+較合理的最小改善，是將命令改成結構化參數：
+
+\`\`\`python
+# 示意性控制邊界，還不是完整沙盒。
+ALLOWED = {"git", "rg", "python3"}
+argv = proposed_command  # JSON 陣列，每個元素是字面參數
+if not isinstance(argv, list) or not argv or argv[0] not in ALLOWED:
+    raise PermissionError("Unsupported tool")
+result = subprocess.run(
+    argv, shell=False, cwd=approved_worktree,
+    capture_output=True, text=True, timeout=30,
+)
+\`\`\`
+
+即使這樣，也仍須細分每個子命令、隔離檔案系統、規範破壞性操作。光是允許 \`python3\`，其實就可能執行任意程式。處理不可信任務時，應在真正的 Sandbox 或低權限 Process 中執行。可靠 Harness 還要有最大步數、持久化 Observation、重試的 Idempotency、測試驗證與明確停止條件。這是因為模型無論多強，都可能反覆循環或高估自己已經完成工作。
+
+**結論：**如果本地模型需要呼叫大量小工具，Code Mode 的確值得研究，因為它能減少 Context 和 Tool Round Trip。但程式解譯器必須位於受限 Capability Boundary 後面。不能把簡單 \`shell=True\` Demo 的人工確認視為正式環境的安全機制。
+
+### Graph、Loop、Harness Engineering：三個術語對應三個真正不同的控制面
+
+這些名詞很容易被寫成口號，但實際上對應的都是具體軟體機制。
+
+**Graph Engineering（圖式工程）** 定義任務依賴與合法狀態轉移。例如一個研究流程可以是「發現來源 → 擷取 → 比較 → 驗證 → 發布」，並對來源不足、重查與 CI 失敗設立不同分支。Graph 讓取消、平行工作與局部恢復變得明確。每個節點應輸出結構化內容，包括 Source ID 與驗證狀態，而非完全依賴自然語言。
+
+**Loop Engineering（迴圈工程）** 決定一個節點內如何「觀察 → 選動作 → 執行 → 檢查 → 重試或停止」，包含 Context Compaction、Tool Output 截斷、錯誤分類、次數預算、模型回饋與進度查核。如果 Loop 設計不好，即使外層 Graph 正確，Agent 也可能浪費三十回合重新改寫同一個搜尋問題。
+
+**Harness Engineering（執行框架工程）** 定義模型推論周圍的一切：工具、權限、檔案 Snapshot、Shell 執行、Prompt 建立、Cache、測試、Session 持久化、工作負載路由與結果檢查。Harness 可以讓一個中等模型產生可驗證成果，也可能讓很強的模型因 Context 混亂與工具回饋不足而失敗。
+
+三者不是互斥的架構流派。Graph 問的是**哪些事情可以發生、順序為何**；Loop 問的是**如何決定當前的下一個動作**；Harness 問的是**模型實際能看見、執行和驗證什麼**。共同品質指標應是有證據、能重現的任務完成率，而非 Workflow 節點數或 Tool Registry 大小。
+
+對本地 Agentic RAG 而言，務實做法是把 Query Rewrite 放在有步數限制的 Loop，個別保存帶 URL 與時間戳的 Evidence Object，並只讓 Graph 回到缺乏證據支持的主張。這並不需要額外建立一個「CEO Agent」。檢查證據覆蓋率，通常比每輪把整段研究對話重新送進模型更有用。
+
+**結論：**先讓 Harness 與證據驗證正確，再增加大型 Graph。只有當任務有真正的分支、平行執行或復原需求，Graph 才能帶來明確價值。短而有停止條件的 Loop，通常比長時間無人監督的自我重複更可靠。

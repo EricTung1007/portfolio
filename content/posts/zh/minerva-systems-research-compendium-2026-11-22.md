@@ -217,3 +217,125 @@ result = subprocess.run(
 對本地 Agentic RAG 而言，務實做法是把 Query Rewrite 放在有步數限制的 Loop，個別保存帶 URL 與時間戳的 Evidence Object，並只讓 Graph 回到缺乏證據支持的主張。這並不需要額外建立一個「CEO Agent」。檢查證據覆蓋率，通常比每輪把整段研究對話重新送進模型更有用。
 
 **結論：**先讓 Harness 與證據驗證正確，再增加大型 Graph。只有當任務有真正的分支、平行執行或復原需求，Graph 才能帶來明確價值。短而有停止條件的 Loop，通常比長時間無人監督的自我重複更可靠。
+
+
+## 3. 搜尋與 RAG：索引知道什麼，網頁又實際說了什麼？
+
+### Firecrawl Local 無法取代元搜尋引擎
+
+[Firecrawl Local 的 README](https://github.com/firecrawl/firecrawl/blob/main/apps/local/README.md) 清楚區分 Rust 本地版的 \`scrape\`、\`crawl\`、\`map\`、批次內容擷取，與必須交給 **Firecrawl Cloud** 的 \`search\` 功能。[11 月 18 日發布公告](https://www.firecrawl.dev/changelog/firecrawl-local) 宣稱擷取速度改善 **37 倍**，閒置記憶體減少 **230 倍，約 11 MB**。比較基準是**舊版 Firecrawl Self-hosted 架構**，這不是對搜尋引擎的測速，也不是完整研究 Agent 的端到端效能。
+
+[SearXNG](https://github.com/searxng/searxng) 則透過搜尋引擎專用 Adapter 整合外部搜尋結果。[JSON 搜尋 API](https://docs.searxng.org/dev/search_api.html) 若經管理員啟用，可直接供 Agent 取得候選網頁；但它沒有 Firecrawl 的通用網頁 Markdown 正規化與完整網站 Crawl API。兩者一個是來源發現層，一個是內容擷取層。
+
+營運與隱私上也不同。Firecrawl Local 預設 \`FIRECRAWL_CLOUD=auto\`，搜尋、某些遭封鎖網頁的備援擷取，以及特定資料供應商可能連向 Cloud。不允許這類行為時，應設定 \`FIRECRAWL_CLOUD=off\`，並對不可信來源使用官方提供的 \`--public-only\` 私有位址保護。執行檔安裝在本地，不代表它不會呼叫雲端服務。
+
+先前已刊登一篇獨立的 [Firecrawl Local 與 SearXNG 深入比較](#/writing/firecrawl-local-vs-searxng-2026-11-22)，涵蓋 API 路由與內網保護。這裡的系統結論是：搜尋層負責提出 URL，擷取層讀取選定文件，最後由 Agent 明確檢查證據，不能把找到資料誤認為已經得到答案。
+
+**結論：**Firecrawl Local 可以改善特定文件的擷取和清理，卻不能取代 SearXNG。不要只因想「在本地搜尋 Google」就部署 Firecrawl。當網站遍歷、PDF、JavaScript 渲染或已確認的內容擷取失敗確實需要額外能力時，再引入它。
+
+### SAG2 不使用 Embedding，但仍然建立索引
+
+[SAG Wiki 架構說明](https://github.com/Zleap-AI/SAG-Wiki/blob/main/docs-site/content/docs/architecture.en.mdx) 與 [SAG2 方法文件](https://github.com/Zleap-AI/SAG-Wiki/blob/main/docs-site/content/docs/sag2.en.mdx) 提供了向量索引以外的檢索方式。它在本地**確實建立全文索引**，但匯入時**不計算 Embedding 向量，也不要求 LLM 先逐份文件建立語意摘要或關係圖**。查詢時先以類 BM25 的詞彙檢索選出候選段落，再透過 JEV（Joint Evidence Verification）判斷段落是否能支持問題；已取得的證據可提供擴充關鍵詞，進入下一輪檢索。結果保留原始檔案路徑與來源位置。
+
+因此，「SAG2 完全不用預處理和建立索引」是錯誤敘述。索引建立、斷詞與統計仍需要時間及磁碟；它節省的是**Embedding 模型與離線語意抽取階段**。但純詞彙召回也可能找不到用不同字詞表述的證據。Query Expansion 和 Evidence Judgment 可以緩解這個限制，卻仍有實際運算成本。
+
+[官方 Benchmark 重現專案](https://github.com/Zleap-AI/SAG-Benchmark) 也區分索引建立、檢索與完整 Agent 問答。其本地索引速度測試排除部分檔案匯入和驗證工作，且未清除作業系統檔案快取。因此不能把這組數字直接拿來與量測不同階段的向量 RAG 系統比較。JEV 只給出**證據判斷與段落排序**，最終回答依然由其他 LLM 生成。所以「SAG2 取代 RAG」在架構上也不成立；SAG2 是能放進 RAG 的一種檢索演算法。
+
+| 階段 | 一般 Embedding RAG | SAG2／SAG Wiki |
+| --- | --- | --- |
+| 匯入 | 切塊、計算向量、儲存 Embedding | 解析原始檔、斷詞、建立全文索引 |
+| 候選召回 | 向量相似度，可搭配混合檢索 | 詞彙／BM25 風格召回 |
+| 證據判斷 | 可選的 Reranker 或 LLM | JEV 證據評估 |
+| 多跳搜尋 | Query Rewrite、Graph 或 Agent Loop | 依證據擴充詞彙與重複搜尋 |
+| 最終文字 | Answer LLM | Answer LLM；JEV 不負責寫答案 |
+
+**結論：**若本地文件經常更動，希望避免 Embedding 成本與依賴，SAG2 值得研究。但要證明它比 Hybrid Lexical/Vector Retrieval 好，仍需在相同證據問題下量測完整的匯入、搜尋、回答流程。不論使用哪種檢索方式，都要有明確的無答案出口及來源檢查。
+
+## 4. 研究工具能產出文件，卻不能保證研究成立
+
+### PaperOrchestra 可以寫出 LaTeX，不能替實驗保證真實性
+
+Google Cloud AI Research 的 [PaperOrchestra](https://github.com/google-research/paper-orchestra) 把論文大綱、文獻研究、章節寫作、修改與繪圖拆給不同 Agent，再從構想與實驗紀錄產出 LaTeX 論文。Repo 有實際程式碼、自動評審／評估腳本、設定與模板整合，而非只是一張 Agent 流程圖。它展現的是內容製作工程，不等於宣稱 LLM 能無中生有發現新的科學成果。
+
+五個角色各自有明確工作。大綱 Agent 把原始材料整理成章節需求；文獻 Agent 搜尋及挑選參考資料；寫作 Agent 產生初稿；修改 Agent 審閱和重寫；繪圖 Agent 把提供的資料轉成視覺化內容。若所有 Agent 共用一份錯誤引用或虛構實驗結果，專業分工只會讓錯誤以更完整、漂亮的形式傳播。PDF 能編譯成功，只證明格式和部分 LaTeX 語法可用，不代表引用正確或實驗可重現。
+
+技術刊物所需要的完成標準應更嚴格：每項數據能追溯到原始實驗 Artifact；引文真實存在且真的支持相關敘述；圖表的原始資料和繪製程式可檢查；發布前有人或獨立驗證流程能將文字與 Log 對照。PaperOrchestra 最適合接受已經驗證的證據，再自動化其稿件製作，而非取代研究設計與文獻判斷。
+
+**結論：**當實驗本身可信、真正的瓶頸是產出格式一致的論文時，多 Agent 寫作工具有價值。若根本沒有先驗證資料，增加寫作 Agent 只會改善排版，不會改善科學品質。
+
+### FastFrames-L：14B 互動式影片生成，不等於能在 Mac mini 上執行
+
+[Apple FastFrames-L](https://huggingface.co/apple/FastFrames-L) 是 **14B 自迴歸、兩步驟 Video Diffusion 模型**，不是一般文字 LLM、RAG 的圖片編碼器，也不是能直接拿來處理 Agent 影片的普通 API。它先將 Wan2.1-14B 蒸餾成兩步驟的 Causal Generator，再訓練 Pixel Decoder 與 KV Refinement Network。小版本 FastFrames-S 則是 **1.3B**，兩者目標都是讓 480p 影片生成延遲降低。
+
+[官方模型卡](https://huggingface.co/apple/FastFrames-L) 提供 FastFrames-S 在**單張 GPU、KV Cache 已填滿**時的每幀元件計時：兩次 DiT 約 **16.1 + 16.2 ms**、KV Refinement **2.2 ms**、Pixel Decoder **0.9 ms**，總共 **35.4 ms**。若只看元件總時間，理論上相當於每秒約 28 幀；這不是包含介面及影片編碼的端到端 FPS，更**不是 FastFrames-L 的測試結果**。範例生成 832×480、81 幀、16 FPS 的影片。
+
+原始專案的安裝條件明確指定 **Linux x86-64、NVIDIA GPU、CUDA 12.8 相容 Driver**，而 \`ff-l\` 的延遲量測指令使用 **8 張 GPU**。不能因作者是 Apple，就假設已具備 Apple Silicon Metal 版本。若要把 14B Video Diffusion 的特製 Operator、狀態快取與記憶體管理搬到 MLX，實際上是一項完整的移植工程，不是把 PyTorch Import 改掉即可。
+
+**結論：**FastFrames 對低延遲互動世界與影片生成有研究價值，但原始文件不足以支持「32 GB 基礎 M4 可以實用執行」的說法。35.4 ms 只屬於小版本的特定 GPU 元件測試。
+
+### PyBot：用程式碼而非模型權重執行聊天行為
+
+Hugging Face 的 [PyBot](https://github.com/huggingface/pybot) 是「聊天機器人是否一定需要神經網路推論？」的一個實際對照。官方說明超過 **1,000 個 Agent** 產生 **5,000 個以上規則系統版本**；最後約有 **64 萬行 Python、528 個原始碼檔案**，另外有約 **55 萬行測試**。其核心由 Pattern Matching、知識表、回應模板、記憶機制與負責選擇候選回應的 Arbiter 組成，回答使用者問題時不載入神經網路權重。
+
+[Repo README](https://github.com/huggingface/pybot) 報告它在 **SmolTalkBench** 的 **26% Win Rate**，由 LLM Judge 將輸出和參照答案比較，並稱在該設定下與 SmolLM-360M-Instruct 接近。這不代表規則系統已經擁有 360M 語言模型的泛化能力，也不能只靠 LLM Judge 確定其事實可靠性與對抗樣本表現。README 本身還說明：由於需載入龐大的 Python 原始碼，啟動需要數秒，回答約一秒。因此「沒有模型權重」不代表「沒有運算和維護成本」。
+
+真正值得注意的是，Agent 可以**產生一套固定、可執行的行為程式**，而不只是生成文字。對範圍明確、可測試的抽取、格式轉換、路由與規則判斷，這種設計很有啟發性。但數十萬行自動生成的分支，也可能比小型分類模型更難驗證，並在未涵蓋的輸入模式上突然失效。
+
+**結論：**PyBot 是研究 Agent 產生程式碼與規則式推論的重要 Artifact，並非「語言模型已不需要訓練」的證據。是否值得取代模型，必須先檢查實際測試集、評分方式、規則可維護性及未知輸入行為。
+
+## 5. 介面與旁支技術實驗
+
+### Henge：iPhone 能啟動 macOS，就代表可以實際使用嗎？
+
+[Henge](https://github.com/Leviidev/Henge) 是在 iOS/iPadOS 上模擬 macOS 的專案。一般 iOS App 沒有執行完整 macOS Guest 所需的虛擬化能力，因此 Henge 自己實作 ARM64 JIT、虛擬記憶體管理、虛擬裝置與圖形重播。[架構文件](https://github.com/Leviidev/Henge/blob/main/docs/architecture.md) 說明 macOS Image 如何安裝，以及自製引擎如何與 iOS App 整合。成功看到登入畫面是重要的模擬器進展，但與能用它完成工作仍有很大距離。
+
+Repo 展示與新版本確實有持續進展，也有不同裝置的實測問題。[iPhone 14 的 Issue](https://github.com/Leviidev/Henge/issues/59) 記錄安裝至約 80% 時因資源壓力被終止；[iPhone 12 Pro Max 的 Issue](https://github.com/Leviidev/Henge/issues/13) 記錄系統記憶體耗盡；[M5 iPad Pro 測試](https://github.com/Leviidev/Henge/issues/26) 提到圖形、滑鼠輸入及瀏覽器故障。這些是特定裝置與版本的個別報告，不能直接當成全部裝置的 FPS 統計，但足以反駁「可以 Boot 就等於完全可用」。
+
+實用性評估應測量完整工作流程：安裝是否完成、開機、觸控／滑鼠輸入、Finder 操作、網頁渲染、當機率、Swap、記憶體壓力和持續運作的熱限制。一段 15 秒進入鎖定畫面的 Demo，無法說明 Safari 或日常 App 是否能完成正常工作。
+
+**結論：**Henge 是具有明確技術突破的模擬器實驗，但尚缺足夠證據把它視為 iPhone 上可取代 Mac Desktop 的實用方案。應以真正的互動任務評估，而不是只看能否開機。
+
+### Umless：本地語音輸入真正值得關注的是文字修正流程
+
+[jatinbishla/Umless](https://github.com/jatinbishla/Umless) 將本地 ASR（Automatic Speech Recognition，語音辨識）、可選文字整理模型，以及系統文字插入組合成一套 Dictation Workflow。這三者的區別很重要：一般 ASR 嘗試轉錄每個停頓與口誤，但寫作型語音輸入需要在保留**原本意圖**的前提下，移除不必要的語助詞與自我修正。[架構文件](https://github.com/jatinbishla/Umless/blob/main/ARCHITECTURE.md) 記載 ASR、編輯、插入步驟，以及不同平台使用的 Accessibility 或輸入介面。第三方整理列出套件大約 **Lite 678 MB**、**Standard 1.9 GB**、**Max 3.5 GB**，語言支援不同。這些是安裝體積，不是品質與延遲的測試數字。
+
+對本地工作站來說，真正的產品品質問題是：辨識和整理是否錯改技術名詞、程式識別字或數字。文字應能再編輯，也應讓使用者分辨原始辨識內容與整理後內容。如果為了上下文修正而讀取目前視窗，這就是需要明確說明的隱私權限，即使模型完全在本機執行也一樣。macOS、Windows、Linux 的輸入注入和 Undo 行為也不完全相同。
+
+**結論：**如果本地語音輸入確實減少人工修正時間，又不破壞專業名詞，它就有實際價值。但套件大小不足以證明辨識更準；合理測試語料應包含停頓、專有名詞、中英混用與程式詞彙。
+
+## 6. 複雜度理論延伸：P = NP 並不能證明我們活在模擬之中
+
+哲學家 Nick Bostrom 的[模擬論證](https://simulation-argument.com/simulation.pdf) 是有條件的三難論證：文明是否能達到後人類能力、是否願意大量執行祖先模擬，以及模擬觀察者在人口中的相對比例。它沒有證明高級文明必然存在，也沒有證明模擬宇宙必須精確計算所有量子自由度。
+
+假設 **P = NP** 成立，代表在傳統計算複雜度定義下，NP-complete 的**決策問題**存在多項式時間演算法。這不會自動讓所有物理模擬都變得便宜。多項式仍可能有不實用的高次方或巨大常數；判斷問題是否有解與將長時間量子動力學以任意精度數值模擬，是不同難題；許多涉及量子態、精度、隨機過程或更高複雜度類別的問題，也無法僅憑 P 與 NP 的關係就判定能高效率處理。就算某些最佳化可在多項式時間求解，也不會憑空產生能源、穩定硬體、足夠記憶體，或讓文明願意大量製造模擬。
+
+「P = NP，因此可以大量且廉價地模擬完美宇宙，因此我們幾乎必然處於模擬中」至少跳過了四個前提：物理模擬確實有效率、真的存在大量具有意識的模擬觀察者、觀察者參照類別如何定義，以及如何合理計算我們的觀察者位置機率。單靠 P = NP 或想像中的模擬數量都無法證明這些條件。模擬論證值得討論的是條件式推理，而非在沒有實證時宣告精確機率。
+
+**結論：**計算複雜度會影響某些模擬的成本，但 P vs NP 並不能決定世界是否被模擬。這是另一個提醒：從技術可能性推出巨大結論時，不能省略中間的假設。
+
+## 7. 對本地 Agent 系統的整體結論
+
+這些工具最值得學習的共同點，是整體系統有不同、可相對獨立改良的層次：模型、推論引擎、工具介面、工作流程，以及證據品質。若把所有差異壓成單一「最強本地 Agent」排行榜，反而無法做出合理工程判斷。
+
+對資源有限的工作站，一個可驗證的基礎架構可以是：
+
+1. **模型服務：**使用已確認相容、在本機量測過的 oMLX/MLX 或 llama.cpp。記錄 MTP、LoRA、Speculative Drafter 是否真正啟用。小模型可處理分類或路由，較大模型負責需要複雜推理的工具操作和整合。
+2. **Agent Harness：**以 Pi 或 OpenCode 提供明確工具權限、Task ID、有限次數重試及每任務獨立工作目錄。選擇理由應是其具備的生命週期控制，而非品牌名稱。
+3. **研究工具：**SearXNG 或其他 Search Backend 發現來源；簡單 Fetcher 處理一般網頁；Firecrawl Local 或 Browser 僅在必要時接手。SAG2 或實際測試過的混合索引處理可重複使用的本地文件。每個最終主張保留可檢查的 Evidence Location。
+4. **Orchestration 與 UX：**持久 Task 狀態應獨立於聊天視窗。手機透過驗證的私有連線讀取狀態；Push 另行處理。管理 Dashboard 必須消費真實事件，不能虛構 Worker 的健康狀態。
+5. **驗證：**依任務性質設立完成標準。程式可 Build 不代表研究結論正確；Benchmark 領先不代表事實可靠；LaTeX 或影片成功產出，也不等於實際應用品質好。
+
+最後的工程選擇不應只用模型排行榜，而要從失敗症狀找出適當處理層次：
+
+| 觀察到的問題 | 最先檢查哪一層 | 需要的證據 |
+| --- | --- | --- |
+| 本地生成太慢 | Runtime、量化、Draft 與 Cache | 相同 Context 下的 Tokens/s、TTFT、記憶體 |
+| Tool Call 重複或錯誤 | Harness、模型／工具適配、權限 | 任務成功率、Tool Trace、重試與退化 |
+| 搜尋找不到事實 | 查詢策略、檢索索引 | 標註資料下的來源召回與答案支持程度 |
+| 網頁缺乏可用內容 | 擷取器、Browser 備援 | 單頁擷取成功證據與失敗來源 |
+| 手機無法恢復 Agent 工作 | Server／Auth／Session UI／Push | 重新連線、權限確認、通知傳遞測試 |
+| Agent 宣稱完成卻沒有成果 | 驗證與發布守門 | 實際 Artifact、CI、Deployment SHA、公開網址 |
+
+還有一個比較不討喜、卻重要的觀察：許多工具提供了非常亮眼的**官方測試**，但真正與 32 GB 基礎 M4 同條件的資料少得多。這不代表所有新工具都不可信，也不代表每一節都只能說「還需要更多研究」。更合理的做法是先確認技術機制與可支持的條件式判斷，把缺少的跨平台推論與已證實的結果分開。
+
+本地 Agent 下一階段真正值得追求的，不只是更快的 27B 或更多 Extension，而是**在有限資源下產出經過驗證的工作**：系統知道搜尋過什麼、取得了哪些證據、模型實際執行了什麼、為何某個 Benchmark 能或不能套用，以及最後有哪些成果真的完成交付。這才是採用上述工具時應該使用的判準。

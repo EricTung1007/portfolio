@@ -48,7 +48,7 @@ def rule(p):
     b.append(x); pr.append(b)
 
 def section(d,title,zh=False):
-    p=para(d, before=3.8 if zh else 11, after=2.6 if zh else 6.8, line=1,keep=True)
+    p=para(d, before=2.2 if zh else 11, after=1.7 if zh else 6.8, line=1,keep=True)
     run(p,title,size=10.1 if zh else 9.3,bold=True,color_=TEAL,font='Noto Sans CJK TC' if zh else 'Lato')
     rule(p)
 
@@ -76,7 +76,7 @@ def project(d,title,date,notes,url,zh=False):
 def make(zh):
     d=Document(); sec=d.sections[0]
     sec.page_width=Inches(8.2677); sec.page_height=Inches(11.6929)
-    sec.top_margin=Inches(.48); sec.bottom_margin=Inches(.42)
+    sec.top_margin=Inches(.40); sec.bottom_margin=Inches(.34)
     sec.left_margin=Inches(.68); sec.right_margin=Inches(.68)
     sec.header_distance=Inches(.22); sec.footer_distance=Inches(.25)
     normal=d.styles['Normal']

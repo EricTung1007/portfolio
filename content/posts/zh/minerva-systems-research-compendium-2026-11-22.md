@@ -182,11 +182,11 @@ Pi 同樣能透過 [Pi Web](https://github.com/agegr/pi-web) 搭配 Tailscale，
 
 傳統方式可能讓模型連續選擇「搜尋檔案、讀檔、解析、再搜尋、摘要」並在每次 Tool Call 之後重新推論。Code Mode 可以把這些流程寫成含迴圈與條件判斷的程式，減少提示詞 Token 和模型、工具之間的往返。對 Local 27B 而言，這尤其可能減少處理大量工具描述所需的上下文。但它**不代表**外部 API 的實際呼叫量必然減少，也不保證自動得到更正確答案。生成程式碼必須限制執行環境、CPU/記憶體、允許的工具、每種操作授權和輸出大小。
 
-如果只用 Python 的 \`OpenAI().responses.create()\` 產生一條 Shell Command，再交給 \`subprocess.run(shell=True)\` 執行，確實可以形成**最小的 Agent 形狀**：請模型提議動作、由人核准、執行、收集 stdout/stderr。但它還不是可靠的自主 Agent。危險不只在模型選錯命令，還在 Shell 會處理變數展開、重新導向、連接多條命令等效果，而自然語言中的「一條命令」不能形成真正的限制。使用者按下確認固然有幫助，卻不會讓任意 Shell String 成為安全邊界。
+如果只用 Python 的 `OpenAI().responses.create()` 產生一條 Shell Command，再交給 `subprocess.run(shell=True)` 執行，確實可以形成**最小的 Agent 形狀**：請模型提議動作、由人核准、執行、收集 stdout/stderr。但它還不是可靠的自主 Agent。危險不只在模型選錯命令，還在 Shell 會處理變數展開、重新導向、連接多條命令等效果，而自然語言中的「一條命令」不能形成真正的限制。使用者按下確認固然有幫助，卻不會讓任意 Shell String 成為安全邊界。
 
 較合理的最小改善，是將命令改成結構化參數：
 
-\`\`\`python
+```python
 # 示意性控制邊界，還不是完整沙盒。
 ALLOWED = {"git", "rg", "python3"}
 argv = proposed_command  # JSON 陣列，每個元素是字面參數
@@ -196,11 +196,11 @@ result = subprocess.run(
     argv, shell=False, cwd=approved_worktree,
     capture_output=True, text=True, timeout=30,
 )
-\`\`\`
+```
 
-即使這樣，也仍須細分每個子命令、隔離檔案系統、規範破壞性操作。光是允許 \`python3\`，其實就可能執行任意程式。處理不可信任務時，應在真正的 Sandbox 或低權限 Process 中執行。可靠 Harness 還要有最大步數、持久化 Observation、重試的 Idempotency、測試驗證與明確停止條件。這是因為模型無論多強，都可能反覆循環或高估自己已經完成工作。
+即使這樣，也仍須細分每個子命令、隔離檔案系統、規範破壞性操作。光是允許 `python3`，其實就可能執行任意程式。處理不可信任務時，應在真正的 Sandbox 或低權限 Process 中執行。可靠 Harness 還要有最大步數、持久化 Observation、重試的 Idempotency、測試驗證與明確停止條件。這是因為模型無論多強，都可能反覆循環或高估自己已經完成工作。
 
-**結論：**如果本地模型需要呼叫大量小工具，Code Mode 的確值得研究，因為它能減少 Context 和 Tool Round Trip。但程式解譯器必須位於受限 Capability Boundary 後面。不能把簡單 \`shell=True\` Demo 的人工確認視為正式環境的安全機制。
+**結論：**如果本地模型需要呼叫大量小工具，Code Mode 的確值得研究，因為它能減少 Context 和 Tool Round Trip。但程式解譯器必須位於受限 Capability Boundary 後面。不能把簡單 `shell=True` Demo 的人工確認視為正式環境的安全機制。
 
 ### Graph、Loop、Harness Engineering：三個術語對應三個真正不同的控制面
 
@@ -223,11 +223,11 @@ result = subprocess.run(
 
 ### Firecrawl Local 無法取代元搜尋引擎
 
-[Firecrawl Local 的 README](https://github.com/firecrawl/firecrawl/blob/main/apps/local/README.md) 清楚區分 Rust 本地版的 \`scrape\`、\`crawl\`、\`map\`、批次內容擷取，與必須交給 **Firecrawl Cloud** 的 \`search\` 功能。[11 月 18 日發布公告](https://www.firecrawl.dev/changelog/firecrawl-local) 宣稱擷取速度改善 **37 倍**，閒置記憶體減少 **230 倍，約 11 MB**。比較基準是**舊版 Firecrawl Self-hosted 架構**，這不是對搜尋引擎的測速，也不是完整研究 Agent 的端到端效能。
+[Firecrawl Local 的 README](https://github.com/firecrawl/firecrawl/blob/main/apps/local/README.md) 清楚區分 Rust 本地版的 `scrape`、`crawl`、`map`、批次內容擷取，與必須交給 **Firecrawl Cloud** 的 `search` 功能。[11 月 18 日發布公告](https://www.firecrawl.dev/changelog/firecrawl-local) 宣稱擷取速度改善 **37 倍**，閒置記憶體減少 **230 倍，約 11 MB**。比較基準是**舊版 Firecrawl Self-hosted 架構**，這不是對搜尋引擎的測速，也不是完整研究 Agent 的端到端效能。
 
 [SearXNG](https://github.com/searxng/searxng) 則透過搜尋引擎專用 Adapter 整合外部搜尋結果。[JSON 搜尋 API](https://docs.searxng.org/dev/search_api.html) 若經管理員啟用，可直接供 Agent 取得候選網頁；但它沒有 Firecrawl 的通用網頁 Markdown 正規化與完整網站 Crawl API。兩者一個是來源發現層，一個是內容擷取層。
 
-營運與隱私上也不同。Firecrawl Local 預設 \`FIRECRAWL_CLOUD=auto\`，搜尋、某些遭封鎖網頁的備援擷取，以及特定資料供應商可能連向 Cloud。不允許這類行為時，應設定 \`FIRECRAWL_CLOUD=off\`，並對不可信來源使用官方提供的 \`--public-only\` 私有位址保護。執行檔安裝在本地，不代表它不會呼叫雲端服務。
+營運與隱私上也不同。Firecrawl Local 預設 `FIRECRAWL_CLOUD=auto`，搜尋、某些遭封鎖網頁的備援擷取，以及特定資料供應商可能連向 Cloud。不允許這類行為時，應設定 `FIRECRAWL_CLOUD=off`，並對不可信來源使用官方提供的 `--public-only` 私有位址保護。執行檔安裝在本地，不代表它不會呼叫雲端服務。
 
 先前已刊登一篇獨立的 [Firecrawl Local 與 SearXNG 深入比較](#/writing/firecrawl-local-vs-searxng-2026-11-22)，涵蓋 API 路由與內網保護。這裡的系統結論是：搜尋層負責提出 URL，擷取層讀取選定文件，最後由 Agent 明確檢查證據，不能把找到資料誤認為已經得到答案。
 
@@ -269,7 +269,7 @@ Google Cloud AI Research 的 [PaperOrchestra](https://github.com/google-research
 
 [官方模型卡](https://huggingface.co/apple/FastFrames-L) 提供 FastFrames-S 在**單張 GPU、KV Cache 已填滿**時的每幀元件計時：兩次 DiT 約 **16.1 + 16.2 ms**、KV Refinement **2.2 ms**、Pixel Decoder **0.9 ms**，總共 **35.4 ms**。若只看元件總時間，理論上相當於每秒約 28 幀；這不是包含介面及影片編碼的端到端 FPS，更**不是 FastFrames-L 的測試結果**。範例生成 832×480、81 幀、16 FPS 的影片。
 
-原始專案的安裝條件明確指定 **Linux x86-64、NVIDIA GPU、CUDA 12.8 相容 Driver**，而 \`ff-l\` 的延遲量測指令使用 **8 張 GPU**。不能因作者是 Apple，就假設已具備 Apple Silicon Metal 版本。若要把 14B Video Diffusion 的特製 Operator、狀態快取與記憶體管理搬到 MLX，實際上是一項完整的移植工程，不是把 PyTorch Import 改掉即可。
+原始專案的安裝條件明確指定 **Linux x86-64、NVIDIA GPU、CUDA 12.8 相容 Driver**，而 `ff-l` 的延遲量測指令使用 **8 張 GPU**。不能因作者是 Apple，就假設已具備 Apple Silicon Metal 版本。若要把 14B Video Diffusion 的特製 Operator、狀態快取與記憶體管理搬到 MLX，實際上是一項完整的移植工程，不是把 PyTorch Import 改掉即可。
 
 **結論：**FastFrames 對低延遲互動世界與影片生成有研究價值，但原始文件不足以支持「32 GB 基礎 M4 可以實用執行」的說法。35.4 ms 只屬於小版本的特定 GPU 元件測試。
 

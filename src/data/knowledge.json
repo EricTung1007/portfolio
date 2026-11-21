@@ -67,12 +67,55 @@
     }
   ],
   "skills": {
-    "core": ["Python", "SQL"],
-    "backend_data": ["SQLite", "MySQL", "REST APIs", "stored procedures", "JWT authentication", "Node.js / Express"],
-    "ai_tools": ["RAG", "FAISS", "local LLM inference", "LM Studio", "prompt engineering", "evaluation harnesses", "Docker", "Git/GitHub", ".NET MAUI"],
-    "working_familiarity": ["JavaScript", "C#", "SAP ABAP", "HTML/CSS"]
+    "core": [
+      "Python",
+      "SQL"
+    ],
+    "backend_data": [
+      "SQLite",
+      "MySQL",
+      "REST APIs",
+      "stored procedures",
+      "JWT authentication",
+      "Node.js / Express"
+    ],
+    "ai_tools": [
+      "RAG",
+      "FAISS",
+      "local LLM inference",
+      "LM Studio",
+      "prompt engineering",
+      "evaluation harnesses",
+      "Docker",
+      "Git/GitHub",
+      ".NET MAUI",
+      "Core ML"
+    ],
+    "working_familiarity": [
+      "JavaScript",
+      "C#",
+      "SAP ABAP",
+      "HTML/CSS"
+    ]
   },
   "projects": [
+    {
+      "title": "Eight Ball (八號球) | iOS Decision App",
+      "role": "Independent Developer · Product & Engineering",
+      "year": "2026",
+      "description": [
+        "Designed, developed, and published an iOS app extending the classic Magic 8 Ball interaction with a Core ML-powered, on-device mode for comparing multiple options.",
+        "Integrated a decision journal and advanced decision workflows, including weighted comparisons and tournament-style selection; released via the Apple App Store."
+      ],
+      "stack": [
+        "iOS",
+        "Core ML",
+        "On-device AI",
+        "Product Design",
+        "Decision Journal"
+      ],
+      "link": "https://apps.apple.com/tw/app/%E5%85%AB%E8%99%9F%E7%90%83/id6827388818?l=en-GB"
+    },
     {
       "title": "AI-Driven Prenatal Education Chatbot",
       "role": "Principal Developer & Student Researcher",
@@ -81,7 +124,15 @@
         "Built a bilingual (ZH/EN) RAG chatbot delivered through LINE, using a locally hosted chat model (LM Studio), FAISS vector retrieval over official Taiwanese maternal-health PDFs, and per-user memory for pregnancy week, G/P, and role.",
         "Applied clinical-domain knowledge to structure prenatal education content, reduce hallucination risk, and align responses with government-verified health materials. Capstone prototype presented at the 2025 NTU Nursing International Forum."
       ],
-      "stack": ["Python", "Flask", "LINE Messaging API", "FAISS", "RAG", "LM Studio (local LLM)", "Cloudflare Tunnel"],
+      "stack": [
+        "Python",
+        "Flask",
+        "LINE Messaging API",
+        "FAISS",
+        "RAG",
+        "LM Studio (local LLM)",
+        "Cloudflare Tunnel"
+      ],
       "link": "https://github.com/EricTung1007/NTU-Nursing-Line-Bot"
     },
     {
@@ -92,7 +143,15 @@
         "Open-source prototype HIS for under-resourced long-term care institutions in Taiwan, designed around low-friction workflows for caregivers with varied digital literacy.",
         "Built resident records, medication orders, MAR, intake/output, vitals, PE (Morse/Braden), and SOAP/DAR nursing notes; added an optional AI voice assistant (OpenAI-compatible or local Ollama/LM Studio) that writes care actions directly into records."
       ],
-      "stack": ["Node.js", "Express", "SQLite", "React", "TypeScript", "JWT authentication", "Web Speech API"],
+      "stack": [
+        "Node.js",
+        "Express",
+        "SQLite",
+        "React",
+        "TypeScript",
+        "JWT authentication",
+        "Web Speech API"
+      ],
       "link": "https://github.com/EricTung1007/HIS"
     }
   ],
@@ -109,8 +168,8 @@
     },
     {
       "q": "Tell me about his AI projects",
-      "a_en": "My main AI project is a bilingual RAG chatbot for prenatal education using a locally hosted Gemma-3-4B model, FAISS vector search, Flask, and LINE — grounded in government-verified maternal-health content. I also built a multilingual promotional site for an AI Coach platform and maintain a local-inference evaluation harness.",
-      "a_zh": "主要 AI 專案是雙語 RAG 產前教育聊天機器人，使用本地部署的 Gemma-3-4B、FAISS 向量搜尋、Flask 與 LINE，內容基於政府核實的孕產照護資料。另開發多語 AI Coach 推廣站與本地推論評估框架。"
+      "a_en": "My main AI project is a bilingual RAG chatbot for prenatal education using a locally hosted Gemma-3-4B model, FAISS vector search, Flask, and LINE — grounded in government-verified maternal-health content. I also built a multilingual promotional site for an AI Coach platform and maintain a local-inference evaluation harness. I also shipped Eight Ball, an iOS decision app using Core ML for on-device option comparisons.",
+      "a_zh": "主要 AI 專案是雙語 RAG 產前教育聊天機器人，使用本地部署的 Gemma-3-4B、FAISS 向量搜尋、Flask 與 LINE，內容基於政府核實的孕產照護資料。另開發多語 AI Coach 推廣站與本地推論評估框架。 另外也獨立開發並上架《八號球》iOS 決策 App，以 Core ML 在裝置端比較選項。"
     },
     {
       "q": "Why nursing and programming?",
@@ -124,8 +183,8 @@
     },
     {
       "q": "What are his featured projects?",
-      "a_en": "1) AI-Driven Prenatal Education Chatbot (bilingual RAG with local Gemma, FAISS, Flask, LINE) - github.com/EricTung1007/NTU-Nursing-Line-Bot. 2) Low-Cost Long-Term Care Health Information System (Node.js/Express + SQLite, clinical workflows) - github.com/EricTung1007/HIS.",
-      "a_zh": "1) AI 驅動產前教育聊天機器人（雙語 RAG + 本地 Gemma、FAISS、Flask、LINE）- github.com/EricTung1007/NTU-Nursing-Line-Bot。2) 低成本的長照健康資訊系統（Node.js/Express + SQLite，臨床工作流程）- github.com/EricTung1007/HIS。"
+      "a_en": "1) AI-Driven Prenatal Education Chatbot (bilingual RAG with local Gemma, FAISS, Flask, LINE) - github.com/EricTung1007/NTU-Nursing-Line-Bot. 2) Low-Cost Long-Term Care Health Information System (Node.js/Express + SQLite, clinical workflows) - github.com/EricTung1007/HIS. 3) Eight Ball (iOS/Core ML decision app) - App Store ID 6827388818.",
+      "a_zh": "1) AI 驅動產前教育聊天機器人（雙語 RAG + 本地 Gemma、FAISS、Flask、LINE）- github.com/EricTung1007/NTU-Nursing-Line-Bot。2) 低成本的長照健康資訊系統（Node.js/Express + SQLite，臨床工作流程）- github.com/EricTung1007/HIS。 3)《八號球》（iOS／Core ML 決策 App）- App Store ID 6827388818。"
     }
   ]
 }

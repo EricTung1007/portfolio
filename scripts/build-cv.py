@@ -102,11 +102,11 @@ def make(zh):
     skills=[
       ('程式語言','Python、SQL；具 JavaScript、C#、SAP ABAP、HTML/CSS 基礎實務能力'),
       ('後端與資料','REST API、MySQL、SQLite、預存程序、JWT 驗證；Node.js / Express 維護'),
-      ('AI 與工具','本地 LLM 推論、RAG、FAISS、LM Studio、提示詞與模型評估、Docker、Git、.NET MAUI')
+      ('AI 與工具','本地 LLM 推論、RAG、FAISS、Core ML、LM Studio、提示詞與模型評估、Docker、Git、.NET MAUI')
     ] if zh else [
       ('Languages','Python, SQL; JavaScript, C#, SAP ABAP, HTML/CSS (working familiarity)'),
       ('Backend / data','REST APIs, MySQL, SQLite, stored procedures, JWT; Node.js / Express maintenance'),
-      ('AI / tools','Local LLM inference, RAG, FAISS, LM Studio, prompt engineering, evaluation workflows, Docker, Git, .NET MAUI')]
+      ('AI / tools','Local LLM inference, RAG, FAISS, Core ML, LM Studio, prompt engineering, evaluation workflows, Docker, Git, .NET MAUI')]
     for title,detail in skills:
         p=para(d,after=2.4,line=1.14)
         run(p,title+':  ',9.4 if zh else 9.5,True,NAVY,'Noto Sans CJK TC' if zh else 'Lato')
@@ -130,6 +130,14 @@ def make(zh):
     ] if zh else [
       ('AI-Driven Prenatal Education Chatbot','2024 - 2025',['Built a bilingual RAG chatbot using local Gemma 3 4B, FAISS, Flask and LINE.','Grounded responses in official maternal-health content to reduce hallucination risk.'],'https://github.com/EricTung1007/NTU-Nursing-Line-Bot'),
       ('Low-Cost Long-Term Care Health Information System','2026',['Maintained a Node.js / Express + SQLite prototype supporting medication records, vital signs, fall / pressure-injury assessments, clinical notes and JWT authentication.'],'https://github.com/EricTung1007/HIS')]
+    # Independently published iOS application; keep the App Store URL clickable.
+    p=para(d,before=4.1 if zh else 5.1,after=2.5,line=1.06,keep=True)
+    p.paragraph_format.tab_stops.add_tab_stop(Inches(6.9),WD_TAB_ALIGNMENT.RIGHT)
+    run(p,'八號球（Eight Ball）｜iOS 決策 App' if zh else 'Eight Ball | iOS Decision App',9.65 if zh else 9.7,True,NAVY,'Noto Sans CJK TC' if zh else 'Lato')
+    run(p,'  ',8.4)
+    link(p,'App Store','https://apps.apple.com/tw/app/%E5%85%AB%E8%99%9F%E7%90%83/id6827388818?l=en-GB',8.4)
+    run(p,chr(9)+'2026',8.6,color_=SLATE)
+    bullet(d,'獨立開發並上架 iOS App，結合經典魔法八號球、Core ML 裝置端選項比較及決策日誌。' if zh else 'Independently developed and shipped an iOS app combining a classic Magic 8 Ball, Core ML on-device option comparison and decision journaling.',zh)
     for pr in projects: project(d,*pr,zh=zh)
     section(d,'研究論文' if zh else 'RESEARCH PUBLICATION',zh)
     p=para(d,after=1.8,line=1.12)

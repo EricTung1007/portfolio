@@ -115,3 +115,105 @@ The base **M4 Mac mini with 32 GB** is not the M5 Pro with 48 GB. Its GPU capabi
 A useful measurement record therefore names: machine and GPU cores; macOS and engine commit; model and drafter SHA; quantization; context tokens before generation; cache status; output length; temperature and seed; draft acceptance; prefill, time-to-first-token and decoded tokens per second; peak unified memory; and number of simultaneous streams. Without this information, "fast" is a story, not a reproducible comparison.
 
 **Verdict:** the official results demonstrate that speculative decoding can deliver large gains in favorable configurations, and materially different gains across workloads. They **do not** establish a speed ratio for a base M4 or prove Inkling faster than Qwen. Test the exact accelerated path instead of extrapolating from the chip's generation number.
+
+
+## 2. Agent architecture: a reliable loop is more than a prompt
+
+### Pi, OpenCode, Oh My Pi and Pi Bot are not interchangeable products
+
+A terminal coding agent usually has an LLM decision loop, session state, a tool registry, execution permissions, filesystem access and a feedback path. What differs is the default integration contract and how much of that contract an operator can replace.
+
+[Pi](https://github.com/earendil-works/pi) exposes its agent runtime, CLI, SDK, RPC interfaces and extensions. Its [extension examples](https://github.com/earendil-works/pi/tree/main/packages/coding-agent/examples/extensions) demonstrate registering tools, reacting to events, adding terminal UI and modifying agent behavior. This favors a small, inspectable core with functionality added as needed. The actual "minimal" distribution still has runtime dependencies, so "lightweight" should be evaluated by the memory of a *running instance*, not by the size of a README.
+
+[OpenCode](https://github.com/anomalyco/opencode) takes a more integrated client/server direction, with its own session and permission model, terminal and graphical clients, and a server interface that external UIs can connect to. The choice is not whether only one framework can build custom tools. Both can. Pi makes the extension and custom-loop layer unusually visible; OpenCode supplies more of the multi-client experience out of the box. That distinction changes development work but does not, by itself, measure the success rate of either on an identical coding task.
+
+[Oh My Pi (OMP)](https://github.com/can1357/oh-my-pi) is a **separate, expanded Pi-derived coding runtime**, not merely another name for an official Pi plugin. Its code includes built-in LSP handling, subagents, diagnostics and an SDK that exposes the expanded runtime; see its [SDK documentation](https://github.com/can1357/oh-my-pi/blob/main/docs/sdk.md). The advantage is integrated capability with fewer extensions to assemble. The tradeoff is a larger maintenance and behavior surface, including features and configuration not present in the lean upstream. Tests or memory claims for one version should not be projected to the other.
+
+[luodaoyi/pi-bot](https://github.com/luodaoyi/pi-bot) describes an open-source port of DeepSeek-Bot onto the Pi coding-agent runtime with Respire memory integration. It is a **bot product built on an agent**, not an official Pi mobile client nor the same project as Pi Coding Agent. This matters when comparing installation, identity, long-term memory, permissions and channel-based messaging. A third-party bot can be a capable wrapper yet still depend on the underlying Pi runtime for the model/tool loop.
+
+| Question | Pi | OpenCode | Oh My Pi | Pi Bot |
+| --- | --- | --- | --- | --- |
+| Primary object | Extensible agent runtime and terminal | Integrated agent with multiple clients/server | Feature-rich Pi-derived coding runtime | Messaging/bot workflow on Pi |
+| Customization center | Extensions, tools, SDK, RPC | Server API, plugins/config and clients | Integrated tools plus expanded SDK | Bot transport, state and memory integration |
+| Browser/iOS access | Needs a web/remote frontend | Native server path; several clients | Needs frontend or adapter | Depends on bot/channel integration |
+| Practical risk | Extension composition and maintenance | Service/client complexity and permissions | Broader feature and dependency surface | Confusing bot transport with runtime capabilities |
+
+These are functional differences, **not a verified RAM ranking**. One cited Pi performance issue reports a bundle-import RSS reduction from **150 MB to 130 MB** in a specific branch, illustrating why even a simple runtime can have substantial Node/TypeScript module overhead. It does not establish steady-state memory of Pi, OpenCode and OMP under matched sessions. A fair measurement would keep the same model endpoint and conversation idle, then sample process trees and peak resident memory with identical extensions and tool outputs.
+
+**Verdict:** choose Pi if changing the agent's lifecycle, context preparation and extensions is the engineering objective; choose OpenCode if the integrated service and multi-client workflow are central; choose OMP when its bundled capabilities are actively needed. Pi Bot answers an altogether different question: how to turn an agent into a persistent messaging service.
+
+### Extensions, Pi Web and piclaw: client convenience is not extra reasoning ability
+
+[agegr/pi-web](https://github.com/agegr/pi-web) is a browser-facing UI built around Pi's sessions, files, project context, UI extensions and terminal interactions. Its [package manifest](https://github.com/agegr/pi-web/blob/main/package.json) shows a Next.js/React server with a substantial UI stack and pinned Pi-related packages. It is therefore unsurprising that a browser dashboard has more server and browser overhead than a plain terminal, even though no matched memory measurement is established by the manifest alone. It does not necessarily require a separate language-model server if the existing local model API is already reachable.
+
+[rcarmo/piclaw](https://github.com/rcarmo/piclaw) goes beyond a pure viewer: its web workbench includes persistence, workflows and Pi-compatible extensions, with container and deployment options. Its [MCP guide](https://github.com/rcarmo/piclaw/blob/main/docs/mcp.md) describes an adapter that prevents every MCP tool from being dumped directly into the base prompt. The UI, tool bridge and lifecycle management can change the working environment; they do **not** make a weak underlying model intrinsically more accurate.
+
+The same caution applies to ready-made Pi bundles, dashboard sidebars and orchestration extensions circulated around this ecosystem. Package names must be tied to an actual maintained repository, version and API contract. A UI plugin that reads session logs is different from an extension that executes child agents; a workflow coordinator that knows about Git worktrees is different from a terminal multiplexer. If a shared social post doesn't preserve a canonical URL, its specific release claims are not independently established.
+
+The [Pi extension documentation](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/examples/extensions/README.md) provides the right conceptual split: a display extension modifies how events are presented, a tool extension extends actions, and an execution extension manages subprocesses or sessions. Start with that distinction before stacking packages. It also makes failure isolation easier: removing an optional frontend should never destroy the underlying task's durable output.
+
+**Verdict:** Pi Web is suitable when a Pi session needs to be viewed or resumed remotely; piclaw is more suitable when the browser becomes the actual persistent workspace. Neither is a free performance upgrade for local inference. Their marginal value should be judged by added lifecycle capabilities and operational costs.
+
+### iOS access: network transport, session state and push are three separate systems
+
+An iPhone client usually does **not** run the same coding-agent process locally. It sends requests to a service running on the computer, shows messages and approvals, and may subscribe to status events. In this architecture, Tailscale solves reachability and private networking, while the agent's HTTP/WebSocket/RPC server owns session semantics. Neither component automatically gives the iPhone **push notifications while the app is suspended**.
+
+[OpenCode Mobile's remote-access guide](https://www.getopencode.app/docs/remote-access/) documents a direct OpenCode 2 server at \`127.0.0.1:4096\` for local access, with optional Cloud Link service for remote access in some app distributions. The [community OpenCode Mobile connection guide](https://opencode-mobile.github.io/opencode-mobile-docs/connecting/) describes QR, LAN and host/password connection modes. These are **distinct mobile-client projects**; their paid relay, local pairing and push behavior must not be conflated with the upstream OpenCode server. A remote relay is a distribution-specific feature, not a general requirement imposed by OpenCode itself.
+
+A Pi setup can deliver a comparable *remote interaction* model through [Pi Web](https://github.com/agegr/pi-web) exposed on a local interface and reached over Tailscale. A native iOS wrapper or PWA can render that interface. Push, however, requires an additional notification pathway: a standards-based web-push subscription and push-service integration, an APNs-enabled native app, or a messaging bridge (for example, a bot or server that sends through its channel's notification infrastructure). Pi does not gain APNs simply because a web UI opens on an iPhone. Conversely, OpenCode's mobile clients are not necessarily dependent on a vendor relay for LAN or private-VPN access.
+
+The privilege boundary matters: a notification endpoint should carry only a minimal event ("task finished", "permission needed") and a task reference, not raw tool output, code secrets or terminal history. Authentication belongs to the agent server, network tunnel and client; hiding a URL is not authentication. The web UI should show persisted task status after reconnecting, not infer success from a socket simply closing.
+
+**Verdict:** Tailscale + authenticated server is sufficient for privately reaching either Pi or OpenCode. Browser UX is comparatively easy; dependable background notifications need a separate delivery mechanism. Any claim that one framework "has iOS" must identify the particular client and whether it is official, community-built, LAN-only or relay-based.
+
+### Paperclip: a control plane is not automatically a live process monitor
+
+[Paperclip](https://github.com/paperclipai/paperclip) manages agents as tracked workers, with assignments, heartbeats, budgets, approvals, task history and adapters. Its [adapter overview](https://github.com/paperclipai/paperclip/blob/master/docs/adapters/overview.md) and [documentation](https://github.com/paperclipai/paperclip-docs/blob/main/docs/guides/org/adapters.md) describe how specific runtimes are launched or connected. Recent releases include adapters for [Pi and OpenCode](https://github.com/paperclipai/paperclip/blob/master/releases/v0.3.0.md) and a Hermes gateway integration.
+
+An existing group of external subagents cannot be expected to appear with correct status merely because Paperclip is running. For a read-only view, it needs real events or an integration mapping each worker's identity, active task, session, last activity and outcome into Paperclip's data model. A process that has not emitted a heartbeat might be idle, blocked, disconnected or dead; those conditions must not be collapsed into one green status. A control plane may also request new work, and that is a different permission level from observation.
+
+This defines a useful two-stage integration. Stage one is an **event bridge** that consumes existing Pi/OpenCode task lifecycle events and records them with immutable task IDs; it does not launch anything. Stage two, if wanted, adds managed execution, retries, approvals and budgets through a real adapter. The operational cost of Paperclip is worthwhile only if these coordination features solve a real problem. A small JSONL event feed and an ordinary dashboard may suffice when the goal is just to see two local workers.
+
+**Verdict:** Paperclip can be a management and observability surface *after* integration. It is not a zero-configuration mirror of arbitrary pre-existing agent processes. Use it for governance, not as a presumed magical passive viewer.
+
+### Code Mode and the minimum executable harness
+
+[Cloudflare's Code Mode architecture](https://blog.cloudflare.com/code-mode-mcp/) reduces tool-schema overhead by presenting the model with a programmable API surface and letting it compose multiple operations into a single JavaScript execution. The [MCP server guide](https://developers.cloudflare.com/agents/model-context-protocol/guides/build-codemode-mcp-server/) documents executing generated code within an isolated Worker rather than advertising every upstream operation as a separate top-level model tool.
+
+Instead of a model repeatedly selecting \`find_file\`, \`read_file\`, \`parse\`, \`search_again\`, and \`summarize\` in separate inference turns, a Code Mode expression can orchestrate several tool invocations with loops and conditions. This can reduce prompt tokens and tool-call round trips, especially where a local model struggles with huge tool schemas. It does **not** reduce the number of external requests or the actual cost of their work by definition. And generated code is dangerous without a scoped sandbox, bounded CPU/memory, tool allowlist, per-action authorization and output limits.
+
+A small Python script with \`OpenAI().responses.create()\` and \`subprocess.run(shell=True)\` is indeed a *minimal agent-shaped harness*: ask for a command, approve, execute, return stdout and stderr. It is not, by itself, a robust autonomous agent. The danger is not only that the model makes a bad choice; the shell joins arguments, handles redirection, expands variables and permits arbitrary chained operations in ways a one-command English description cannot constrain. User confirmation helps, but does not transform a command string into a security boundary.
+
+The smallest reasonable evolution uses structured operations instead of raw shell strings:
+
+\`\`\`python
+# Illustrative control boundary, not a full secure sandbox.
+ALLOWED = {"git", "rg", "python3"}
+argv = proposed_command  # JSON list of literal arguments
+if not isinstance(argv, list) or not argv or argv[0] not in ALLOWED:
+    raise PermissionError("Unsupported tool")
+result = subprocess.run(
+    argv, shell=False, cwd=approved_worktree,
+    capture_output=True, text=True, timeout=30,
+)
+\`\`\`
+
+Even this still needs an allowlist per subcommand, filesystem isolation and policy for destructive effects; \`python3\` itself can execute arbitrary code. For untrusted tasks, place execution in a real sandbox or a dedicated low-privilege process. A durable harness additionally needs maximum steps, persisted observations, retry/idempotency rules, test validation and a clear stopping condition. Those behaviors exist because language models can loop or overestimate completion, regardless of the elegance of their prompt.
+
+**Verdict:** Code Mode is especially relevant to a local 27B model when many small tool calls would waste context. Put the code interpreter behind a narrow capability boundary. Avoid mistaking one approval prompt in a \`shell=True\` demo for operational safety.
+
+### Graph, loop and harness engineering describe different design levers
+
+The terms are easy to turn into slogans; the underlying mechanisms are concrete.
+
+**Graph engineering** defines the dependencies and allowable transitions between work items. A research graph might include \`discover → fetch → compare → verify → publish\`, with branches for missing sources, repeated queries and failed CI. A graph makes cancellation, independent parallel work and partial recovery explicit. The output of one node should be structured, with source IDs and validation state, so downstream nodes do not rely on informal prose alone.
+
+**Loop engineering** determines the local decision cycle inside a node: observe, select action, execute, inspect outcome, retry or stop. It controls context compaction, tool-output clipping, error classification, attempt budgets, model/tool feedback and progress checks. A poorly designed loop can spend thirty turns rewriting the same search query even if the overall graph is correct.
+
+**Harness engineering** defines everything surrounding model inference: tools, permissions, filesystem snapshots, command execution, prompt construction, caching, tests, session persistence, workload routing and results inspection. A harness can constrain a model to produce verifiable artifacts, or squander even a strong model by hiding failures and overloading its context.
+
+These levers are not alternatives. The graph asks **what can happen and in which order**; the loop asks **how to decide the next local action**; the harness asks **what the model can actually observe, execute and verify**. Their common quality measure should be task completion with reproducible evidence, not lines of orchestration code or the size of a tool registry.
+
+For a local agentic-RAG workflow, a pragmatic implementation keeps search query revision in a bounded loop, persists individual evidence objects with URLs and timestamps, and lets the graph revisit only unsupported claims. No extra "CEO agent" is required for that. The evidence-coverage test is more useful than sending the entire research history back to the model each iteration.
+
+**Verdict:** prioritize harness and evidence-verification correctness before adding a large orchestration graph. Add graph structure when a task has genuine branching, parallelism or recovery requirements. Use smaller loops with explicit budgets and stop signals instead of unattended self-repetition.

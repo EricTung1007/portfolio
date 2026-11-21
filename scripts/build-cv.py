@@ -48,19 +48,19 @@ def rule(p):
     b.append(x); pr.append(b)
 
 def section(d,title,zh=False):
-    p=para(d, before=9.5 if zh else 11, after=5.8 if zh else 6.8, line=1,keep=True)
+    p=para(d, before=6.5 if zh else 11, after=4.2 if zh else 6.8, line=1,keep=True)
     run(p,title,size=10.1 if zh else 9.3,bold=True,color_=TEAL,font='Noto Sans CJK TC' if zh else 'Lato')
     rule(p)
 
 def bullet(d,text,zh=False):
-    p=para(d,after=2.4 if zh else 2.9,line=1.15)
+    p=para(d,after=1.5 if zh else 2.9,line=1.12 if zh else 1.15)
     p.paragraph_format.left_indent=Inches(.14)
     p.paragraph_format.first_line_indent=Inches(-.12)
     run(p,'•  ',9.3 if zh else 9.2,color_=TEAL)
-    run(p,text,9.6,font='Noto Sans CJK TC' if zh else 'Lato')
+    run(p,text,9.3 if zh else 9.6,font='Noto Sans CJK TC' if zh else 'Lato')
 
 def job(d,title,date,notes,zh=False):
-    p=para(d,before=4.1 if zh else 5.1,after=2.5,line=1.06,keep=True)
+    p=para(d,before=3.1 if zh else 5.1,after=2.1 if zh else 2.5,line=1.06,keep=True)
     p.paragraph_format.tab_stops.add_tab_stop(Inches(6.9),WD_TAB_ALIGNMENT.RIGHT)
     run(p,title,9.65 if zh else 9.7,True,NAVY,'Noto Sans CJK TC' if zh else 'Lato')
     run(p,'\t'+date,8.6,color_=SLATE)
@@ -76,7 +76,7 @@ def project(d,title,date,notes,url,zh=False):
 def make(zh):
     d=Document(); sec=d.sections[0]
     sec.page_width=Inches(8.2677); sec.page_height=Inches(11.6929)
-    sec.top_margin=Inches(.59); sec.bottom_margin=Inches(.54)
+    sec.top_margin=Inches(.55); sec.bottom_margin=Inches(.49)
     sec.left_margin=Inches(.68); sec.right_margin=Inches(.68)
     sec.header_distance=Inches(.22); sec.footer_distance=Inches(.25)
     normal=d.styles['Normal']
@@ -131,7 +131,7 @@ def make(zh):
       ('AI-Driven Prenatal Education Chatbot','2024 - 2025',['Built a bilingual RAG chatbot using local Gemma 3 4B, FAISS, Flask and LINE.','Grounded responses in official maternal-health content to reduce hallucination risk.'],'https://github.com/EricTung1007/NTU-Nursing-Line-Bot'),
       ('Low-Cost Long-Term Care Health Information System','2026',['Maintained a Node.js / Express + SQLite prototype supporting medication records, vital signs, fall / pressure-injury assessments, clinical notes and JWT authentication.'],'https://github.com/EricTung1007/HIS')]
     # Independently published iOS application; keep the App Store URL clickable.
-    p=para(d,before=4.1 if zh else 5.1,after=2.5,line=1.06,keep=True)
+    p=para(d,before=3.1 if zh else 5.1,after=2.1 if zh else 2.5,line=1.06,keep=True)
     p.paragraph_format.tab_stops.add_tab_stop(Inches(6.9),WD_TAB_ALIGNMENT.RIGHT)
     run(p,'八號球（Eight Ball）｜iOS 決策 App' if zh else 'Eight Ball | iOS Decision App',9.65 if zh else 9.7,True,NAVY,'Noto Sans CJK TC' if zh else 'Lato')
     run(p,'  ',8.4)

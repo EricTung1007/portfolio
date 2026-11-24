@@ -104,17 +104,21 @@
       "role": "Independent Developer · Product & Engineering",
       "year": "2026",
       "description": [
-        "Designed, developed, and published an iOS app extending the classic Magic 8 Ball interaction with a Core ML-powered, on-device mode for comparing multiple options.",
-        "Integrated a decision journal and advanced decision workflows, including weighted comparisons and tournament-style selection; released via the Apple App Store."
+        "Independently designed, developed, and published a native iOS decision app using SwiftUI, Core ML on-device option comparison, and motion-based Magic 8 Ball interactions.",
+        "The codebase also includes WidgetKit integration, a decision journal, weighted comparisons, tournament-style selection, and automated Swift core checks."
       ],
       "stack": [
+        "Swift",
+        "SwiftUI",
+        "WidgetKit",
         "iOS",
         "Core ML",
         "On-device AI",
         "Product Design",
         "Decision Journal"
       ],
-      "link": "https://apps.apple.com/tw/app/%E5%85%AB%E8%99%9F%E7%90%83/id6827388818?l=en-GB"
+      "link": "https://apps.apple.com/tw/app/%E5%85%AB%E8%99%9F%E7%90%83/id6827388818?l=en-GB",
+      "sourceLink": "https://github.com/EricTung1007/8ball"
     },
     {
       "title": "AI-Driven Prenatal Education Chatbot",

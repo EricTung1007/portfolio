@@ -49,6 +49,7 @@ function Hero({ setView, language }: { setView: (v: View) => void; language: Lan
     <header className="hero">
       <div className="hero-rail">
         <img className="profile-avatar" src={`${import.meta.env.BASE_URL}avatar.png`} alt="Illustrated portrait of Eric" />
+        <p className="hero-sub" style={{ marginBottom: 12 }}>{language === 'en' ? 'Che-Hao (Eric) Tung · Software Engineer & Registered Nurse' : '董哲豪 Eric Tung · 軟體工程師暨護理師'}</p>
         <h1>
           {language === 'en' ? 'I build software' : '我打造'}
           <br />
@@ -60,8 +61,10 @@ function Hero({ setView, language }: { setView: (v: View) => void; language: Lan
             : '軟體工程師，專注後端、AI 與系統可靠性。我的目標是開發真正可用，而不只是展示的產品。'}
         </p>
         <div className="hero-actions">
-          <button className="btn btn-primary" onClick={() => setView('chat')}>{language === 'en' ? 'Ask the desk' : '詢問資訊台'}</button>
-          <a className="btn btn-ghost" href="#/portfolio" onClick={(e) => { e.preventDefault(); setView("portfolio"); requestAnimationFrame(() => document.getElementById("work")?.scrollIntoView({ behavior: "smooth" })); }}>{language === 'en' ? 'See my work' : '查看作品'}</a>
+          <a className="btn btn-primary" href={`${import.meta.env.BASE_URL}cv.html?lang=${language}`}>{language === 'en' ? 'View CV' : '查看履歷'}</a>
+          <a className="btn btn-ghost" href={`${import.meta.env.BASE_URL}${language === 'en' ? 'CV.pdf' : 'CV_zh_TW.pdf'}`} download>{language === 'en' ? 'Download PDF' : '下載履歷 PDF'}</a>
+          <a className="btn btn-ghost" href="#/portfolio" onClick={(e) => { e.preventDefault(); document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' }); }}>{language === 'en' ? 'See my projects' : '查看專案作品'}</a>
+          <button className="btn btn-ghost" onClick={() => setView('chat')}>{language === 'en' ? 'Ask the AI desk' : '詢問 AI 資訊台'}</button>
         </div>
       </div>
     </header>
@@ -162,6 +165,25 @@ function Portfolio({ theme, setView, language }: { theme: string; setView: (v: V
   const { profile, experience, projects, education, skills, publications } = knowledge;
   return (
     <main>
+      {/* projects */}
+      <section className="section" id="projects" style={{ scrollMarginTop: 100 }}>
+        <h2>{language === 'en' ? 'Selected projects' : '精選專案'}</h2>
+        <ul className="ledger">
+          {projects.map((p) => (
+            <li className="ledger-item" key={p.title}>
+              <div><div className="ledger-role">{p.title}</div><div className="ledger-company">{p.role}</div></div>
+              <div className="ledger-period">{p.year}</div>
+              <div className="ledger-notes">{p.description.join(' ')}</div>
+              <div className="ledger-notes">{p.stack.join(' · ')}</div>
+              <div className="ledger-notes">
+                <a href={p.link} target="_blank" rel="noopener noreferrer">{p.link.includes('apps.apple.com/') ? (language === 'en' ? 'App Store' : 'App Store 下載') : (language === 'en' ? 'GitHub source' : 'GitHub 原始碼')} ↗</a>
+                {p.sourceLink && <> · <a href={p.sourceLink} target="_blank" rel="noopener noreferrer">{language === 'en' ? 'GitHub (private, access required)' : 'GitHub（私人儲存庫，需授權）'} ↗</a></>}
+              </div>
+            </li>
+          ))}
+        </ul>
+      </section>
+
       {/* about */}
       <section className="section">
         <h2>{language === 'en' ? 'About' : '關於我'}</h2>
@@ -176,7 +198,6 @@ function Portfolio({ theme, setView, language }: { theme: string; setView: (v: V
         </dl>
       </section>
 
-      {/* work */}
       <section className="section" id="work">
         <h2>{language === 'en' ? 'Work' : '工作經歷'}</h2>
         <ul className="ledger">
@@ -188,15 +209,6 @@ function Portfolio({ theme, setView, language }: { theme: string; setView: (v: V
               </div>
               <div className="ledger-period">{e.period}</div>
               <div className="ledger-notes">{(e.achievements ?? []).slice(0, 2).join(' ')}</div>
-            </li>
-          ))}
-        </ul>
-        <h2 style={{ marginTop: 56 }}>{language === 'en' ? 'Projects' : '專案作品'}</h2>
-        <ul className="ledger">
-          {projects.map((p) => (
-            <li className="ledger-item" key={p.title}>
-              <div className="ledger-role">{p.title}</div>
-              <div className="ledger-notes">{p.description.join(' ')}</div>
             </li>
           ))}
         </ul>
@@ -215,7 +227,8 @@ function Portfolio({ theme, setView, language }: { theme: string; setView: (v: V
 export default function App() {
   const viewFromHash = (): View => {
     const hash = window.location.hash;
-    if (hash === '' || hash === '#/' || hash === '#/department') return 'department';
+    if (hash === '' || hash === '#/' || hash === '#/portfolio') return 'portfolio';
+    if (hash === '#/department') return 'department';
     if (hash === '#/chat') return 'chat';
     if (hash === '#/terminal') return 'terminal';
     if (hash === '#/achievements') return 'achievements';
@@ -227,7 +240,7 @@ export default function App() {
       try { return `post:${decodeURIComponent(hash.slice('#/writing/'.length))}`; }
       catch { return 'portfolio'; }
     }
-    return 'department';
+    return 'portfolio';
   };
   const [view, setViewRaw] = useState<View>(viewFromHash);
   useEffect(() => {
@@ -272,7 +285,7 @@ export default function App() {
   return (
     <>
       <div className="topbar">
-        <a className="wordmark" href="#/desktop" onClick={(e) => { e.preventDefault(); setView('desktop'); }} title="OS-inspired name, not an installer">{systemBrand}</a>
+        <a className="wordmark" href="#/portfolio" onClick={(e) => { e.preventDefault(); setView('portfolio'); }} title={language === 'en' ? 'Portfolio home' : '作品集首頁'}>{systemBrand}</a>
         <div className="topbar-actions"><a className="topbar-direct-cv" href={`${import.meta.env.BASE_URL}cv.html?lang=${language}`} target="_blank" rel="noopener noreferrer">{language==='en'?'CV':'履歷'} ↗</a><button className="retro-nav" type="button" onClick={()=>setView('desktop')}>{language==='en'?'DESKTOP':'桌面'}</button><button className="topbar-case" type="button" onClick={()=>setView('department')}>{language==='en'?'CASE 0451':'案件 0451'}</button>
           <a className="topbar-weekly" href="#/weekly" onClick={e => { e.preventDefault(); setView('weekly'); }}>{language === 'en' ? 'WEEKLY' : '週刊'}</a>
           <div className="language-switch" role="group" aria-label="Language">
@@ -327,7 +340,7 @@ export default function App() {
               <div className="desk-file-drawer desk-records" id="desk-file-drawer">
                 <div className="desk-file-title">{language === 'en' ? 'RECORD CABINET / 001' : '檔案櫃 / 001'}</div>
                 <a href={`${import.meta.env.BASE_URL}CV.pdf`} target="_blank" rel="noopener noreferrer">{language === 'en' ? '01 · Curriculum vitae' : '01 · 個人履歷'} ↗</a>
-                <a href="#/portfolio" onClick={e => { e.preventDefault(); setView('portfolio'); requestAnimationFrame(() => document.getElementById('work')?.scrollIntoView({ behavior: 'smooth' })); }}>{language === 'en' ? '02 · Project ledger' : '02 · 專案紀錄'} ↗</a>
+                <a href="#/portfolio" onClick={e => { e.preventDefault(); setView('portfolio'); requestAnimationFrame(() => document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' })); }}>{language === 'en' ? '02 · Project ledger' : '02 · 專案紀錄'} ↗</a>
                 <a href="#/weekly" onClick={e => { e.preventDefault(); setView('weekly'); }}>{language === 'en' ? '03 · Weekly newspaper' : '03 · 個人週刊'} ↗</a>
                 <button type="button" onClick={() => { void navigator.clipboard?.writeText(knowledge.profile.contact.email); }}>{language === 'en' ? '04 · Copy contact card' : '04 · 複製聯絡信箱'}</button>
               </div>

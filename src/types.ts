@@ -49,6 +49,7 @@ export interface Project {
   description: string[];
   stack: string[];
   link: string;
+  sourceLink?: string;
 }
 
 export interface FAQ {
